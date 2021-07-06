@@ -6,50 +6,50 @@ import pandas
 import re
 
 archivo = 'Resumen.xlsx'
-directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
-directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasConvertidos/'
+directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
+directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
 sesionInicial = 1
 sesionFinal = 3
 
-sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9']
-columnasProp = [2, 3, 4, 5, 6, 7, 8]
-columnasResp = [2, 9, 16, 23, 30, 37]
-columnasLatPal = [2, 7, 12, 17, 22, 27]
-columnasEscapes = [2, 13, 24, 35, 46, 57]
-columnasLatEsc = [2, 13, 24, 35, 46, 57]
+sujetos = ['E4', 'E5', 'E7', 'E8', 'E9']
+columnasProp = [3, 4, 5, 6, 7, 8]
+columnasResp = [9, 16, 23, 30, 37]
+columnasLatPal = [7, 12, 17, 22, 27]
+columnasEscapes = [13, 24, 35, 46, 57]
+columnasLatEsc = [13, 24, 35, 46, 57]
 
 # Convertidor
 for sujeto in range(len(sujetos)):
     for sesion in range(sesionInicial, sesionFinal + 1):
         print('Convirtiendo sesión ' + str(sesion) + ' de sujeto ' + sujetos[sujeto] + '.')
         # Primero se leen los metadatos y se escriben en el archivo convertido.
-        encabezado = pandas.read_csv(directorioBrutos + sujetos[sujeto] + '_LIBRES_' + str(sesion), header=None,
+        encabezado = pandas.read_csv(directorioBrutos + sujetos[sujeto] + '_ESCAPE_' + str(sesion), header=None,
                                      nrows=12)
-        encabezado.to_excel(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx', startcol=0,
+        encabezado.to_excel(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx', startcol=0,
                             index=False,
                             header=None)
 
         # Openpyxl lee ese archivo y almacena la columna que contiene los metadatos.
-        encabezado = load_workbook(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        encabezado = load_workbook(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
         hojaencabezado = encabezado.active
         columnaencabezado = []
         for col in hojaencabezado['A']:
             columnaencabezado.append(col.value)
 
         # Pandas escribe ahora el resto de los datos, pero al guardar sobreescribe los metadatos.
-        datos = pandas.read_csv(directorioBrutos + sujetos[sujeto] + '_LIBRES_' + str(sesion), sep=r"\s+", skiprows=13,
+        datos = pandas.read_csv(directorioBrutos + sujetos[sujeto] + '_ESCAPE_' + str(sesion), sep=r"\s+", skiprows=13,
                                 header=None)
-        datos.to_excel(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx', startcol=0,
+        datos.to_excel(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx', startcol=0,
                        startrow=11,
                        index=False, header=None)
 
         # Para recuperarlos, openpyxl abre este nuevo archivo creado por pandas y escribe en él la columna que tenía
         # almacenada. Openpyxl no sobreescribe.
-        archivoCompleto = load_workbook(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        archivoCompleto = load_workbook(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
         hojaCompleta = archivoCompleto.active
         for fila in range(1, len(columnaencabezado)):
             hojaCompleta['A' + str(fila)] = columnaencabezado[fila - 1]
-        archivoCompleto.save(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        archivoCompleto.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
 
         # Generar una lista que contenga sub-listas con todos los valores de las listas dadas por Med.
         # Funciona para cualquier cantidad de listas.
@@ -60,7 +60,7 @@ for sujeto in range(len(sujetos)):
         columna3 = hojaCompleta['D']
         columna4 = hojaCompleta['E']
         columna5 = hojaCompleta['F']
-        for i in range(len(columna1)):
+        for i in range(12, len(columna1)):
             if columna1[i].value is not None:
                 metalista[contadormetalista].append(str(columna1[i].value))
                 if columna2[i].value is not None:
@@ -72,20 +72,20 @@ for sujeto in range(len(sujetos)):
                             if columna5[i].value is not None:
                                 metalista[contadormetalista].append(str(columna5[i].value))
 
-            elif columna1[i].value is None and i > 11:
+            elif columna1[i].value is None:
                 metalista.append([])
                 contadormetalista += 1
 
         # Escribir cada sub-lista en una columna de excel (aun no se separa por punto decimal).
         # Se utilizan expresiones regulares (regex) para indicar al programa que debe añadir ceros cuando pandas
         # los ha eliminado (cuando están al final de una cifra después de un punto decimal).
-        regex1 = re.compile(r'^\d{1,5}\.\d{2}$')
+        regex1 = re.compile(r'^\d+\.\d{2}$')
         for i in range(len(metalista)):
             for j in range(len(metalista[i])):
                 if regex1.search(metalista[i][j]):
                     metalista[i][j] += '0'
                 hojaCompleta[get_column_letter((i * 2) + 9) + str(j + 1)] = metalista[i][j]
-        archivoCompleto.save(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        archivoCompleto.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
         # Separar columnas por punto decimal.
         separable1 = []
         separable2 = []
@@ -108,7 +108,7 @@ for sujeto in range(len(sujetos)):
             hojaCompleta['O' + str(i + 1)] = int(separable3[i])
             hojaCompleta['P' + str(i + 1)] = int(separable4[i])
 
-        archivoCompleto.save(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        archivoCompleto.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
 
 # Resumen
 # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
@@ -197,7 +197,7 @@ for sesion in range(sesionInicial, sesionFinal + 1):
     print('\nIntentando sesión ' + str(sesion) + '...')
     for sujeto in range(len(sujetos)):
         print('Intentando sujeto ' + sujetos[sujeto] + '...')
-        sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
         sujetoWs = sujetoWb.worksheets[0]
         tiempo = []
         marcadores = []
@@ -341,6 +341,6 @@ for sesion in range(sesionInicial, sesionFinal + 1):
         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 6) + str(sesion + 3)] = medianaLatEscLibNoDisc1
         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 7) + str(sesion + 3)] = medianaLatEscLibNoDisc2
 
-        sujetoWb.save(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        sujetoWb.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
 
 wb.save(directorioConvertidos + archivo)
