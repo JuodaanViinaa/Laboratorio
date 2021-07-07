@@ -77,3 +77,4 @@ for sesion in range(sesionInicial, sesionFinal + 1):
                 hojaCompleta[get_column_letter((i * 2) + 10) + str(j + 1)] = int(metalista[i][j].split('.')[1])
         archivoCompleto.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
     print('\n')
+    
