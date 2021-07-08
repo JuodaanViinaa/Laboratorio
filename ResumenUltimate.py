@@ -174,6 +174,7 @@ for sesion in range(sesionInicial, sesionFinal + 1):
 
         # Conteo de respuestas en palancas en ensayos forzados.
         # Se escriben las respuestas por ensayo en el archivo individual.
+        # Se resta una unidad a las medias debido a que conteoresp() cuenta también la respuesta que inicia el ensayo.
         resPalForzDiscRef = conteoresp(114, 180, 202)
         mediaResPalForzDiscRef = mean(resPalForzDiscRef) - 1
         esccolumnas('PalForzDiscRef', 1, resPalForzDiscRef, True)
@@ -182,8 +183,6 @@ for sesion in range(sesionInicial, sesionFinal + 1):
         mediaResPalForzDiscNoRef = mean(resPalForzDiscNoRef) - 1
         esccolumnas('PalForzDiscNoRef', 3, resPalForzDiscNoRef, True)
         # 115: Inicio TL Forz Disc NoRef  //  180: Fin ensayo (por TF)  //  202: Res Pal Disc
-        # Se restaba 1 debido a que este tipo de ensayo termina por tiempo y no por respuesta, y el programa
-        # cuenta una respuesta adicional por defecto (la respuesta que da inicio al TL).
         resPalForzNoDisc1 = conteoresp(134, 180, 201)
         mediaResPalForzNoDisc1 = mean(resPalForzNoDisc1) - 1
         esccolumnas('PalForzNoDisc1', 5, resPalForzNoDisc1, True)
