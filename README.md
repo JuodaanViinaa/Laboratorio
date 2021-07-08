@@ -49,4 +49,4 @@ El _script_ de resumen declara funciones para las tareas repetitivas:
 
 ## Resumen(xls).py
 
-Este resumen está desacoplado del convertidor, y está hecho para utilizarse con el convertidor viejo del laboratorio (que produce archivos convertidos con extensión .xls en lugar de .xlsx). Tiene las mismas funciones que _ResumenUltimate.py_ salvo porque no pega datos por ensayo en el archivo individual. Es preferible no usar este script.
+Este resumen está desacoplado del convertidor, y está hecho para utilizarse con el convertidor anterior del laboratorio (que produce archivos convertidos con extensión .xls en lugar de .xlsx). Tiene las mismas funciones que _ResumenUltimate.py_ salvo porque no pega datos por ensayo en el archivo individual. Es preferible no usar este script.
