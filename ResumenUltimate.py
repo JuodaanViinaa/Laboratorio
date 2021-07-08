@@ -169,8 +169,7 @@ for sesion in range(sesionInicial, sesionFinal + 1):
 
         # Proporciones
         proporciones[get_column_letter(columnasProp[sujeto]) + str(sesion + 3)] = sujetoWs.cell(14, 6).value
-        # Se toma el valor de la celda F14, que corresponde a los valores de fila 14 y columna 6 debido a que
-        # el conteo comienza desde 0 y no desde 1.
+        # Se toma el valor de la celda F14, que corresponde a los valores de fila 14 y columna 6.
 
         # Conteo de respuestas en palancas en ensayos forzados.
         # Se escriben las respuestas por ensayo en el archivo individual.
