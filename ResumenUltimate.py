@@ -22,7 +22,7 @@ columnasLatEsc = [2, 13, 24, 35, 46, 57]
 
 
 # Convertidor
-def convertir(columnas, subfijo):
+def convertir(columnas=6, subfijo=''):
     for ssn in range(sesionInicial, sesionFinal + 1):
         for sjt in range(len(sujetos)):
             print('Convirtiendo sesión ' + str(ssn) + ' de sujeto ' + sujetos[sjt] + '.')
