@@ -90,6 +90,8 @@ def conteoresp(inicioEnsayo, finEnsayo, respuesta):
             inicio = 0
             resp.append(contadorTemp)
             contadorTemp = 0
+    if len(resp) == 0:
+        resp = [0]
     return resp
 
 
