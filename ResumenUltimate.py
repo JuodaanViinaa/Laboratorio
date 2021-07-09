@@ -128,7 +128,10 @@ def esccolumnas(titulo, columna, lista, restar):
     hojaind[get_column_letter(columna) + str(1)] = titulo
     if restar:
         for pos in range(len(lista)):
-            hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos] - 1
+            if lista[pos] > 0:
+                hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos] - 1
+            else:
+                hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
     else:
         for pos in range(len(lista)):
             hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
