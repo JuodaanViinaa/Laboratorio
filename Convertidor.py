@@ -10,7 +10,7 @@ sesionInicial = 1
 sesionFinal = 1
 
 
-def convertir(columnas, subfijo):
+def convertir(columnas=6, subfijo=''):
     for sesion in range(sesionInicial, sesionFinal + 1):
         for sujeto in range(len(sujetos)):
             print('Convirtiendo sesión ' + str(sesion) + ' de sujeto ' + sujetos[sujeto] + '.')
