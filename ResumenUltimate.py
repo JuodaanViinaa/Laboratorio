@@ -207,7 +207,7 @@ for sesion in range(sesionInicial, sesionFinal + 1):
         esccolumnas('LatPalDisc', 9, latPalDisc, False)
         # 112: IL Forz Disc  //  113: Res Pal
         latPalNoDisc = conteolat(132, 133)
-        medianaLatPalNoDisc = median(conteolat(132, 133))
+        medianaLatPalNoDisc = median(latPalNoDisc)
         esccolumnas('LatPalNoDisc', 11, latPalNoDisc, False)
         # 132: IL Forzado NoDisc  //  133: Res Pal
         latencias[get_column_letter(columnasLatPal[sujeto]) + str(sesion + 3)] = medianaLatPalDisc
