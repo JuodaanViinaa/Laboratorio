@@ -24,13 +24,12 @@ columnasLatEsc = [2, 13, 24, 35, 46, 57]
 # Esta sección elimina los elementos pertinentes de las listas anteriores si algún sujeto falta.
 for sujetoFaltante in sujetosFaltantes:
     if sujetoFaltante in sujetos:
-        index = sujetos.index(sujetoFaltante)
-        del sujetos[index]
-        del columnasProp[index]
-        del columnasResp[index]
-        del columnasLatPal[index]
-        del columnasEscapes[index]
-        del columnasLatEsc[index]
+        del columnasProp[sujetos.index(sujetoFaltante)]
+        del columnasResp[sujetos.index(sujetoFaltante)]
+        del columnasLatPal[sujetos.index(sujetoFaltante)]
+        del columnasEscapes[sujetos.index(sujetoFaltante)]
+        del columnasLatEsc[sujetos.index(sujetoFaltante)]
+        del sujetos[sujetos.index(sujetoFaltante)]
 
 # Convertidor
 def convertir(columnas=6, subfijo=''):
