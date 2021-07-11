@@ -14,12 +14,22 @@ sesionInicial = 1
 sesionFinal = 3
 
 sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9']
+sujetosFaltantes = []
 columnasProp = [2, 3, 4, 5, 6, 7, 8]
 columnasResp = [2, 9, 16, 23, 30, 37]
 columnasLatPal = [2, 7, 12, 17, 22, 27]
 columnasEscapes = [2, 13, 24, 35, 46, 57]
 columnasLatEsc = [2, 13, 24, 35, 46, 57]
 
+# Esta sección elimina los elementos pertinentes de las listas anteriores si algún sujeto falta.
+for sujetoFaltante in sujetosFaltantes:
+    if sujetoFaltante in sujetos:
+        del columnasProp[sujetos.index(sujetoFaltante)]
+        del columnasResp[sujetos.index(sujetoFaltante)]
+        del columnasLatPal[sujetos.index(sujetoFaltante)]
+        del columnasEscapes[sujetos.index(sujetoFaltante)]
+        del columnasLatEsc[sujetos.index(sujetoFaltante)]
+        del sujetos[sujetos.index(sujetoFaltante)]
 
 # Convertidor
 def convertir(columnas=6, subfijo=''):
