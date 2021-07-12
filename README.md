@@ -5,7 +5,7 @@ Estos _scripts_ se sirven de las librerías [Openpyxl](https://openpyxl.readthed
 
 ## Convertidor.py
 
-El _script_ del convertidor toma los archivos de Med en texto sin formato y los convierte en archivos con extensión .xlsx separando los datos en columnas con base en los espacios en blanco. Cada lista dada por Med es separada en dos columnas con base en el punto decimal. El tiempo en vigésimas de segundo y los marcadores se escriben en las columnas O y P, respectivamente. El convertidor es flexible y funciona para cualquier cantidad de listas.
+El _script_ del convertidor toma los archivos de Med en texto sin formato y los convierte en archivos con extensión .xlsx separando los datos en columnas con base en los espacios en blanco. Cada lista dada por Med es separada en dos columnas con base en el punto decimal. El tiempo en vigésimas de segundo y los marcadores se escriben en las columnas O y P, respectivamente. El convertidor escanea una carpeta temporal y con base en ella determina los sujetos faltantes y las sesiones a convertir. Además, es flexible y puede lidiar con cualquier número de listas y distintas organizaciones por columnas en los archivos de Med. Después de ser convertidos, los archivos brutos son movidos a una carpeta permanente.
 
 El convertidor es una función con dos argumentos opcionales: 
 ```python
@@ -18,7 +18,7 @@ El argumento de `columnas` indica en cuántas columnas está dividido el archivo
 
 En este caso los datos se dividen en cuatro columnas (incluyendo a la primera, que avanza de cinco en cinco), de modo que el argumento `columnas` será `4`.
 
-El argumento `subfijo` indica el formato particular que tiene el nombre de los archivos a convertir (el valor por defecto es un _string_ vacío `''`). Por ejemplo, si el nombre de los datos es "SujetoX_ALTER_1", el argumento `subfijo` será `'_ALTER_'` (con comillas, dado que se trata de un dato tipo _string_).
+El argumento `subfijo` indica el formato particular que tiene el nombre de los archivos a convertir (el valor por defecto es un _string_ vacío `''`). Por ejemplo, si el nombre de un archivo es "SujetoX_ALTER_1", el argumento `subfijo` será `'_ALTER_'` (con comillas, dado que se trata de un dato tipo _string_).
 
 Para convertir un conjunto de archivos llamados "Sujeto1_ALTER_1", "Sujeto2_ALTER_1",..., "SujetoN_ALTER_1", cuyos archivos de Med están organizados en seis columnas (la organización por defecto dada por Med si no se declara explícitamente algo distinto), la función del convertidor deberá ser llamada de esta forma:
 
@@ -31,7 +31,7 @@ Para convertir un conjunto de archivos llamados "Sujeto1", "Sujeto2",..., "Sujet
 ```python
 convertir(2)
 ```
-u, opcionalmente,
+o, alternativamente,
 
 ```python
 convertir(columnas=2)
