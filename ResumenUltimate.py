@@ -4,14 +4,16 @@ from os import listdir
 from statistics import mean, median
 import pandas
 import re
+from shutil import move
 
 archivo = 'Resumen.xlsx'
 # directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
 # directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
+directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
 directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
 directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
-sesionInicial = 1
-sesionFinal = 3
+sesionesIniciales = []
+sesionesFinales = []
 
 sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9']
 sujetosFaltantes = []
@@ -21,7 +23,39 @@ columnasLatPal = [2, 7, 12, 17, 22, 27]
 columnasEscapes = [2, 13, 24, 35, 46, 57]
 columnasLatEsc = [2, 13, 24, 35, 46, 57]
 
-# Esta sección elimina los elementos pertinentes de las listas anteriores si algún sujeto falta.
+# Se genera una lista temporal que contiene aquellos sujetos cuyos datos sí están en la carpeta temporal.
+dirTemp = sorted(listdir(directorioTemporal))
+listaTemp = []
+for sujeto in sujetos:
+    for datoTemp in dirTemp:
+        if sujeto in datoTemp and sujeto not in listaTemp:
+            listaTemp.append(sujeto)
+
+# Los sujetos que no forman parte de la lista temporal son agregados a la lista sujetosFaltantes para que sus
+# columnas sean eliminadas también del análisis.
+for sujeto in sujetos:
+    if sujeto not in listaTemp:
+        sujetosFaltantes.append(sujeto)
+# Si faltan sujetos se imprime quiénes son. Si no, se indica con un mensaje.
+if len(sujetosFaltantes) == 0:
+    print('Todos los sujetos tienen al menos una sesión por analizar.')
+else:
+    print('Sujetos faltantes: ' + str(sujetosFaltantes))
+
+# Se hace una lista con las sesiones presentes para cada sujeto. Después se toma el valor más bajo y el más alto
+# y se escriben en las listas de sesionesIniciales y sesionesFinales en la posición perteneciente a cada sujeto.
+for sujetoPresente in listaTemp:
+    sesionesPresentes = []
+    for datoTemp in dirTemp:
+        if sujetoPresente in datoTemp:
+            sesionesPresentes.append(datoTemp.split('_')[-1])
+    sesionesIniciales.append(int(min(sesionesPresentes)))
+    sesionesFinales.append(int(max(sesionesPresentes)))
+for i in range(len(listaTemp)):
+    print('Sesiones inicial y final del sujeto ' + listaTemp[i] + ': ' + str(sesionesIniciales[i]) + ', ' + str(sesionesFinales[i]))
+print('\n')
+
+# Se eliminan los elementos pertinentes de las listas de columnas si algún sujeto falta.
 for sujetoFaltante in sujetosFaltantes:
     if sujetoFaltante in sujetos:
         del columnasProp[sujetos.index(sujetoFaltante)]
@@ -31,14 +65,15 @@ for sujetoFaltante in sujetosFaltantes:
         del columnasLatEsc[sujetos.index(sujetoFaltante)]
         del sujetos[sujetos.index(sujetoFaltante)]
 
+
 # Convertidor
 def convertir(columnas=6, subfijo=''):
-    for ssn in range(sesionInicial, sesionFinal + 1):
-        for sjt in range(len(sujetos)):
+    for sjt in range(len(sujetos)):
+        for ssn in range(sesionesIniciales[sjt], sesionesFinales[sjt] + 1):
             print('Convirtiendo sesión ' + str(ssn) + ' de sujeto ' + sujetos[sjt] + '.')
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
             # El argumento names indica cuántas columnas se crearán. Evita errores cuando se edita el archivo de Med.
-            datos = pandas.read_csv(directorioBrutos + sujetos[sjt] + subfijo + str(ssn), header=None,
+            datos = pandas.read_csv(directorioTemporal + sujetos[sjt] + subfijo + str(ssn), header=None,
                                     names=range(columnas), sep=r'\s+')
             datos.to_excel(directorioConvertidos + sujetos[sjt] + subfijo + str(ssn) + '.xlsx', index=False,
                            header=None)
@@ -75,6 +110,7 @@ def convertir(columnas=6, subfijo=''):
                     hojaCompleta[get_column_letter((i * 2) + 9) + str(j + 1)] = int(metalista[i][j].split('.')[0])
                     hojaCompleta[get_column_letter((i * 2) + 10) + str(j + 1)] = int(metalista[i][j].split('.')[1])
             archivoCompleto.save(directorioConvertidos + sujetos[sjt] + subfijo + str(ssn) + '.xlsx')
+            move(directorioTemporal + sujetos[sjt] + subfijo + str(ssn), directorioBrutos + sujetos[sjt] + subfijo + str(ssn))
         print('\n')
 
 
@@ -147,7 +183,7 @@ def esccolumnas(titulo, columna, lista, restar):
             hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
 
 
-convertir(6, '_LIBRES_')
+convertir(subfijo='_LIBRES_')
 
 # Resumen
 # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
@@ -167,10 +203,10 @@ escapes = hoja('Escapes')
 latNosepoke = hoja('LatNosepoke')
 
 # Loop principal.
-for sesion in range(sesionInicial, sesionFinal + 1):
-    print('\nIntentando sesión ' + str(sesion) + '...')
-    for sujeto in range(len(sujetos)):
-        print('Intentando sujeto ' + sujetos[sujeto] + '...')
+for sujeto in range(len(sujetos)):
+    print('\nIntentando sujeto ' + sujetos[sujeto] + '...')
+    for sesion in range(sesionesIniciales[sujeto], sesionesFinales[sujeto] + 1):
+        print('Intentando sesión ' + str(sesion) + '...')
         sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
         sujetoWs = sujetoWb.worksheets[0]
         tiempo = sujetoWs['O']
