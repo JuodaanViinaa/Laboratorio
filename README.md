@@ -51,7 +51,13 @@ Estas variables son las mismas utilizadas por el _script_ de resumen, de modo qu
 
 ## ResumenUltimate.py
 
-El _script_ está adaptado para el experimento de _escape_ e integra al convertidor como su primer paso. Después de convertir los archivos, los lee nuevamente y realiza un conteo de respuestas y latencias que escribe en dos lugares: en una hoja nueva del archivo individual generado por el convertidor (donde se incluyen respuestas y latencias por ensayo) y en un archivo de resumen con extensión .xlsx (donde solo se incluyen medias para las respuestas y medianas para las latencias).
+El _script_ está adaptado para el experimento de _escape_. 
+
+Inicialmente, el código revisa una carpeta que contendrá temporalmente los archivos brutos a convertir y analizar. Busca los nombres de los sujetos declarados en la lista `sujetos` dentro de esta carpeta, y si algún sujeto no tiene ningún dato asociado, lo agrega a la lista `sujetosFaltantes`. Después se obtiene la sesión inicial y final de cada uno de los sujetos que sí tienen datos asociados con base en los nombres de los archivos. Se toma como sesión inicial al número de sesión más bajo, y como final al más alto. El código no puede manejar sesiones faltantes dentro de este rango (quizá en el futuro esto pueda resolverse utilizando una lista de listas en la cual cada sublista contenga todas las sesiones presentes para cada sujeto). 
+
+Se compara la lista `sujetosFaltantes` con la lista `sujetos`. Todos aquellos sujetos que se encuentren en la lista `sujetosFaltantes` son eliminados junto con sus columnas asociadas en sus listas respectivas.
+
+El siguiente paso es la conversión de los archivos a formato .xlsx. Después de convertir los archivos, el código los lee nuevamente y realiza un conteo de respuestas y latencias que escribe en dos lugares: en una hoja nueva del archivo individual generado por el convertidor (donde se incluyen respuestas y latencias por ensayo) y en un archivo de resumen con extensión .xlsx (donde solo se incluyen medias para las respuestas y medianas para las latencias).
 
 El _script_ de resumen declara funciones para las tareas repetitivas:
 * `hoja(nombre)`: crea hojas de cálculo en el archivo de resumen con el nombre dado como argumento. Si una hoja con ese nombre ya existe, no se crea una hoja nueva, sino que ésta simplemente se abre. Esta función debe ser asignada a una variable (e.g., `latencias = hoja('Latencias')`).
