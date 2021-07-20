@@ -15,13 +15,13 @@ directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/
 sesionesIniciales = []
 sesionesFinales = []
 
-sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9']
+sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9', 'E1']
 sujetosFaltantes = []
-columnasProp = [2, 3, 4, 5, 6, 7, 8]
-columnasResp = [2, 9, 16, 23, 30, 37]
-columnasLatPal = [2, 7, 12, 17, 22, 27]
-columnasEscapes = [2, 13, 24, 35, 46, 57]
-columnasLatEsc = [2, 13, 24, 35, 46, 57]
+columnasProp = [2, 3, 4, 5, 6, 7, 8, 9]
+columnasResp = [2, 9, 16, 23, 30, 37, 44]
+columnasLatPal = [2, 7, 12, 17, 22, 27, 32]
+columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
+columnasLatEsc = [2, 13, 24, 35, 46, 57, 68]
 
 # Se genera una lista temporal que contiene aquellos sujetos cuyos datos sí están en la carpeta temporal.
 dirTemp = sorted(listdir(directorioTemporal))
@@ -48,9 +48,9 @@ for sujetoPresente in listaTemp:
     sesionesPresentes = []
     for datoTemp in dirTemp:
         if sujetoPresente == datoTemp.split('_')[0]:
-            sesionesPresentes.append(datoTemp.split('_')[-1])
-    sesionesIniciales.append(int(min(sesionesPresentes)))
-    sesionesFinales.append(int(max(sesionesPresentes)))
+            sesionesPresentes.append(int(datoTemp.split('_')[-1]))
+    sesionesIniciales.append(min(sesionesPresentes))
+    sesionesFinales.append(max(sesionesPresentes))
 for i in range(len(listaTemp)):
     print('Sesiones inicial y final del sujeto ' + listaTemp[i] + ': ' + str(sesionesIniciales[i]) + ', ' + str(sesionesFinales[i]))
 print('\n')
