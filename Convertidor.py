@@ -18,7 +18,7 @@ dirTemp = sorted(listdir(directorioTemporal))
 listaTemp = []
 for sujeto in sujetos:
     for datoTemp in dirTemp:
-        if sujeto in datoTemp and sujeto not in listaTemp:
+        if sujeto == datoTemp.split('_')[0] and sujeto not in listaTemp:
             listaTemp.append(sujeto)
 
 # Los sujetos que no forman parte de la lista temporal son agregados a la lista sujetosFaltantes para que sus
@@ -37,7 +37,7 @@ else:
 for sujetoPresente in listaTemp:
     sesionesPresentes = []
     for datoTemp in dirTemp:
-        if sujetoPresente in datoTemp:
+        if sujetoPresente == datoTemp.split('_')[0]:
             sesionesPresentes.append(datoTemp.split('_')[-1])
     sesionesIniciales.append(int(min(sesionesPresentes)))
     sesionesFinales.append(int(max(sesionesPresentes)))
@@ -96,4 +96,4 @@ def convertir(columnas=6, subfijo=''):
         print('\n')
 
 
-convertir(subfijo='_LIBRES_')
+convertir(subfijo='_ESCAPE_')

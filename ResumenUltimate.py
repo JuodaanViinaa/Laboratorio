@@ -28,7 +28,7 @@ dirTemp = sorted(listdir(directorioTemporal))
 listaTemp = []
 for sujeto in sujetos:
     for datoTemp in dirTemp:
-        if sujeto in datoTemp and sujeto not in listaTemp:
+        if sujeto == datoTemp.split('_')[0] and sujeto not in listaTemp:
             listaTemp.append(sujeto)
 
 # Los sujetos que no forman parte de la lista temporal son agregados a la lista sujetosFaltantes para que sus
@@ -47,7 +47,7 @@ else:
 for sujetoPresente in listaTemp:
     sesionesPresentes = []
     for datoTemp in dirTemp:
-        if sujetoPresente in datoTemp:
+        if sujetoPresente == datoTemp.split('_')[0]:
             sesionesPresentes.append(datoTemp.split('_')[-1])
     sesionesIniciales.append(int(min(sesionesPresentes)))
     sesionesFinales.append(int(max(sesionesPresentes)))
@@ -183,7 +183,7 @@ def esccolumnas(titulo, columna, lista, restar):
             hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
 
 
-convertir(subfijo='_LIBRES_')
+convertir(subfijo='_ESCAPE_')
 
 # Resumen
 # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
@@ -207,7 +207,7 @@ for sujeto in range(len(sujetos)):
     print('\nIntentando sujeto ' + sujetos[sujeto] + '...')
     for sesion in range(sesionesIniciales[sujeto], sesionesFinales[sujeto] + 1):
         print('Intentando sesión ' + str(sesion) + '...')
-        sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
         sujetoWs = sujetoWb.worksheets[0]
         tiempo = sujetoWs['O']
         marcadores = sujetoWs['P']
@@ -345,6 +345,6 @@ for sujeto in range(len(sujetos)):
         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 6) + str(sesion + 3)] = medianaLatEscLibNoDisc1
         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 7) + str(sesion + 3)] = medianaLatEscLibNoDisc2
 
-        sujetoWb.save(directorioConvertidos + sujetos[sujeto] + '_LIBRES_' + str(sesion) + '.xlsx')
+        sujetoWb.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
 
 wb.save(directorioConvertidos + archivo)
