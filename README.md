@@ -43,8 +43,7 @@ El código del convertidor presupone la existencia de las siguientes variables:
 
 * `directorioBrutos`, que indicará la dirección de la carpeta en la cual se encuentran los archivos a convertir. Se deben utilizar diagonales hacia adelante ('/') y no hacia atrás ('\\'), como suele hacer Windows, para separar las carpetas en la dirección, y el último caracter de la dirección debe ser una diagonal hacia adelante.
 * `directorioConvertidos`, que indicará la dirección de la carpeta en la cual se guardarán los archivos ya convertidos (además del archivo de resumen, si es que se utiliza el _script_ de ResumenUltimate.py). También será necesario usar diagonales hacia adelante y terminar con una diagonal.
-* `sesionInicial`, que indica el número de la primera sesión a convertir.
-* `sesionFinal`, que indica el número de la última sesión a convertir.
+* `sesionesPresentes`, una lista vacía que se llenará con las sesiones a analizar de cada sujeto.
 * `sujetos`, que contendrá una lista con los nombres de los sujetos que forman el grupo a convertir.
 
 Estas variables son las mismas utilizadas por el _script_ de resumen, de modo que solo es necesario declararlas una vez.
@@ -53,7 +52,7 @@ Estas variables son las mismas utilizadas por el _script_ de resumen, de modo qu
 
 El _script_ está adaptado para el experimento de _escape_. 
 
-Inicialmente, el código revisa una carpeta que contendrá temporalmente los archivos brutos a convertir y analizar. Busca los nombres de los sujetos declarados en la lista `sujetos` dentro de esta carpeta, y si algún sujeto no tiene ningún dato asociado, lo agrega a la lista `sujetosFaltantes`. Después se obtiene la sesión inicial y final de cada uno de los sujetos que sí tienen datos asociados con base en los nombres de los archivos. Se toma como sesión inicial al número de sesión más bajo, y como final al más alto. El código no puede manejar sesiones faltantes dentro de este rango (quizá en el futuro esto pueda resolverse utilizando una lista de listas en la cual cada sublista contenga todas las sesiones presentes para cada sujeto). 
+Inicialmente, el código revisa una carpeta que contendrá temporalmente los archivos brutos a convertir y analizar. Busca los nombres de los sujetos declarados en la lista `sujetos` dentro de esta carpeta, y si algún sujeto no tiene ningún dato asociado, lo agrega a la lista `sujetosFaltantes`. Después se genera una lista hecha de sub-listas con las sesiones presentes para cada sujeto. Tener sesiones salteadas no debe generar ningún problema.
 
 Se compara la lista `sujetosFaltantes` con la lista `sujetos`. Todos aquellos sujetos que se encuentren en la lista `sujetosFaltantes` son eliminados junto con sus columnas asociadas en sus listas respectivas.
 
@@ -66,7 +65,7 @@ El _script_ de resumen declara funciones para las tareas repetitivas:
 * `conteolat(inicioEnsayo, respuesta)`: cuenta la latencia entre el inicio de un ensayo de tipo determinado y la primera respuesta de interés. Los argumentos son los marcadores de Med de inicio de ensayo y respuesta. La función resulta en una lista con la latencia de respuesta en cada ensayo. Esta función debe ser asignada a una variable.
 * `esccolumnas(titulo, columna, lista, restar)`: escribe las respuestas y latencias por ensayo en el archivo convertido individual. El argumento de `titulo` es un _string_ e indica el encabezado que tendrá la columna en donde se escribirá la lista; `columna` es un número entero e indica la columna en la cual se escribirá la lista (1 = A, 2 = B, etc.); `lista` indicará el nombre de la variable que contiene la lista que será escrita en la columna (las listas serán los resultados de las funciones descritas anteriormente); y `restar` indicará si se debe restar una unidad a cada elemento de la lista antes de pegarlo en su columna individual (debido a que la función `conteoresp()` cuenta una respuesta adicional por ensayo en situaciones ya descritas), y puede tomar los valores de `True` y `False`. Si el argumento `restar` es `True` y hay un ensayo con cero respuestas, no se ejecuta la resta para evitar resultar en números negativos.
 
-La sección principal del _script_ se basa en dos ciclos `for`: uno que cicla a través de sesiones y otro anidado en el primero que lo hace a través de sujetos.
+La sección principal del _script_ se basa en dos ciclos `for`: uno que cicla a través de sujetos y otro anidado en el primero que lo hace a través de sesiones.
 
 El _script_ genera listas con los conteos de respuestas y latencias de cada sujeto, y escribe medias y medianas en los sitios correspondietes del archivo de resumen. Los sitios correspondientes son determinados consultando las listas `columnasProp`, `columnasResp`, `columnasLatPal`, `columnasEscapes`, y `columnasLatEsc`. Existe una lista por cada una de las variables que se analizan debido a que cada variable se escribe en una hoja distinta y ocupa una cantidad de columnas distinta. Cada lista declara el número correspondiente a la primera columna utilizada por cada uno de los sujetos, por lo que habrá tantos elementos en cada lista como sujetos en la lista de `sujetos`. 
 
