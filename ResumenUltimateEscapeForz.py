@@ -12,8 +12,7 @@ archivo = 'ResumenForz.xlsx'
 directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
 directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
 directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
-sesionesIniciales = []
-sesionesFinales = []
+sesionesPresentes = []
 
 sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9', 'E1']
 sujetosFaltantes = []
@@ -43,17 +42,20 @@ if len(sujetosFaltantes) == 0:
 else:
     print('Sujetos faltantes: ' + str(sujetosFaltantes))
 
-# Se hace una lista con las sesiones presentes para cada sujeto. Después se toma el valor más bajo y el más alto
-# y se escriben en las listas de sesionesIniciales y sesionesFinales en la posición perteneciente a cada sujeto.
+# Se hace una lista de listas con las sesiones presentes de cada sujeto.
+indice = 0
 for sujetoPresente in listaTemp:
-    sesionesPresentes = []
+    sesionesPresentes.append([])
+    sublista = []
     for datoTemp in dirTemp:
         if sujetoPresente == datoTemp.split('_')[0]:
-            sesionesPresentes.append(int(datoTemp.split('_')[-1]))
-    sesionesIniciales.append(min(sesionesPresentes))
-    sesionesFinales.append(max(sesionesPresentes))
+            sublista.append(int(datoTemp.split('_')[-1]))
+    sesionesPresentes[indice] = sorted(sublista)
+    indice += 1
+print(sesionesPresentes)
+
 for i in range(len(listaTemp)):
-    print('Sesiones inicial y final del sujeto ' + listaTemp[i] + ': ' + str(sesionesIniciales[i]) + ', ' + str(sesionesFinales[i]))
+    print('Sesiones presentes del sujeto ' + listaTemp[i] + ': ' + str(sesionesPresentes[i]))
 print('\n')
 
 # Se eliminan los elementos pertinentes de las listas de columnas si algún sujeto falta.
@@ -71,7 +73,7 @@ for sujetoFaltante in sujetosFaltantes:
 # Convertidor
 def convertir(columnas=6, subfijo=''):
     for sjt in range(len(sujetos)):
-        for ssn in range(sesionesIniciales[sjt], sesionesFinales[sjt] + 1):
+        for ssn in sesionesPresentes[sjt]:
             print('Convirtiendo sesión ' + str(ssn) + ' de sujeto ' + sujetos[sjt] + '.')
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
             # El argumento names indica cuántas columnas se crearán. Evita errores cuando se edita el archivo de Med.
@@ -209,7 +211,7 @@ latEscForz = hoja('LatEscapeForz')
 # Loop principal.
 for sujeto in range(len(sujetos)):
     print('\nIntentando sujeto ' + sujetos[sujeto] + '...')
-    for sesion in range(sesionesIniciales[sujeto], sesionesFinales[sujeto] + 1):
+    for sesion in sesionesPresentes[sujeto]:
         print('Intentando sesión ' + str(sesion) + '...')
         sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
         sujetoWs = sujetoWb.worksheets[0]
