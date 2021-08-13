@@ -94,7 +94,7 @@ def convertir(columnas=6, subfijo=''):
             contadormetalista = 0
 
             columna1 = hojaCompleta['B']
-            for fila in range(12, len(columna1)):
+            for fila in range(12, len(columna1) + 1):
                 for columna in range(2, columnas + 1):
                     if hojaCompleta[get_column_letter(columna) + str(fila)].value is not None:
                         metalista[contadormetalista].append(str(float(hojaCompleta[get_column_letter(columna) +
