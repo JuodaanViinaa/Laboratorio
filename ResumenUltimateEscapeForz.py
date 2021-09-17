@@ -7,16 +7,14 @@ import re
 from shutil import move
 
 archivo = 'ResumenForz.xlsx'
-# directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
-# directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
-directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
-directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
-directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
+directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/EscapeIL/'
+directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/EscapeIL/'
+directorioTemporal = 'C:/Users/Admin/Desktop/Escape/Datos/TemporalBrutos/'
 sesionesPresentes = []
 
 sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9', 'E1']
 sujetosFaltantes = []
-columnasProp = [2, 3, 4, 5, 6, 7, 8, 9]
+columnasProp = [2, 3, 4, 5, 6, 7, 8]
 columnasResp = [2, 9, 16, 23, 30, 37, 44]
 columnasLatPal = [2, 7, 12, 17, 22, 27, 32]
 columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
@@ -107,12 +105,12 @@ def convertir(columnas=6, subfijo=''):
             # Se utilizan expresiones regulares (regex) para indicar al programa que debe añadir ceros cuando pandas
             # los ha eliminado (cuando están al final de una cifra después de un punto decimal).
             regex1 = re.compile(r'^\d+\.\d{2}$')
-            for i in range(len(metalista)):
-                for j in range(len(metalista[i])):
-                    if regex1.search(metalista[i][j]):
-                        metalista[i][j] += '0'
-                    hojaCompleta[get_column_letter((i * 2) + 9) + str(j + 1)] = int(metalista[i][j].split('.')[0])
-                    hojaCompleta[get_column_letter((i * 2) + 10) + str(j + 1)] = int(metalista[i][j].split('.')[1])
+            for ii in range(len(metalista)):
+                for j in range(len(metalista[ii])):
+                    if regex1.search(metalista[ii][j]):
+                        metalista[ii][j] += '0'
+                    hojaCompleta[get_column_letter((ii * 2) + 9) + str(j + 1)] = int(metalista[ii][j].split('.')[0])
+                    hojaCompleta[get_column_letter((ii * 2) + 10) + str(j + 1)] = int(metalista[ii][j].split('.')[1])
             archivoCompleto.save(directorioConvertidos + sujetos[sjt] + subfijo + str(ssn) + '.xlsx')
             move(directorioTemporal + sujetos[sjt] + subfijo + str(ssn), directorioBrutos + sujetos[sjt] + subfijo + str(ssn))
         print('\n')
@@ -187,7 +185,7 @@ def esccolumnas(titulo, columna, lista, restar):
             hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
 
 
-convertir(subfijo='_ESCAPE_')
+convertir(subfijo='_SUBCHOIL_')
 
 # Resumen
 # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
@@ -207,13 +205,14 @@ escapes = hoja('Escapes')
 latNosepoke = hoja('LatNosepoke')
 escapeForz = hoja('EscapesForzados')
 latEscForz = hoja('LatEscapeForz')
+latEscForzPorEstim = hoja('LatEscForzPorEstim')
 
 # Loop principal.
 for sujeto in range(len(sujetos)):
     print('\nIntentando sujeto ' + sujetos[sujeto] + '...')
     for sesion in sesionesPresentes[sujeto]:
         print('Intentando sesión ' + str(sesion) + '...')
-        sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
+        sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_SUBCHOIL_' + str(sesion) + '.xlsx')
         sujetoWs = sujetoWb.worksheets[0]
         tiempo = sujetoWs['O']
         marcadores = sujetoWs['P']
@@ -379,10 +378,34 @@ for sujeto in range(len(sujetos)):
         latPalEscForzNoDisc = conteolat(404, 405)
         esccolumnas('LatPalEscForzNoDisc', 43, latPalEscForzNoDisc, False)
 
+        # Latencia nosepoke ensayos de escape forzado. Separadas por estímulo presentado.
+        # Latencias nosepoke escape forzado discriminativo positivo
+        latEscForzDiscLuzPos = conteolat(407, 403)
+        medianaLatEscForzDiscLuzPos = median(latEscForzDiscLuzPos)
+        esccolumnas('LatEscForzDiscLuzPos', 45, latEscForzDiscLuzPos, False)
+        # Latencias nosepoke escape forzado discriminativo negativo
+        latEscForzDiscLuzNeg = conteolat(408, 403)
+        medianaLatEscForzDiscLuzNeg = median(latEscForzDiscLuzNeg)
+        esccolumnas('LatEscForzDiscLuzNeg', 47, latEscForzDiscLuzNeg, False)
+
+        # Latencias nosepoke escape forzado no discriminativo 1
+        latEscForzNoDiscLuz1 = conteolat(409, 406)
+        medianaLatEscForzNoDiscLuz1 = median(latEscForzNoDiscLuz1)
+        esccolumnas('LatEscForzNoDiscLuz1', 49, latEscForzNoDiscLuz1, False)
+        # Latencias nosepoke escape forzado no discriminativo 2
+        latEscForzNoDiscLuz2 = conteolat(410, 406)
+        medianaLatEscForzNoDiscLuz2 = median(latEscForzNoDiscLuz2)
+        esccolumnas('LatEscForzNoDiscLuz2', 51, latEscForzNoDiscLuz2, False)
+
+        latEscForzPorEstim[get_column_letter(columnasLatPal[sujeto]) + str(sesion + 3)] = medianaLatEscForzDiscLuzPos
+        latEscForzPorEstim[get_column_letter(columnasLatPal[sujeto] + 1) + str(sesion + 3)] = medianaLatEscForzDiscLuzNeg
+        latEscForzPorEstim[get_column_letter(columnasLatPal[sujeto] + 2) + str(sesion + 3)] = medianaLatEscForzNoDiscLuz1
+        latEscForzPorEstim[get_column_letter(columnasLatPal[sujeto] + 3) + str(sesion + 3)] = medianaLatEscForzNoDiscLuz2
+
         # Escribir latencia a palancas. Se incluyen latencias en ensayos forzados normales y forzados de escape.
         latencias[get_column_letter(columnasLatPal[sujeto]) + str(sesion + 3)] = median(latPalDisc + latPalEscForzDisc)
         latencias[get_column_letter(columnasLatPal[sujeto] + 1) + str(sesion + 3)] = median(latPalNoDisc + latPalEscForzNoDisc)
 
-        sujetoWb.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
+        sujetoWb.save(directorioConvertidos + sujetos[sujeto] + '_SUBCHOIL_' + str(sesion) + '.xlsx')
 
 wb.save(directorioConvertidos + archivo)
