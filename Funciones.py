@@ -25,11 +25,15 @@ sesionesPresentes = []  # Esta lista debe estar vacía.
 
 # Función para determinar el número de sesiones. Se leen los archivos del directorio temporal y con base en sus
 # nombres se determinan los sujetos presentes y sus sesiones.
-def subjectSession(temporaryDirectory, subjectList, *columnLists):
+def purgeSessions(temporaryDirectory, subjectList, *columnLists):
     """
     Se genera una lista temporal que contiene aquellos sujetos cuyos datos sí están en la carpeta temporal; después, se
     eliminan las columnas pertinentes de cada una de las listas de columnas. Los argumentos son: el directorio temporal
     en que están los datos brutos, una lista con los nombres de los sujetos, y las listas de columnas.
+    :param temporaryDirectory: Directorio donde se almacenan temporalmente los datos brutos por analizar.
+    :param subjectList: Lista con los nombres de todos los sujetos a analizar.
+    :param columnLists: Listas con los valores de las columnas en que se pegarán los datos para analizar.
+    :return:
     """
     sujetosFaltantes = []
     dirTemp = sorted(listdir(temporaryDirectory))
@@ -77,19 +81,31 @@ def subjectSession(temporaryDirectory, subjectList, *columnLists):
 
 
 # Convertidor
-def convertir(dirTemp, dirPerm, dirConv, columnas=6, subfijo=''):
-    for sjt in range(len(sujetos)):
-        for ssn in sesionesPresentes[sjt]:
-            print(f"Convirtiendo sesión {str(ssn)} de sujeto {sujetos[sjt]}.")
+def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=6, subfijo=''):
+    """
+    Convierte archivos de texto plano de MedPC en hojas de cálculo en formato *.xlsx.
+    Separa cada lista en dos columnas con base en el punto decimal.
+    :param dirTemp: Directorio donde se almacenan temporalmente los datos brutos por analizar.
+    :param dirPerm: Directorio donde se almacenarán finalmente los datos brutos después de la conversión.
+    :param dirConv: Directorio donde se almacenarán los archivos ya convertidos.
+    :param subjectList: Lista con los nombres de todos los sujetos.
+    :param presentSessions: Lista vacía rellenada por el programa con las sesiones presentes de cada sujeto.
+    :param columnas: Cantidad de columnas en que están divididos los archivos de texto de Med. Valor por defecto: 6.
+    :param subfijo: Identificador del nombre de los archivos. Ejemplo: '_Alter_'. Valor por defecto: ''.
+    :return:
+    """
+    for sjt in range(len(subjectList)):
+        for ssn in presentSessions[sjt]:
+            print(f"Convirtiendo sesión {str(ssn)} de sujeto {subjectList[sjt]}.")
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
             # El argumento names indica cuántas columnas se crearán. Evita errores cuando se edita el archivo de Med.
-            datos = pandas.read_csv(dirTemp + sujetos[sjt] + subfijo + str(ssn), header=None,
+            datos = pandas.read_csv(dirTemp + subjectList[sjt] + subfijo + str(ssn), header=None,
                                     names=range(columnas), sep=r'\s+')  # ¿Por qué utilizo range(columnas)?
-            datos.to_excel(dirConv + sujetos[sjt] + subfijo + str(ssn) + '.xlsx', index=False,
+            datos.to_excel(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx', index=False,
                            header=None)
 
             # Openpyxl abre el archivo creado por pandas, lee la hoja y la almacena en la variable hojaCompleta.
-            archivoCompleto = load_workbook(dirConv + sujetos[sjt] + subfijo + str(ssn) + '.xlsx')
+            archivoCompleto = load_workbook(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx')
             hojaCompleta = archivoCompleto.active
 
             # Se genera una lista que contenga sub-listas con todos los valores de las listas dadas por Med.
@@ -120,116 +136,116 @@ def convertir(dirTemp, dirPerm, dirConv, columnas=6, subfijo=''):
                         metalista[ii][j] += '0'
                     elif regex2.search(metalista[ii][j]):  # Esto está por probarse. No sé si necesito agregar '00'.
                         metalista[ii][j] += '00'
-                    hojaCompleta[get_column_letter((ii * 2) + 9) + str(j + 1)] = int(metalista[ii][j].split('.')[0])
-                    hojaCompleta[get_column_letter((ii * 2) + 10) + str(j + 1)] = int(metalista[ii][j].split('.')[1])
-            archivoCompleto.save(dirConv + sujetos[sjt] + subfijo + str(ssn) + '.xlsx')
-            move(dirTemp + sujetos[sjt] + subfijo + str(ssn), dirPerm + sujetos[sjt] + subfijo + str(ssn))
+                    hojaCompleta[get_column_letter((ii * 2) + columnas + 3) + str(j + 1)] = int(
+                        metalista[ii][j].split('.')[0])
+                    hojaCompleta[get_column_letter((ii * 2) + columnas + 4) + str(j + 1)] = int(
+                        metalista[ii][j].split('.')[1])
+            archivoCompleto.save(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx')
+            move(dirTemp + subjectList[sjt] + subfijo + str(ssn), dirPerm + subjectList[sjt] + subfijo + str(ssn))
         print('\n')
 
 
-def createDocument(fileName, targetDirectory, sheets):
+def createDocument(fileName, targetDirectory):
     # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
-    global wb
     if fileName in listdir(targetDirectory):
-        print('Archivo encontrado. Abriendo...')
-        wb = load_workbook(directorioConvertidos + archivo)
+        print('Archivo encontrado.')
+        wb = load_workbook(directorioConvertidos + fileName)
     else:
         print('Archivo no encontrado. Creando...')
         wb = Workbook()
+    return wb
 
-    def createSheet(hoja):
-        if hoja not in wb.sheetnames:
-            return wb.create_sheet(hoja)
-        else:
-            return wb[hoja]
 
+def create_sheets(workbook, *sheets):
+    sheet_list = []
     for sheet in sheets:
-        createSheet(sheet)
-
-    # Crear todas las hojas.
-    proporciones = hoja('Proporciones')
-    respuestas = hoja('Respuestas')
-    latencias = hoja('Latencias')
-    comedero = hoja('Comedero')
-    escapes = hoja('Escapes')
-    latNosepoke = hoja('LatNosepoke')
-    escapeForz = hoja('EscapesForzados')
-    latEscForz = hoja('LatEscapeForz')
+        if sheet not in workbook.sheetnames:
+            new_sheet = workbook.create_sheet(sheet)
+        else:
+            new_sheet = workbook[sheet]
+        sheet_list.append(new_sheet)
+    return sheet_list
+    # Trabajar más adelante en el código con una lista de hojas. Accesarlas por su índice con una cosa bien redundante:
+    # sheet_list[sheet_list.index('respuestas')]
+    # O usar un diccionario y acceder por key
 
 
-# Función para crear hojas.
-def hoja(nombre):
-    if nombre not in wb.sheetnames:
-        return wb.create_sheet(nombre)
+# Función para contar respuestas por tipo de ensayo. Los argumentos son marcadores de Med.
+def conteoresp(inicioEnsayo, finEnsayo, respuesta):
+    contadorTemp = 0
+    inicio = 0
+    resp = []
+    for n in range(1, len(marcadores)):
+        if marcadores[n].value == inicioEnsayo:
+            inicio = 1
+        elif marcadores[n].value == respuesta and inicio == 1:
+            contadorTemp += 1
+        elif marcadores[n].value == finEnsayo and inicio == 1:
+            inicio = 0
+            resp.append(contadorTemp)
+            contadorTemp = 0
+    if len(resp) == 0:
+        resp = [0]
+    return resp
+
+
+# Función para contar respuestas totales. El argumento es el marcador de Med.
+def conteototal(respuesta):
+    contador = 0
+    for n in range(len(marcadores)):
+        if marcadores[n].value == respuesta:
+            contador += 1
+    return contador
+
+
+# Función para contar latencias. Si en un ensayo no hay respuestas que contar, la función resulta en una lista con un
+# cero. Los argumentos son marcadores de Med.
+def conteolat(inicioensayo, respuesta):
+    inicio = 0
+    lat = []
+    tiempoini = 0
+    for n in range(1, len(marcadores)):
+        if marcadores[n].value == inicioensayo:
+            inicio = 1
+            tiempoini = tiempo[n].value
+        elif marcadores[n].value == respuesta and inicio == 1:
+            lat.append((tiempo[n].value - tiempoini) / 20)
+            inicio = 0
+    if len(lat) == 0:
+        lat = [0]
+    return lat
+
+
+# Función para escribir listas en columnas. El argumento "restar" indica si se debe restar uno a las respuestas dadas
+# en cada ensayo. Esto solo sucede en las palancas dado que se registra también la respuesta que le da inicio al ensayo.
+def esccolumnas(titulo, columna, lista, restar):
+    hojaind[get_column_letter(columna) + str(1)] = titulo
+    if restar:
+        for pos in range(len(lista)):
+            if lista[pos] > 0:
+                hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos] - 1
+            else:
+                hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
     else:
-        return wb[nombre]
+        for pos in range(len(lista)):
+            hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
 
 
-# # Función para contar respuestas por tipo de ensayo. Los argumentos son marcadores de Med.
-# def conteoresp(inicioEnsayo, finEnsayo, respuesta):
-#     contadorTemp = 0
-#     inicio = 0
-#     resp = []
-#     for n in range(1, len(marcadores)):
-#         if marcadores[n].value == inicioEnsayo:
-#             inicio = 1
-#         elif marcadores[n].value == respuesta and inicio == 1:
-#             contadorTemp += 1
-#         elif marcadores[n].value == finEnsayo and inicio == 1:
-#             inicio = 0
-#             resp.append(contadorTemp)
-#             contadorTemp = 0
-#     if len(resp) == 0:
-#         resp = [0]
-#     return resp
-#
-#
-# # Función para contar respuestas totales. El argumento es el marcador de Med.
-# def conteototal(respuesta):
-#     contador = 0
-#     for n in range(len(marcadores)):
-#         if marcadores[n].value == respuesta:
-#             contador += 1
-#     return contador
-#
-#
-# # Función para contar latencias. Si en un ensayo no hay respuestas que contar, la función resulta en una lista con un
-# # cero. Los argumentos son marcadores de Med.
-# def conteolat(inicioensayo, respuesta):
-#     inicio = 0
-#     lat = []
-#     tiempoini = 0
-#     for n in range(1, len(marcadores)):
-#         if marcadores[n].value == inicioensayo:
-#             inicio = 1
-#             tiempoini = tiempo[n].value
-#         elif marcadores[n].value == respuesta and inicio == 1:
-#             lat.append((tiempo[n].value - tiempoini) / 20)
-#             inicio = 0
-#     if len(lat) == 0:
-#         lat = [0]
-#     return lat
-#
-#
-# # Función para escribir listas en columnas. El argumento "restar" indica si se debe restar uno a las respuestas dadas
-# # en cada ensayo. Esto solo sucede en las palancas dado que se registra también la respuesta que le da inicio al ensayo.
-# def esccolumnas(titulo, columna, lista, restar):
-#     hojaind[get_column_letter(columna) + str(1)] = titulo
-#     if restar:
-#         for pos in range(len(lista)):
-#             if lista[pos] > 0:
-#                 hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos] - 1
-#             else:
-#                 hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
-#     else:
-#         for pos in range(len(lista)):
-#             hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
-#
-#
-subjectSession(directorioTemporal, sujetos, columnasProp, columnasResp, columnasLatPal, columnasEscapes, columnasLatEsc,
-               columnasEscForz)
-convertir(subfijo='_ESCAPE_')
-#
+analysis_list = [{"conteoresp": (111, 222, 333)},
+                 {"conteoresp": (444, 555, 666)},
+                 {"conteolat": (123, 234)}
+                 ]
+
+
+def analyze(dirConv, fileName, subList, sessionList, workbook, analysisList):
+    for subject in subList:
+        print(f"Trying subject {subject}.")
+        for session in sessionList:
+            print(f"Trying session {session}")
+            for analysis in analysisList:
+                if analysis.keys() == "conteoresp":
+                    resp_list = conteoresp(analysis.values()[0], analysis.values()[1], analysis.values()[2])
+
 # # Resumen
 # # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
 # if archivo in listdir(directorioConvertidos):
