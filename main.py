@@ -1,4 +1,5 @@
-from Funciones import purgeSessions, convertir, createDocument, create_sheets, conteoresp, , conteototal, conteolat, esccolumnas, analyze
+from Funciones import purgeSessions, convertir, createDocument, create_sheets, conteoresp, conteototal, conteolat, \
+    esccolumnas, analyze
 
 archivo = 'Prueba.xlsx'
 # directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
@@ -15,22 +16,28 @@ columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
 columnasLatEsc = [2, 13, 24, 35, 46, 57, 68]
 columnasEscForz = [2, 7, 12, 17, 22, 27, 32]
 sesionesPresentes = []  # Esta lista debe estar vacía.
+analysis_list = [{"conteoresp": (111, 222, 333)},
+                 {"conteoresp": (444, 555, 666)},
+                 {"conteolat": (123, 234)}
+                 ]
 
 purgeSessions(directorioTemporal,
               sujetos,
+              sesionesPresentes,
               columnasProp,
               columnasResp,
               columnasLatPal,
               columnasEscapes,
               columnasLatEsc,
               columnasEscForz)
-print("Purged")
+print(f"Purged, {sesionesPresentes}")
 
 convertir(directorioTemporal,
           directorioBrutos,
           directorioConvertidos,
           sujetos,
-          sesionesPresentes)
+          sesionesPresentes,
+          subfijo="_SUBCHOIL_")
 print("Converted")
 
 wb = createDocument(archivo, directorioConvertidos)
@@ -46,5 +53,7 @@ create_sheets(wb,
               'EscapesForzados',
               'LatEscapeForz')
 print("Worksheets created or opened.")
+
+analyze(directorioConvertidos, archivo, sujetos, sesionesPresentes, wb, analysis_list)
 
 wb.save(directorioConvertidos + archivo)

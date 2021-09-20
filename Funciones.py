@@ -25,13 +25,14 @@ sesionesPresentes = []  # Esta lista debe estar vacía.
 
 # Función para determinar el número de sesiones. Se leen los archivos del directorio temporal y con base en sus
 # nombres se determinan los sujetos presentes y sus sesiones.
-def purgeSessions(temporaryDirectory, subjectList, *columnLists):
+def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
     """
     Se genera una lista temporal que contiene aquellos sujetos cuyos datos sí están en la carpeta temporal; después, se
     eliminan las columnas pertinentes de cada una de las listas de columnas. Los argumentos son: el directorio temporal
     en que están los datos brutos, una lista con los nombres de los sujetos, y las listas de columnas.
     :param temporaryDirectory: Directorio donde se almacenan temporalmente los datos brutos por analizar.
     :param subjectList: Lista con los nombres de todos los sujetos a analizar.
+    :param sessionList: Lista vacía que contendrá las sesiones presentes por analizar para cada sujeto.
     :param columnLists: Listas con los valores de las columnas en que se pegarán los datos para analizar.
     :return:
     """
@@ -61,16 +62,16 @@ def purgeSessions(temporaryDirectory, subjectList, *columnLists):
     # tolera sesiones salteadas
     indice = 0
     for sujetoPresente in listaTemp:
-        sesionesPresentes.append([])
+        sessionList.append([])
         sublista = []
         for datoTemp in dirTemp:
             if sujetoPresente == datoTemp.split('_')[0]:
                 sublista.append(int(datoTemp.split('_')[-1]))
-        sesionesPresentes[indice] = sorted(sublista)
+        sessionList[indice] = sorted(sublista)
         indice += 1
 
     for i in range(len(listaTemp)):
-        print(f"Sesiones presentes del sujeto {listaTemp[i]}: {sesionesPresentes[i]}\n")
+        print(f"Sesiones presentes del sujeto {listaTemp[i]}: {sessionList[i]}\n")
 
     # Se eliminan los elementos pertinentes de las listas de columnas si algún sujeto falta.
     for sujetoFaltante in sujetosFaltantes:
@@ -81,7 +82,7 @@ def purgeSessions(temporaryDirectory, subjectList, *columnLists):
 
 
 # Convertidor
-def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=6, subfijo=''):
+def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=6, subfijo='_'):
     """
     Convierte archivos de texto plano de MedPC en hojas de cálculo en formato *.xlsx.
     Separa cada lista en dos columnas con base en el punto decimal.
@@ -95,6 +96,8 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
     :return:
     """
     for sjt in range(len(subjectList)):
+        print(len(subjectList))
+        print(presentSessions)
         for ssn in presentSessions[sjt]:
             print(f"Convirtiendo sesión {str(ssn)} de sujeto {subjectList[sjt]}.")
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
@@ -241,10 +244,13 @@ def analyze(dirConv, fileName, subList, sessionList, workbook, analysisList):
     for subject in subList:
         print(f"Trying subject {subject}.")
         for session in sessionList:
-            print(f"Trying session {session}")
+            print(f"Trying session {session}.")
             for analysis in analysisList:
-                if analysis.keys() == "conteoresp":
-                    resp_list = conteoresp(analysis.values()[0], analysis.values()[1], analysis.values()[2])
+                key, value = list(analysis.items())[0]
+                if key == "conteoresp":
+                    print(value[0], value[1], value[2])
+                else:
+                    print("nyet")
 
 # # Resumen
 # # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
