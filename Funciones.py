@@ -6,21 +6,22 @@ import pandas
 import re
 from shutil import move
 
-archivo = 'ResumenForz.xlsx'
-# directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
-# directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
-directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
-directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
-directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
 
-sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9', 'E1']
-columnasProp = [2, 3, 4, 5, 6, 7, 8]
-columnasResp = [2, 9, 16, 23, 30, 37, 44]
-columnasLatPal = [2, 7, 12, 17, 22, 27, 32]
-columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
-columnasLatEsc = [2, 13, 24, 35, 46, 57, 68]
-columnasEscForz = [2, 7, 12, 17, 22, 27, 32]
-sesionesPresentes = []  # Esta lista debe estar vacía.
+# archivo = 'ResumenForz.xlsx'
+# # directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
+# # directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
+# directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
+# directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
+# directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
+#
+# sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9', 'E1']
+# columnasProp = [2, 3, 4, 5, 6, 7, 8]
+# columnasResp = [2, 9, 16, 23, 30, 37, 44]
+# columnasLatPal = [2, 7, 12, 17, 22, 27, 32]
+# columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
+# columnasLatEsc = [2, 13, 24, 35, 46, 57, 68]
+# columnasEscForz = [2, 7, 12, 17, 22, 27, 32]
+# sesionesPresentes = []  # Esta lista debe estar vacía.
 
 
 # Función para determinar el número de sesiones. Se leen los archivos del directorio temporal y con base en sus
@@ -151,10 +152,10 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
 def createDocument(fileName, targetDirectory):
     # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
     if fileName in listdir(targetDirectory):
-        print('Archivo encontrado.')
-        wb = load_workbook(directorioConvertidos + fileName)
+        print('Summary file found. Opening...')
+        wb = load_workbook(targetDirectory + fileName)
     else:
-        print('Archivo no encontrado. Creando...')
+        print('Summary file not found. Creating...')
         wb = Workbook()
     return wb
 
@@ -174,7 +175,7 @@ def create_sheets(workbook, *sheets):
 
 
 # Función para contar respuestas por tipo de ensayo. Los argumentos son marcadores de Med.
-def conteoresp(inicioEnsayo, finEnsayo, respuesta):
+def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):
     contadorTemp = 0
     inicio = 0
     resp = []
@@ -193,7 +194,7 @@ def conteoresp(inicioEnsayo, finEnsayo, respuesta):
 
 
 # Función para contar respuestas totales. El argumento es el marcador de Med.
-def conteototal(respuesta):
+def conteototal(marcadores, respuesta):
     contador = 0
     for n in range(len(marcadores)):
         if marcadores[n].value == respuesta:
@@ -203,7 +204,7 @@ def conteototal(respuesta):
 
 # Función para contar latencias. Si en un ensayo no hay respuestas que contar, la función resulta en una lista con un
 # cero. Los argumentos son marcadores de Med.
-def conteolat(inicioensayo, respuesta):
+def conteolat(marcadores, tiempo, inicioensayo, respuesta):
     inicio = 0
     lat = []
     tiempoini = 0
@@ -221,7 +222,7 @@ def conteolat(inicioensayo, respuesta):
 
 # Función para escribir listas en columnas. El argumento "restar" indica si se debe restar uno a las respuestas dadas
 # en cada ensayo. Esto solo sucede en las palancas dado que se registra también la respuesta que le da inicio al ensayo.
-def esccolumnas(titulo, columna, lista, restar):
+def esccolumnas(hojaind, titulo, columna, lista, restar):
     hojaind[get_column_letter(columna) + str(1)] = titulo
     if restar:
         for pos in range(len(lista)):
@@ -234,23 +235,37 @@ def esccolumnas(titulo, columna, lista, restar):
             hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
 
 
-analysis_list = [{"conteoresp": (111, 222, 333)},
+analysis_list = [{"conteoresp": (114, 180, 202, "resPalForzDiscRef", 0, 1, True)},
+                 # hoja: (marcadores, "etiquetaParaIndividual", posicionHojaEnLista, columnaParaIndividual, ¿Restar?
                  {"conteoresp": (444, 555, 666)},
                  {"conteolat": (123, 234)}
                  ]
 
 
-def analyze(dirConv, fileName, subList, sessionList, workbook, analysisList):
-    for subject in subList:
-        print(f"Trying subject {subject}.")
-        for session in sessionList:
+def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetList, analysisList, markColumn, timeColumn):
+    for subject in range(len(subList)):
+        print(f"Trying subject {subList[subject]}.")
+        for session in sessionList[subject]:
             print(f"Trying session {session}.")
+            sujetoWb = load_workbook(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
+            sujetoWs = sujetoWb.worksheets[0]
+            hojaind = sujetoWb.create_sheet('FullLists')
+            tiempo = sujetoWs[timeColumn]
+            marcadores = sujetoWs[markColumn]
+
             for analysis in analysisList:
                 key, value = list(analysis.items())[0]
                 if key == "conteoresp":
-                    print(value[0], value[1], value[2])
-                else:
-                    print("nyet")
+                    print(value)
+                    respuestas = conteoresp(marcadores, value[0], value[1], value[2])
+                    sheetList[value[4]][
+                        get_column_letter(columnasResp[sujeto]) + str(sesion + 3)] = mediaResPalForzDiscRef
+                    esccolumnas(hojaind, value[3], value[5], respuestas, value[6])
+                    # ¿Usar un diccionario en lugar de una tupla en analysisLis? Accesar a cada valor por su etiqueta y
+                    # no por su posición.
+
+            sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
+    workbook.save(dirConv + fileName)
 
 # # Resumen
 # # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.

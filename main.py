@@ -1,5 +1,4 @@
-from Funciones import purgeSessions, convertir, createDocument, create_sheets, conteoresp, conteototal, conteolat, \
-    esccolumnas, analyze
+from Funciones import *
 
 archivo = 'Prueba.xlsx'
 # directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
@@ -16,44 +15,27 @@ columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
 columnasLatEsc = [2, 13, 24, 35, 46, 57, 68]
 columnasEscForz = [2, 7, 12, 17, 22, 27, 32]
 sesionesPresentes = []  # Esta lista debe estar vacía.
-analysis_list = [{"conteoresp": (111, 222, 333)},
-                 {"conteoresp": (444, 555, 666)},
+marcadores = []
+tiempo = []
+analysis_list = [{"conteoresp": (114, 180, 202, "resPalForzDiscRef", 1, True)},
+                 {"conteorespa": (444, 555, 666)},
                  {"conteolat": (123, 234)}
                  ]
 
-purgeSessions(directorioTemporal,
-              sujetos,
-              sesionesPresentes,
-              columnasProp,
-              columnasResp,
-              columnasLatPal,
-              columnasEscapes,
-              columnasLatEsc,
-              columnasEscForz)
-print(f"Purged, {sesionesPresentes}")
+purgeSessions(directorioTemporal, sujetos, sesionesPresentes, columnasProp, columnasResp, columnasLatPal,
+              columnasEscapes, columnasLatEsc, columnasEscForz)
+print("Purged")
 
-convertir(directorioTemporal,
-          directorioBrutos,
-          directorioConvertidos,
-          sujetos,
-          sesionesPresentes,
-          subfijo="_SUBCHOIL_")
+convertir(directorioTemporal, directorioBrutos, directorioConvertidos, sujetos, sesionesPresentes, subfijo="_SUBCHOIL_")
 print("Converted")
 
 wb = createDocument(archivo, directorioConvertidos)
-print("Summary file created or opened.")
 
-create_sheets(wb,
-              'Proporciones',
-              'Respuestas',
-              'Latencias',
-              'Comedero',
-              'Escapes',
-              'LatNosepoke',
-              'EscapesForzados',
-              'LatEscapeForz')
-print("Worksheets created or opened.")
+sheet_list = create_sheets(wb, 'Proporciones', 'Respuestas', 'Latencias', 'Comedero', 'Escapes', 'LatNosepoke',
+                           'EscapesForzados', 'LatEscapeForz')
 
-analyze(directorioConvertidos, archivo, sujetos, sesionesPresentes, wb, analysis_list)
+analyze(dirConv=directorioConvertidos, fileName=archivo, subList=sujetos, sessionList=sesionesPresentes,
+        suffix="_SUBCHOIL_", workbook=wb, sheetList=sheet_list, analysisList=analysis_list, markColumn="P",
+        timeColumn="O")
 
 wb.save(directorioConvertidos + archivo)
