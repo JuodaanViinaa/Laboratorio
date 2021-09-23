@@ -518,5 +518,180 @@
             ],
             "offset": 7
         }
+    },
+    {
+        "conteototal": {
+            "mark1": 403,
+            "label": "EscForzDisc",
+            "sheet_position": 6,
+            "column": 53,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 0
+        }
+    },
+    {
+        "conteototal": {
+            "mark1": 406,
+            "label": "EscForzNoDisc",
+            "sheet_position": 6,
+            "column": 55,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 1
+        }
+    },
+    {
+        "conteolat": {
+            "mark1": 401,
+            "mark2": 403,
+            "label": "LatEscForzDisc",
+            "sheet_position": 7,
+            "column": 57,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 0
+        }
+    },
+    {
+        "conteolat": {
+            "mark1": 404,
+            "mark2": 406,
+            "label": "LatEscForzNoDisc",
+            "sheet_position": 7,
+            "column": 59,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 1
+        }
+    },
+    {
+        "conteolat": {
+            "mark1": 407,
+            "mark2": 403,
+            "label": "LatEscForzDiscPos",
+            "sheet_position": 8,
+            "column": 61,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 0
+        }
+    },
+    {
+        "conteolat": {
+            "mark1": 408,
+            "mark2": 403,
+            "label": "LatEscForzDiscNeg",
+            "sheet_position": 8,
+            "column": 63,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 1
+        }
+    },
+    {
+        "conteolat": {
+            "mark1": 409,
+            "mark2": 406,
+            "label": "LatEscForzNoDiscLuz1",
+            "sheet_position": 8,
+            "column": 65,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 2
+        }
+    },
+    {
+        "conteolat": {
+            "mark1": 410,
+            "mark2": 406,
+            "label": "LatEscForzNoDiscLuz2",
+            "sheet_position": 8,
+            "column": 67,
+            "substract": false,
+            "summary_column_list": [
+                2,
+                7,
+                12,
+                17,
+                22,
+                27,
+                32
+            ],
+            "offset": 3
+        }
+    },
+    {
+        "fetch": {
+            "sheet_position": 0,
+            "summary_column_list": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "cell_column": 14,
+            "cell_row": 6,
+            "offset": 0
+        }
     }
 ]

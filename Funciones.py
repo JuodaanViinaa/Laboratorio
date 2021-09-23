@@ -7,23 +7,6 @@ import re
 from shutil import move
 
 
-# archivo = 'ResumenForz.xlsx'
-# # directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
-# # directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
-# directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
-# directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
-# directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
-#
-# sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9', 'E1']
-# columnasProp = [2, 3, 4, 5, 6, 7, 8]
-# columnasResp = [2, 9, 16, 23, 30, 37, 44]
-# columnasLatPal = [2, 7, 12, 17, 22, 27, 32]
-# columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
-# columnasLatEsc = [2, 13, 24, 35, 46, 57, 68]
-# columnasEscForz = [2, 7, 12, 17, 22, 27, 32]
-# sesionesPresentes = []  # Esta lista debe estar vacía.
-
-
 # Función para determinar el número de sesiones. Se leen los archivos del directorio temporal y con base en sus
 # nombres se determinan los sujetos presentes y sus sesiones.
 def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
@@ -172,6 +155,10 @@ def create_sheets(workbook, *sheets):
     # O usar un diccionario y acceder por key
 
 
+def fetch(sheet, origin_cell_column, origin_cell_row):
+    return sheet.cell(origin_cell_column, origin_cell_row).value
+
+
 # Función para contar respuestas por tipo de ensayo. Los argumentos son marcadores de Med.
 def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):
     contadorTemp = 0
@@ -245,8 +232,8 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetList
 
             for analysis in analysisList:
                 key, value = list(analysis.items())[0]
+
                 if key == "conteoresp":
-                    # print(value)
                     respuestas = conteoresp(marcadores, value["mark1"], value["mark2"], value["mark3"])
                     if value["substract"]:
                         sheetList[value["sheet_position"]][
@@ -271,6 +258,13 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetList
                         get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                             session + 3)] = respuestasTot
                     esccolumnas(hojaind, value["label"], value["column"], respuestasTot, value["substract"])
+
+                elif key == "fetch":
+                    print("fetch")
+                    cell_value = fetch(sujetoWs, value["cell_column"], value["cell_row"])
+                    sheetList[value["sheet_position"]][
+                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
+                            session + 3)] = cell_value
 
             sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
         print("\n")
