@@ -9,7 +9,6 @@
             "column": 1,
             "substract": true,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -30,7 +29,6 @@
             "column": 3,
             "substract": true,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -51,7 +49,6 @@
             "column": 5,
             "substract": true,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -72,7 +69,6 @@
             "column": 7,
             "substract": true,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -92,7 +88,6 @@
             "column": 9,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -112,7 +107,6 @@
             "column": 11,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -133,7 +127,6 @@
             "column": 13,
             "substract": false,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -154,7 +147,6 @@
             "column": 15,
             "substract": false,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -175,7 +167,6 @@
             "column": 17,
             "substract": false,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -196,7 +187,6 @@
             "column": 19,
             "substract": false,
             "summary_column_list": [
-                2,
                 9,
                 16,
                 23,
@@ -215,7 +205,6 @@
             "column": 21,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -234,7 +223,6 @@
             "column": 23,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -253,7 +241,6 @@
             "column": 25,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -272,7 +259,6 @@
             "column": 27,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -291,7 +277,6 @@
             "column": 29,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -310,7 +295,6 @@
             "column": 31,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -329,7 +313,6 @@
             "column": 33,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -348,7 +331,6 @@
             "column": 35,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -368,7 +350,6 @@
             "column": 37,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -388,7 +369,6 @@
             "column": 39,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -408,7 +388,6 @@
             "column": 41,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -428,7 +407,6 @@
             "column": 43,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -448,7 +426,6 @@
             "column": 45,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -468,7 +445,6 @@
             "column": 47,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -488,7 +464,6 @@
             "column": 49,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -508,7 +483,6 @@
             "column": 51,
             "substract": false,
             "summary_column_list": [
-                2,
                 13,
                 24,
                 35,
@@ -527,7 +501,6 @@
             "column": 53,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -546,7 +519,6 @@
             "column": 55,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -566,7 +538,6 @@
             "column": 57,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -586,7 +557,6 @@
             "column": 59,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -606,7 +576,6 @@
             "column": 61,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -626,7 +595,6 @@
             "column": 63,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -646,7 +614,6 @@
             "column": 65,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -666,7 +633,6 @@
             "column": 67,
             "substract": false,
             "summary_column_list": [
-                2,
                 7,
                 12,
                 17,
@@ -681,7 +647,6 @@
         "fetch": {
             "sheet_position": 0,
             "summary_column_list": [
-                2,
                 3,
                 4,
                 5,

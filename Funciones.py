@@ -131,7 +131,13 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
 
 
 def createDocument(fileName, targetDirectory):
-    # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
+    """
+    Se inspecciona el directorio objetivo en busca de un archivo de resumen. Si existe, el archivo es abierto. Si no,
+    es creado. Esta función debe asignarse a una variable.
+    :param fileName: Nombre del archivo de resumen.
+    :param targetDirectory: Ubicación del directorio objetivo.
+    :return:
+    """
     if fileName in listdir(targetDirectory):
         print('Summary file found. Opening...\n')
         wb = load_workbook(targetDirectory + fileName)
@@ -142,6 +148,14 @@ def createDocument(fileName, targetDirectory):
 
 
 def create_sheets(workbook, *sheets):
+    """
+    Se crea una lista con hojas de trabajo pertenecientes al directorio creado/abierto. Se pueden crear tantas listas
+    como sea necesario. La lista tendrá el mismo orden que los argumentos de la función.
+    :param workbook: Archivo de tipo Workbook (creado mediante Openpyxl) en el que se generarán las hojas de trabajo.
+    :param sheets: Strings con los nombres que tendrá cada hoja de cálculo. La función admite una cantidad indefinida
+    de hojas.
+    :return:
+    """
     sheet_list = []
     for sheet in sheets:
         if sheet not in workbook.sheetnames:
@@ -156,6 +170,13 @@ def create_sheets(workbook, *sheets):
 
 
 def fetch(sheet, origin_cell_column, origin_cell_row):
+    """
+    La función regresa el valor contenido dentro de una celda en una hoja de cálculo especificada.
+    :param sheet: La hoja de cálculo leída.
+    :param origin_cell_column: Columna en que se encuentra la celda.
+    :param origin_cell_row: Fila en que se encuentra la celda.
+    :return:
+    """
     return sheet.cell(origin_cell_column, origin_cell_row).value
 
 
@@ -260,7 +281,6 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetList
                     esccolumnas(hojaind, value["label"], value["column"], respuestasTot, value["substract"])
 
                 elif key == "fetch":
-                    print("fetch")
                     cell_value = fetch(sujetoWs, value["cell_column"], value["cell_row"])
                     sheetList[value["sheet_position"]][
                         get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
@@ -269,201 +289,3 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetList
             sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
         print("\n")
     workbook.save(dirConv + fileName)
-
-# # Resumen
-# # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
-# if archivo in listdir(directorioConvertidos):
-#     print('Archivo encontrado. Abriendo...')
-#     wb = load_workbook(directorioConvertidos + archivo)
-# else:
-#     print('Archivo no encontrado. Creando...')
-#     wb = Workbook()
-#
-# # Crear todas las hojas.
-# proporciones = hoja('Proporciones')
-# respuestas = hoja('Respuestas')
-# latencias = hoja('Latencias')
-# comedero = hoja('Comedero')
-# escapes = hoja('Escapes')
-# latNosepoke = hoja('LatNosepoke')
-# escapeForz = hoja('EscapesForzados')
-# latEscForz = hoja('LatEscapeForz')
-#
-# # Loop principal.
-# for sujeto in range(len(sujetos)):
-#     print('\nIntentando sujeto ' + sujetos[sujeto] + '...')
-#     for sesion in sesionesPresentes[sujeto]:
-#         print('Intentando sesión ' + str(sesion) + '...')
-#         sujetoWb = load_workbook(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
-#         sujetoWs = sujetoWb.worksheets[0]
-#         tiempo = sujetoWs['O']
-#         marcadores = sujetoWs['P']
-#
-#         # Abrir o crear la hoja para pegar respuestas individuales.
-#         if 'Respuestas por ensayo' not in sujetoWb.sheetnames:
-#             hojaind = sujetoWb.create_sheet('Respuestas por ensayo')
-#         else:
-#             hojaind = sujetoWb['Respuestas por ensayo']
-#
-#         # Proporciones
-#         proporciones[get_column_letter(columnasProp[sujeto]) + str(sesion + 3)] = sujetoWs.cell(14, 6).value
-#         # Se toma el valor de la celda F14, que corresponde a los valores de fila 14 y columna 6.
-#
-#         # Conteo de respuestas en palancas en ensayos forzados.
-#         # Se escriben las respuestas por ensayo en el archivo individual.
-#         # Se resta una unidad a las medias debido a que conteoresp() cuenta también la respuesta que inicia el ensayo.
-#         resPalForzDiscRef = conteoresp(114, 180, 202)
-#         mediaResPalForzDiscRef = mean(resPalForzDiscRef) - 1
-#         esccolumnas('PalForzDiscRef', 1, resPalForzDiscRef, True)
-#         # 114: Inicio TL Forz Disc Ref  //  180: Fin ensayo  //  202: Resp Pal Disc
-#         resPalForzDiscNoRef = conteoresp(115, 180, 202)
-#         mediaResPalForzDiscNoRef = mean(resPalForzDiscNoRef) - 1
-#         esccolumnas('PalForzDiscNoRef', 3, resPalForzDiscNoRef, True)
-#         # 115: Inicio TL Forz Disc NoRef  //  180: Fin ensayo (por TF)  //  202: Res Pal Disc
-#         resPalForzNoDisc1 = conteoresp(134, 180, 201)
-#         mediaResPalForzNoDisc1 = mean(resPalForzNoDisc1) - 1
-#         esccolumnas('PalForzNoDisc1', 5, resPalForzNoDisc1, True)
-#         # 134: Inicio TL Forz NoDisc 1  //  180: Fin ensayo  //  201: Resp Pal NoDisc
-#         resPalForzNoDisc2 = conteoresp(137, 180, 201)
-#         mediaResPalForzNoDisc2 = mean(resPalForzNoDisc2) - 1
-#         esccolumnas('PalForzNoDisc2', 7, resPalForzNoDisc2, True)
-#         # 137: Inicio TL Forz NoDisc 2  //  180: Fin ensayo  //  201: Resp Pal NoDisc
-#         respuestas[get_column_letter(columnasResp[sujeto]) + str(sesion + 3)] = mediaResPalForzDiscRef
-#         respuestas[get_column_letter(columnasResp[sujeto] + 1) + str(sesion + 3)] = mediaResPalForzDiscNoRef
-#         respuestas[get_column_letter(columnasResp[sujeto] + 2) + str(sesion + 3)] = mediaResPalForzNoDisc1
-#         respuestas[get_column_letter(columnasResp[sujeto] + 3) + str(sesion + 3)] = mediaResPalForzNoDisc2
-#
-#         # Conteo de latencias a palancas en eslabones iniciales.
-#         # Las latencias por ensayo se pegan en el archivo individual.
-#         # La mediana no se escribe de inmediato. La lista de latencias por ensayo se almacena para sumarse a la lista
-#         # de latencias a palanca en ensayos de escape forzado. La mediana se obtiene de la lista total.
-#         latPalDisc = conteolat(112, 113)
-#         # medianaLatPalDisc = median(latPalDisc)
-#         esccolumnas('LatPalDisc', 9, latPalDisc, False)
-#         # 112: IL Forz Disc  //  113: Res Pal
-#         latPalNoDisc = conteolat(132, 133)
-#         # medianaLatPalNoDisc = median(latPalNoDisc)
-#         esccolumnas('LatPalNoDisc', 11, latPalNoDisc, False)
-#         # 132: IL Forzado NoDisc  //  133: Res Pal
-#         # latencias[get_column_letter(columnasLatPal[sujeto]) + str(sesion + 3)] = medianaLatPalDisc
-#         # latencias[get_column_letter(columnasLatPal[sujeto] + 1) + str(sesion + 3)] = medianaLatPalNoDisc
-#
-#         # Conteo de respuestas en comederos en ensayos forzados
-#         # Las respuestas por ensayo se pegan en el archivo individual.
-#         resComForzDiscRef = conteoresp(114, 16, 203)
-#         mediaResComForzDiscRef = mean(resComForzDiscRef)
-#         esccolumnas('ComForzDiscRef', 13, resComForzDiscRef, False)
-#         # 114: Inicio TL Forz Disc Ref  //  16: Fin ensayo  //  203: Res Com
-#         resComForzDiscNoRef = conteoresp(115, 117, 203)
-#         mediaResComForzDiscNoRef = mean(resComForzDiscNoRef)
-#         esccolumnas('ComForzDiscNoRef', 15, resComForzDiscNoRef, False)
-#         # 115: Inicio TL Forz Disc NoRef  //  117: Fin ensayo (por TF)  //  203: Res Com
-#         resComForzNoDisc1 = conteoresp(134, 40, 203)
-#         mediaResComForzNoDisc1 = mean(resComForzNoDisc1)
-#         esccolumnas('ComForzNoDisc1', 17, resComForzNoDisc1, False)
-#         # 134: Inicio TL Forz NoDisc 1  //  40: Fin ensayo  //  203: Res Com
-#         resComForzNoDisc2 = conteoresp(137, 43, 203)
-#         mediaResComForzNoDisc2 = mean(resComForzNoDisc2)
-#         esccolumnas('ComForzNoDisc2', 19, resComForzNoDisc2, False)
-#         # 137: Inicio TL Forz NoDisc 2  //  43: Fin ensayo  //  203: Res Com
-#         comedero[get_column_letter(columnasResp[sujeto]) + str(sesion + 3)] = mediaResComForzDiscRef
-#         comedero[get_column_letter(columnasResp[sujeto] + 1) + str(sesion + 3)] = mediaResComForzDiscNoRef
-#         comedero[get_column_letter(columnasResp[sujeto] + 2) + str(sesion + 3)] = mediaResComForzNoDisc1
-#         comedero[get_column_letter(columnasResp[sujeto] + 3) + str(sesion + 3)] = mediaResComForzNoDisc2
-#
-#         # Conteo de respuestas en nosepoke.
-#         escapeForzDiscRef = conteototal(301)
-#         escapeForzDiscNoRef = conteototal(302)
-#         escapeForzNoDisc1 = conteototal(303)
-#         escapeForzNoDisc2 = conteototal(304)
-#         escapeLibDiscRef = conteototal(305)
-#         escapeLibDiscNoRef = conteototal(306)
-#         escapeLibNoDisc1 = conteototal(307)
-#         escapeLibNoDisc2 = conteototal(308)
-#         # 301 - 308: Respuestas nosepoke por tipo de ensayo.
-#         escapes[get_column_letter(columnasEscapes[sujeto]) + str(sesion + 3)] = escapeForzDiscRef
-#         escapes[get_column_letter(columnasEscapes[sujeto] + 1) + str(sesion + 3)] = escapeForzDiscNoRef
-#         escapes[get_column_letter(columnasEscapes[sujeto] + 2) + str(sesion + 3)] = escapeForzNoDisc1
-#         escapes[get_column_letter(columnasEscapes[sujeto] + 3) + str(sesion + 3)] = escapeForzNoDisc2
-#         escapes[get_column_letter(columnasEscapes[sujeto] + 4) + str(sesion + 3)] = escapeLibDiscRef
-#         escapes[get_column_letter(columnasEscapes[sujeto] + 5) + str(sesion + 3)] = escapeLibDiscNoRef
-#         escapes[get_column_letter(columnasEscapes[sujeto] + 6) + str(sesion + 3)] = escapeLibNoDisc1
-#         escapes[get_column_letter(columnasEscapes[sujeto] + 7) + str(sesion + 3)] = escapeLibNoDisc2
-#
-#         # Conteo de latencias a nosepoke.
-#         # Las latencias por ensayo se pegan en el archivo individual.
-#         latEscForzDiscRef = conteolat(114, 301)
-#         medianaLatEscForzDiscRef = median(latEscForzDiscRef)
-#         esccolumnas('LatEscForzDiscRef', 21, latEscForzDiscRef, False)
-#
-#         latEscForzDiscNoRef = conteolat(115, 302)
-#         medianaLatEscForzDiscNoRef = median(latEscForzDiscNoRef)
-#         esccolumnas('LatEscForzDiscNoRef', 23, latEscForzDiscNoRef, False)
-#
-#         latEscForzNoDisc1 = conteolat(134, 303)
-#         medianaLatEscForzNoDisc1 = median(latEscForzNoDisc1)
-#         esccolumnas('LatEscForzNoDisc1', 25, latEscForzNoDisc1, False)
-#
-#         latEscForzNoDisc2 = conteolat(137, 304)
-#         medianaLatEscForzNoDisc2 = median(latEscForzNoDisc2)
-#         esccolumnas('LatEscForzNoDisc2', 27, latEscForzNoDisc2, False)
-#
-#         latEscLibDiscRef = conteolat(154, 305)
-#         medianaLatEscLibDiscRef = median(latEscLibDiscRef)
-#         esccolumnas('LatEscLibDiscRef', 29, latEscLibDiscRef, False)
-#
-#         latEscLibDiscNoRef = conteolat(155, 306)
-#         medianaLatEscLibDiscNoRef = median(latEscLibDiscNoRef)
-#         esccolumnas('LatEscLibDiscNoRef', 31, latEscLibDiscNoRef, False)
-#
-#         latEscLibNoDisc1 = conteolat(157, 307)
-#         medianaLatEscLibNoDisc1 = median(latEscLibNoDisc1)
-#         esccolumnas('LatEscLibNoDisc1', 33, latEscLibNoDisc1, False)
-#
-#         latEscLibNoDisc2 = conteolat(160, 308)
-#         medianaLatEscLibNoDisc2 = median(latEscLibNoDisc2)
-#         esccolumnas('LatEscLibNoDisc2', 35, latEscLibNoDisc2, False)
-#         # El primer marcador es el inicio de su tipo de ensayo; el segundo, la respuesta de escape correspondiente.
-#
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto]) + str(sesion + 3)] = medianaLatEscForzDiscRef
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 1) + str(sesion + 3)] = medianaLatEscForzDiscNoRef
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 2) + str(sesion + 3)] = medianaLatEscForzNoDisc1
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 3) + str(sesion + 3)] = medianaLatEscForzNoDisc2
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 4) + str(sesion + 3)] = medianaLatEscLibDiscRef
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 5) + str(sesion + 3)] = medianaLatEscLibDiscNoRef
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 6) + str(sesion + 3)] = medianaLatEscLibNoDisc1
-#         latNosepoke[get_column_letter(columnasEscapes[sujeto] + 7) + str(sesion + 3)] = medianaLatEscLibNoDisc2
-#
-#         # Conteo de escapes forzados
-#         escForzDisc = conteototal(403)
-#         escForzNoDisc = conteototal(406)
-#         # 403 y 406: Respuestas en nosepoke en ensayos forzados de escape Disc y NoDisc
-#         escapeForz[get_column_letter(columnasEscForz[sujeto]) + str(sesion + 3)] = escForzDisc
-#         escapeForz[get_column_letter(columnasEscForz[sujeto] + 1) + str(sesion + 3)] = escForzNoDisc
-#
-#         # Latencias nosepoke escape forzado
-#         latEscForzDisc = conteolat(401, 403)
-#         medianaLatEscForzDisc = median(latEscForzDisc)
-#         esccolumnas('LatEscForzDisc', 37, latEscForzDisc, False)
-#
-#         latEscForzNoDisc = conteolat(404, 406)
-#         medianaLatEscForzNoDisc = median(latEscForzNoDisc)
-#         esccolumnas('LatEscForzNoDisc', 39, latEscForzNoDisc, False)
-#
-#         latEscForz[get_column_letter(columnasLatPal[sujeto]) + str(sesion + 3)] = medianaLatEscForzDisc
-#         latEscForz[get_column_letter(columnasLatPal[sujeto] + 1) + str(sesion + 3)] = medianaLatEscForzNoDisc
-#
-#         # Latencias palanca escape forzado
-#         latPalEscForzDisc = conteolat(401, 402)
-#         esccolumnas('LatPalEscForzDisc', 41, latPalEscForzDisc, False)
-#
-#         latPalEscForzNoDisc = conteolat(404, 405)
-#         esccolumnas('LatPalEscForzNoDisc', 43, latPalEscForzNoDisc, False)
-#
-#         # Escribir latencia a palancas. Se incluyen latencias en ensayos forzados normales y forzados de escape.
-#         latencias[get_column_letter(columnasLatPal[sujeto]) + str(sesion + 3)] = median(latPalDisc + latPalEscForzDisc)
-#         latencias[get_column_letter(columnasLatPal[sujeto] + 1) + str(sesion + 3)] = median(latPalNoDisc + latPalEscForzNoDisc)
-#
-#         sujetoWb.save(directorioConvertidos + sujetos[sujeto] + '_ESCAPE_' + str(sesion) + '.xlsx')
-#
-# wb.save(directorioConvertidos + archivo)

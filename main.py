@@ -317,14 +317,14 @@ analysis_list = [
                }},
 ]
 
-# with open("data.json", "w") as data_file:
-#     json.dump(analysis_list, data_file, indent=4)
-
-with open("data.json", "r") as data_file:
-    json_list = json.load(data_file)
-
 purgeSessions(directorioTemporal, sujetos, sesionesPresentes, columnasProp, columnasResp, columnasLatPal,
               columnasEscapes, columnasLatEsc, columnasEscForz)
+
+# with open("data.json", "w") as data_file:
+#     json.dump(analysis_list, data_file, indent=4)
+with open("data.json", "r") as data_file:
+    json_data = json.load(data_file)
+
 convertir(directorioTemporal, directorioBrutos, directorioConvertidos, sujetos, sesionesPresentes, subfijo="_SUBCHOIL_")
 
 wb = createDocument(archivo, directorioConvertidos)
@@ -333,7 +333,7 @@ sheet_list = create_sheets(wb, 'Proporciones', 'Respuestas', 'Latencias', 'Comed
                            'EscapesForzados', 'LatEscapeForz', 'LatEscapeForzPorEstim')
 
 analyze(dirConv=directorioConvertidos, fileName=archivo, subList=sujetos, sessionList=sesionesPresentes,
-        suffix="_SUBCHOIL_", workbook=wb, sheetList=sheet_list, analysisList=json_list, markColumn="P",
+        suffix="_SUBCHOIL_", workbook=wb, sheetList=sheet_list, analysisList=analysis_list, markColumn="P",
         timeColumn="O")
 
 wb.save(directorioConvertidos + archivo)
