@@ -52,9 +52,9 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
             sujetosFaltantes.append(sbj)
     # Si faltan sujetos se imprime quiénes son. Si no, se indica con un mensaje.
     if len(sujetosFaltantes) == 0:
-        print("Todos los sujetos tienen al menos una sesión por analizar.")
+        print("Todos los sujetos tienen al menos una sesión por analizar.\n")
     else:
-        print(f"Sujetos faltantes: {str(sujetosFaltantes)}")
+        print(f"Sujetos faltantes: {str(sujetosFaltantes)}\n")
 
     # Se hace una lista de listas con las sesiones presentes de cada sujeto.
     # El código compara el nombre de cada uno de los sujetos que sí tienen sesiones con el nombre de cada uno de los
@@ -97,8 +97,6 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
     :return:
     """
     for sjt in range(len(subjectList)):
-        print(len(subjectList))
-        print(presentSessions)
         for ssn in presentSessions[sjt]:
             print(f"Convirtiendo sesión {str(ssn)} de sujeto {subjectList[sjt]}.")
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
@@ -120,7 +118,7 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
             contadormetalista = 0
 
             columna1 = hojaCompleta['B']
-            for fila in range(12, len(columna1)):
+            for fila in range(12, len(columna1) + 1):
                 for columna in range(2, columnas + 1):
                     if hojaCompleta[get_column_letter(columna) + str(fila)].value is not None:
                         metalista[contadormetalista].append(str(float(hojaCompleta[get_column_letter(columna) +
@@ -152,10 +150,10 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
 def createDocument(fileName, targetDirectory):
     # Revisar si el archivo de resumen ya existe. De lo contrario, crearlo.
     if fileName in listdir(targetDirectory):
-        print('Summary file found. Opening...')
+        print('Summary file found. Opening...\n')
         wb = load_workbook(targetDirectory + fileName)
     else:
-        print('Summary file not found. Creating...')
+        print('Summary file not found. Creating...\n')
         wb = Workbook()
     return wb
 
@@ -235,18 +233,10 @@ def esccolumnas(hojaind, titulo, columna, lista, restar):
             hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
 
 
-analysis_list = [{"conteoresp": (114, 180, 202, "resPalForzDiscRef", 0, 1, True)},
-                 # hoja: (marcadores, "etiquetaParaIndividual", posicionHojaEnLista, columnaParaIndividual, ¿Restar?
-                 {"conteoresp": (444, 555, 666)},
-                 {"conteolat": (123, 234)}
-                 ]
-
-
 def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetList, analysisList, markColumn, timeColumn):
     for subject in range(len(subList)):
-        print(f"Trying subject {subList[subject]}.")
         for session in sessionList[subject]:
-            print(f"Trying session {session}.")
+            print(f"Trying session {session} of subject {subList[subject]}.")
             sujetoWb = load_workbook(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
             sujetoWs = sujetoWb.worksheets[0]
             hojaind = sujetoWb.create_sheet('FullLists')
@@ -256,15 +246,34 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetList
             for analysis in analysisList:
                 key, value = list(analysis.items())[0]
                 if key == "conteoresp":
-                    print(value)
-                    respuestas = conteoresp(marcadores, value[0], value[1], value[2])
-                    sheetList[value[4]][
-                        get_column_letter(columnasResp[sujeto]) + str(sesion + 3)] = mediaResPalForzDiscRef
-                    esccolumnas(hojaind, value[3], value[5], respuestas, value[6])
-                    # ¿Usar un diccionario en lugar de una tupla en analysisLis? Accesar a cada valor por su etiqueta y
-                    # no por su posición.
+                    # print(value)
+                    respuestas = conteoresp(marcadores, value["mark1"], value["mark2"], value["mark3"])
+                    if value["substract"]:
+                        sheetList[value["sheet_position"]][
+                            get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
+                                session + 3)] = mean(respuestas) - 1
+                    else:
+                        sheetList[value["sheet_position"]][
+                            get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
+                                session + 3)] = mean(respuestas)
+                    esccolumnas(hojaind, value["label"], value["column"], respuestas, value["substract"])
+
+                elif key == "conteolat":
+                    latencias = conteolat(marcadores, tiempo, value["mark1"], value["mark2"])
+                    sheetList[value["sheet_position"]][
+                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
+                            session + 3)] = median(latencias)
+                    esccolumnas(hojaind, value["label"], value["column"], latencias, value["substract"])
+
+                elif key == "conteototal":
+                    respuestasTot = str(conteototal(marcadores, value["mark1"]))
+                    sheetList[value["sheet_position"]][
+                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
+                            session + 3)] = respuestasTot
+                    esccolumnas(hojaind, value["label"], value["column"], respuestasTot, value["substract"])
 
             sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
+        print("\n")
     workbook.save(dirConv + fileName)
 
 # # Resumen
