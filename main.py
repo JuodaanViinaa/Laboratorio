@@ -20,11 +20,19 @@ marcadores = []  # Lista vacía.
 tiempo = []  # Lista vacía.
 
 analysis_list = [
+    # Proporciones
+    {"fetch": {"sheet": "Proporciones",
+               "summary_column_list": columnasProp,
+               "cell_column": 14,
+               "cell_row": 6,
+               "offset": 0
+               }},
+
     # Respuestas palancas
     # Respuestas Pal forzados discriminativos reforzados
     {"conteoresp": {"mark1": 114, "mark2": 180, "mark3": 202,
                     "label": "PalDiscRef",
-                    "sheet_position": 1,
+                    "sheet": "Respuestas",
                     "column": 1,
                     "substract": True,
                     "summary_column_list": columnasResp,
@@ -32,7 +40,7 @@ analysis_list = [
     # Respuestas Pal forzados discriminativos no reforzados
     {"conteoresp": {"mark1": 115, "mark2": 180, "mark3": 202,
                     "label": "PalNoDiscRef",
-                    "sheet_position": 1,
+                    "sheet": "Respuestas",
                     "column": 3,
                     "substract": True,
                     "summary_column_list": columnasResp,
@@ -40,7 +48,7 @@ analysis_list = [
     # Respuestas Pal forzados no discriminativos 1
     {"conteoresp": {"mark1": 134, "mark2": 180, "mark3": 201,
                     "label": "PalNoDisc1",
-                    "sheet_position": 1,
+                    "sheet": "Respuestas",
                     "column": 5,
                     "substract": True,
                     "summary_column_list": columnasResp,
@@ -48,7 +56,7 @@ analysis_list = [
     # Respuestas Pal forzados no discriminativos 2
     {"conteoresp": {"mark1": 137, "mark2": 180, "mark3": 201,
                     "label": "PalNoDisc2",
-                    "sheet_position": 1,
+                    "sheet": "Respuestas",
                     "column": 7,
                     "substract": True,
                     "summary_column_list": columnasResp,
@@ -58,7 +66,7 @@ analysis_list = [
     # Latencias pal forzados discriminativos reforzados
     {"conteolat": {"mark1": 112, "mark2": 113,
                    "label": "LatPalDisc",
-                   "sheet_position": 2,
+                   "sheet": "Latencias",
                    "column": 9,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
@@ -66,7 +74,7 @@ analysis_list = [
     # Latencias pal forzados no discriminativos
     {"conteolat": {"mark1": 132, "mark2": 133,
                    "label": "LatPalNoDisc",
-                   "sheet_position": 2,
+                   "sheet": "Latencias",
                    "column": 11,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
@@ -76,7 +84,7 @@ analysis_list = [
     # Respuestas comederos forzados discriminativos reforzados
     {"conteoresp": {"mark1": 114, "mark2": 16, "mark3": 203,
                     "label": "ComDiscRef",
-                    "sheet_position": 3,
+                    "sheet": "Comedero",
                     "column": 13,
                     "substract": False,
                     "summary_column_list": columnasResp,
@@ -84,7 +92,7 @@ analysis_list = [
     # Respuestas comederos forzados discriminativos no reforzados
     {"conteoresp": {"mark1": 115, "mark2": 117, "mark3": 203,
                     "label": "ComNoDiscRef",
-                    "sheet_position": 3,
+                    "sheet": "Comedero",
                     "column": 15,
                     "substract": False,
                     "summary_column_list": columnasResp,
@@ -92,7 +100,7 @@ analysis_list = [
     # Respuestas comederos forzados no discriminativos 1
     {"conteoresp": {"mark1": 134, "mark2": 40, "mark3": 203,
                     "label": "ComNoDisc1",
-                    "sheet_position": 3,
+                    "sheet": "Comedero",
                     "column": 17,
                     "substract": False,
                     "summary_column_list": columnasResp,
@@ -100,7 +108,7 @@ analysis_list = [
     # Respuestas comederos forzados no discriminativos 2
     {"conteoresp": {"mark1": 137, "mark2": 43, "mark3": 203,
                     "label": "ComNoDisc2",
-                    "sheet_position": 3,
+                    "sheet": "Comedero",
                     "column": 19,
                     "substract": False,
                     "summary_column_list": columnasResp,
@@ -110,7 +118,7 @@ analysis_list = [
     # Respuestas nosepoke forzados discriminativos reforzados
     {"conteototal": {"mark1": 301,
                      "label": "EscForzDiscRef",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 21,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -118,7 +126,7 @@ analysis_list = [
     # Respuestas nosepoke forzados discriminativos no reforzados
     {"conteototal": {"mark1": 302,
                      "label": "EscForzDiscNoRef",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 23,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -126,7 +134,7 @@ analysis_list = [
     # Respuestas nosepoke forzados no discriminativos 1
     {"conteototal": {"mark1": 303,
                      "label": "EscForzNoDisc1",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 25,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -134,7 +142,7 @@ analysis_list = [
     # Respuestas nosepoke forzados no discriminativos 2
     {"conteototal": {"mark1": 304,
                      "label": "EscForzNoDisc2",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 27,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -142,7 +150,7 @@ analysis_list = [
     # Respuestas nosepoke forzados discriminativos reforzados
     {"conteototal": {"mark1": 305,
                      "label": "EscLibDiscRef",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 29,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -150,7 +158,7 @@ analysis_list = [
     # Respuestas nosepoke forzados discriminativos no reforzados
     {"conteototal": {"mark1": 306,
                      "label": "EscLibDiscNoRef",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 31,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -158,7 +166,7 @@ analysis_list = [
     # Respuestas nosepoke forzados no discriminativos 1
     {"conteototal": {"mark1": 307,
                      "label": "EscLibNoDisc1",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 33,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -166,7 +174,7 @@ analysis_list = [
     # Respuestas nosepoke forzados no discriminativos 2
     {"conteototal": {"mark1": 308,
                      "label": "EscLibNoDisc2",
-                     "sheet_position": 4,
+                     "sheet": "Escapes",
                      "column": 35,
                      "substract": False,
                      "summary_column_list": columnasEscapes,
@@ -176,7 +184,7 @@ analysis_list = [
     # Latencias nosepoke forzados discriminativos reforzados
     {"conteolat": {"mark1": 114, "mark2": 301,
                    "label": "LatEscFDiscRef",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 37,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -184,7 +192,7 @@ analysis_list = [
     # Latencias nosepoke forzados discriminativos no reforzados
     {"conteolat": {"mark1": 115, "mark2": 302,
                    "label": "LatEscFDiscNoRef",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 39,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -192,7 +200,7 @@ analysis_list = [
     # Latencias nosepoke forzados no discriminativos 1
     {"conteolat": {"mark1": 134, "mark2": 303,
                    "label": "LatEscFNoDisc1",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 41,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -200,7 +208,7 @@ analysis_list = [
     # Latencias nosepoke forzados no discriminativos 2
     {"conteolat": {"mark1": 137, "mark2": 304,
                    "label": "LatEscFNoDisc2",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 43,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -208,7 +216,7 @@ analysis_list = [
     # Latencias nosepoke libres discriminativos reforzados
     {"conteolat": {"mark1": 154, "mark2": 305,
                    "label": "LatEscLDiscRef",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 45,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -216,7 +224,7 @@ analysis_list = [
     # Latencias nosepoke libres discriminativos reforzados
     {"conteolat": {"mark1": 155, "mark2": 306,
                    "label": "LatEscLDiscRef",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 47,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -224,7 +232,7 @@ analysis_list = [
     # Latencias nosepoke libres discriminativos reforzados
     {"conteolat": {"mark1": 157, "mark2": 307,
                    "label": "LatEscLNoDisc1",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 49,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -232,7 +240,7 @@ analysis_list = [
     # Latencias nosepoke libres discriminativos reforzados
     {"conteolat": {"mark1": 160, "mark2": 308,
                    "label": "LatEscLDisc2",
-                   "sheet_position": 5,
+                   "sheet": "LatNosepoke",
                    "column": 51,
                    "substract": False,
                    "summary_column_list": columnasEscapes,
@@ -242,7 +250,7 @@ analysis_list = [
     # Respuestas nosepoke escape forzado discriminativo
     {"conteototal": {"mark1": 403,
                      "label": "EscForzDisc",
-                     "sheet_position": 6,
+                     "sheet": "EscapesForzados",
                      "column": 53,
                      "substract": False,
                      "summary_column_list": columnasEscForz,
@@ -250,7 +258,7 @@ analysis_list = [
     # Respuestas nosepoke escape forzado no discriminativo
     {"conteototal": {"mark1": 406,
                      "label": "EscForzNoDisc",
-                     "sheet_position": 6,
+                     "sheet": "EscapesForzados",
                      "column": 55,
                      "substract": False,
                      "summary_column_list": columnasEscForz,
@@ -260,7 +268,7 @@ analysis_list = [
     # Latencias nosepoke escape forzado discriminativo
     {"conteolat": {"mark1": 401, "mark2": 403,
                    "label": "LatEscForzDisc",
-                   "sheet_position": 7,
+                   "sheet": "LatEscapeForz",
                    "column": 57,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
@@ -268,7 +276,7 @@ analysis_list = [
     # Latencias nosepoke escape forzado no discriminativo
     {"conteolat": {"mark1": 404, "mark2": 406,
                    "label": "LatEscForzNoDisc",
-                   "sheet_position": 7,
+                   "sheet": "LatEscapeForz",
                    "column": 59,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
@@ -278,7 +286,7 @@ analysis_list = [
     # Latencias nosepoke escape forzado discriminativo positivo
     {"conteolat": {"mark1": 407, "mark2": 403,
                    "label": "LatEscForzDiscPos",
-                   "sheet_position": 8,
+                   "sheet": "LatEscapeForzPorEstim",
                    "column": 61,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
@@ -286,7 +294,7 @@ analysis_list = [
     # Latencias nosepoke escape forzado no discriminativo negativo
     {"conteolat": {"mark1": 408, "mark2": 403,
                    "label": "LatEscForzDiscNeg",
-                   "sheet_position": 8,
+                   "sheet": "LatEscapeForzPorEstim",
                    "column": 63,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
@@ -294,7 +302,7 @@ analysis_list = [
     # Latencias nosepoke escape forzado discriminativo 1
     {"conteolat": {"mark1": 409, "mark2": 406,
                    "label": "LatEscForzNoDiscLuz1",
-                   "sheet_position": 8,
+                   "sheet": "LatEscapeForzPorEstim",
                    "column": 65,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
@@ -302,26 +310,38 @@ analysis_list = [
     # Latencias nosepoke escape forzado no discriminativo 2
     {"conteolat": {"mark1": 410, "mark2": 406,
                    "label": "LatEscForzNoDiscLuz2",
-                   "sheet_position": 8,
+                   "sheet": "LatEscapeForzPorEstim",
                    "column": 67,
                    "substract": False,
                    "summary_column_list": columnasLatPal,
                    "offset": 3}},
 
-    # Proporciones
-    {"fetch": {"sheet_position": 0,
-               "summary_column_list": columnasProp,
-               "cell_column": 14,
-               "cell_row": 6,
-               "offset": 0
-               }},
+    # Latencias Pal + Latencias Pal Escape Forzado
+    # Latencias Pal Disc
+    {"agregatelat": {"mark1": 112, "mark2": 113,
+                     "mark3": 401, "mark4": 402,
+                     "label": "LatPalDiscTotal",
+                     "sheet": "Latencias",
+                     "column": 69,
+                     "substract": False,
+                     "summary_column_list": columnasLatPal,
+                     "offset": 0}},
+    # Latencias Pal No Disc
+    {"agregatelat": {"mark1": 132, "mark2": 133,
+                     "mark3": 404, "mark4": 405,
+                     "label": "LatPalNoDiscTotal",
+                     "sheet": "Latencias",
+                     "column": 71,
+                     "substract": False,
+                     "summary_column_list": columnasLatPal,
+                     "offset": 1}},
 ]
 
 purgeSessions(directorioTemporal, sujetos, sesionesPresentes, columnasProp, columnasResp, columnasLatPal,
               columnasEscapes, columnasLatEsc, columnasEscForz)
 
-# with open("data.json", "w") as data_file:
-#     json.dump(analysis_list, data_file, indent=4)
+with open("data.json", "w") as data_file:
+    json.dump(analysis_list, data_file, indent=4)
 with open("data.json", "r") as data_file:
     json_data = json.load(data_file)
 
@@ -329,11 +349,11 @@ convertir(directorioTemporal, directorioBrutos, directorioConvertidos, sujetos, 
 
 wb = createDocument(archivo, directorioConvertidos)
 
-sheet_list = create_sheets(wb, 'Proporciones', 'Respuestas', 'Latencias', 'Comedero', 'Escapes', 'LatNosepoke',
+sheet_dict = create_sheets(wb, 'Proporciones', 'Respuestas', 'Latencias', 'Comedero', 'Escapes', 'LatNosepoke',
                            'EscapesForzados', 'LatEscapeForz', 'LatEscapeForzPorEstim')
 
 analyze(dirConv=directorioConvertidos, fileName=archivo, subList=sujetos, sessionList=sesionesPresentes,
-        suffix="_SUBCHOIL_", workbook=wb, sheetList=sheet_list, analysisList=analysis_list, markColumn="P",
+        suffix="_SUBCHOIL_", workbook=wb, sheetDict=sheet_dict, analysisList=analysis_list, markColumn="P",
         timeColumn="O")
 
 wb.save(directorioConvertidos + archivo)
