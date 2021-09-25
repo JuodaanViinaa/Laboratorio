@@ -7,13 +7,11 @@ import re
 from shutil import move
 
 
-# Función para determinar el número de sesiones. Se leen los archivos del directorio temporal y con base en sus
-# nombres se determinan los sujetos presentes y sus sesiones.
 def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
     """
     Se genera una lista temporal que contiene aquellos sujetos cuyos datos sí están en la carpeta temporal; después, se
     eliminan las columnas pertinentes de cada una de las listas de columnas. Los argumentos son: el directorio temporal
-    en que están los datos brutos, una lista con los nombres de los sujetos, y las listas de columnas.
+    en que están los datos brutos, una lista con los nombres de los sujetos, y las listas de columnas.\n
     :param temporaryDirectory: Directorio donde se almacenan temporalmente los datos brutos por analizar.
     :param subjectList: Lista con los nombres de todos los sujetos a analizar.
     :param sessionList: Lista vacía que contendrá las sesiones presentes por analizar para cada sujeto.
@@ -65,10 +63,10 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
 
 
 # Convertidor
-def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=6, subfijo='_'):
+def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=6, subfijo='_', mover=True):
     """
     Convierte archivos de texto plano de MedPC en hojas de cálculo en formato *.xlsx.
-    Separa cada lista en dos columnas con base en el punto decimal.
+    Separa cada lista en dos columnas con base en el punto decimal.\n
     :param dirTemp: Directorio donde se almacenan temporalmente los datos brutos por analizar.
     :param dirPerm: Directorio donde se almacenarán finalmente los datos brutos después de la conversión.
     :param dirConv: Directorio donde se almacenarán los archivos ya convertidos.
@@ -76,6 +74,7 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
     :param presentSessions: Lista vacía rellenada por el programa con las sesiones presentes de cada sujeto.
     :param columnas: Cantidad de columnas en que están divididos los archivos de texto de Med. Valor por defecto: 6.
     :param subfijo: Identificador del nombre de los archivos. Ejemplo: '_Alter_'. Valor por defecto: ''.
+    :param mover: Booleano que indica si los archivos deben ser movidos a la carpeta permanente tras su conversión.
     """
     for sjt in range(len(subjectList)):
         for ssn in presentSessions[sjt]:
@@ -83,7 +82,7 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
             # El argumento names indica cuántas columnas se crearán. Evita errores cuando se edita el archivo de Med.
             datos = pandas.read_csv(dirTemp + subjectList[sjt] + subfijo + str(ssn), header=None,
-                                    names=range(columnas), sep=r'\s+')  # ¿Por qué utilizo range(columnas)?
+                                    names=range(columnas), sep=r'\s+')
             datos.to_excel(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx', index=False,
                            header=None)
 
@@ -124,14 +123,15 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
                     hojaCompleta[get_column_letter((ii * 2) + columnas + 4) + str(j + 1)] = int(
                         metalista[ii][j].split('.')[1])
             archivoCompleto.save(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx')
-            move(dirTemp + subjectList[sjt] + subfijo + str(ssn), dirPerm + subjectList[sjt] + subfijo + str(ssn))
+            if mover:
+                move(dirTemp + subjectList[sjt] + subfijo + str(ssn), dirPerm + subjectList[sjt] + subfijo + str(ssn))
         print('\n')
 
 
 def createDocument(fileName, targetDirectory):
     """
     Se inspecciona el directorio objetivo en busca de un archivo de resumen. Si existe, el archivo es abierto. Si no,
-    es creado. Esta función debe asignarse a una variable.
+    es creado. Esta función debe asignarse a una variable.\n
     :param fileName: Nombre del archivo de resumen.
     :param targetDirectory: Ubicación del directorio objetivo.
     :return: Objeto de clase Workbook (openpyxl).
@@ -148,7 +148,7 @@ def createDocument(fileName, targetDirectory):
 def create_sheets(workbook, *sheets):
     """
     Se crea una lista con hojas de trabajo pertenecientes al directorio creado/abierto. Se pueden crear tantas listas
-    como sea necesario. La lista tendrá el mismo orden que los argumentos de la función.
+    como sea necesario. La lista tendrá el mismo orden que los argumentos de la función.\n
     :param workbook: Archivo de tipo Workbook (creado mediante Openpyxl) en el que se generarán las hojas de trabajo.
     :param sheets: Strings con los nombres que tendrá cada hoja de cálculo. La función admite una cantidad indefinida
     de hojas.
@@ -165,15 +165,15 @@ def create_sheets(workbook, *sheets):
     # ¿Convertir a la lista de hojas en un diccionario y accesar a cada hoja por su key?
 
 
-def fetch(sheet, origin_cell_column, origin_cell_row):
+def fetch(sheet, origin_cell_row, origin_cell_column):
     """
-    La función regresa el valor contenido dentro de una celda en una hoja de cálculo especificada.
+    La función regresa el valor contenido dentro de una celda en una hoja de cálculo especificada.\n
     :param sheet: La hoja de cálculo leída.
     :param origin_cell_column: Columna en que se encuentra la celda.
     :param origin_cell_row: Fila en que se encuentra la celda.
     :return: Valor de la celda referida.
     """
-    return sheet.cell(origin_cell_column, origin_cell_row).value
+    return sheet.cell(origin_cell_row, origin_cell_column).value
 
 
 # Función para contar respuestas por tipo de ensayo. Los argumentos son marcadores de Med.
@@ -182,7 +182,7 @@ def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):
     Cuenta respuestas entre el marcador de inicio de ensayo y el de fin de ensayo. En caso de que el marcador de la
     respuesta a contar sea el mismo que el de la respuesta que da inicio al ensayo se contará una respuesta adicional.
     Esto puede corregirse en el análisis principal con la opción "substract", y en la función 'esccolumnas' mediante el
-    parámetro "restar".
+    parámetro "restar".\n
     :param marcadores: Lista con los marcadores.
     :param inicioEnsayo: Marcador de inicio de ensayo.
     :param finEnsayo: Marcador de fin de ensayo.
@@ -210,6 +210,7 @@ def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):
 def conteototal(marcadores, respuesta):
     """
     Cuenta la cantidad total de veces que ocurrió un marcador particular en la sesión independientemente de los ensayos.
+    \n
     :param marcadores: Lista con los marcadores.
     :param respuesta: Marcador de respuesta a contar.
     :return: Integer con la cantidad de ocasiones que ocurrió una respuesta.
@@ -225,7 +226,7 @@ def conteototal(marcadores, respuesta):
 # cero. Los argumentos son marcadores de Med.
 def conteolat(marcadores, tiempo, inicioensayo, respuesta):
     """
-    Cuenta la latencia entre el inicio de un ensayo y una respuesta.
+    Cuenta la latencia entre el inicio de un ensayo y una respuesta.\n
     :param marcadores: Lista con los marcadores.
     :param tiempo: Lista con el tiempo de la sesión.
     :param inicioensayo: Marcador de inicio de ensayo.
@@ -251,7 +252,7 @@ def conteolat(marcadores, tiempo, inicioensayo, respuesta):
 # en cada ensayo. Esto solo sucede en las palancas dado que se registra también la respuesta que le da inicio al ensayo.
 def esccolumnas(hojaind, titulo, columna, lista, restar):
     """
-    Escribe listas completas en columnas. Útil para escribir los datos completos en los archivos individuales.
+    Escribe listas completas en columnas. Útil para escribir los datos completos en los archivos individuales.\n
     :param hojaind: Objeto de tipo Worksheet (Openpyxl) en el que se escribirá la lista.
     :param titulo: Rótulo que se escribirá en la primera celda de la columna.
     :param columna: Número de la columna en que se escribirá la lista (1-A, 2-B, etc.).
@@ -276,24 +277,17 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
     """
     Función principal de análisis. Toma los conteos realizados por las otras funciones y pega medidas de tendencia
     central en un archivo general de resumen. Además pega las listas completas en los archivos convertidos
-    individuales.
-
-    :param dirConv: Dirección de la carpeta donde se guardarán los archivos convertidos y el archivo de resumen. La
-    dirección debe ser absoluta y estar separada por diagonales hacia adelante.
+    individuales.\n
+    :param dirConv: Dirección de la carpeta donde se guardarán los archivos convertidos y el archivo de resumen. La dirección debe ser absoluta y estar separada por diagonales hacia adelante.
     :param fileName: Nombre del archivo de resumen.
     :param subList: Lista con los nombres de los suejetos a analizar.
-    :param sessionList: Lista con las sesiones presentes para cada sujeto. Inicialmente está vacía y es poblada por la
-    función de purgeSessions
-    :param suffix: Caracter o conjunto de caracteres que separa el nombre del sujeto del número de sesión en cada uno
-    de los archivos. Ejemplo: "_"
+    :param sessionList: Lista con las sesiones presentes para cada sujeto. Inicialmente está vacía y es poblada por la función de purgeSessions
+    :param suffix: Caracter o conjunto de caracteres que separa el nombre del sujeto del número de sesión en cada uno de los archivos. Ejemplo: "_"
     :param workbook: Hoja de cálculo generada por la función createDocument.
     :param sheetDict: Diccionario creado por la función create_sheets.
     :param analysisList: Lista de diccionarios con los parámetros para analizar cada magnitud.
-    :param markColumn: Columna ocupada por la lista de marcadores en los archivos individuales. Para obtenerla es
-    necesario correr solamente la función de convertir y revisar manualmente la columna en que están escritos los
-    marcadores.
-    :param timeColumn: Columna ocupada por la lista de tiempos en vigésimas de segundo. Debe ser revisada manualmente,
-    también.
+    :param markColumn: Columna ocupada por la lista de marcadores en los archivos individuales. Para obtenerla es necesario correr solamente la función de convertir y revisar manualmente la columna en que están escritos los marcadores.
+    :param timeColumn: Columna ocupada por la lista de tiempos en vigésimas de segundo. Debe ser revisada manualmente, también.
     """
     for subject in range(len(subList)):
         for session in sessionList[subject]:
@@ -334,18 +328,47 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                     esccolumnas(hojaind, value["label"], value["column"], respuestasTot, value["substract"])
 
                 elif key == "fetch":
-                    cell_value = fetch(sujetoWs, value["cell_column"], value["cell_row"])
+                    cell_value = fetch(sujetoWs, value["cell_row"], value["cell_column"])
                     sheetDict[value["sheet"]][
                         get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                             session + 3)] = cell_value
 
-                elif key == "agregatelat":
-                    latencias1 = conteolat(marcadores, tiempo, value["mark1"], value["mark2"])
-                    latencias2 = conteolat(marcadores, tiempo, value["mark3"], value["mark4"])
-                    sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
-                            session + 3)] = median(latencias1 + latencias2)
-                    esccolumnas(hojaind, value["label"], value["column"], latencias1 + latencias2, value["substract"])
+                elif key == "agregate":
+                    key2, value2 = list(value.items())[0]
+                    if key2 == "conteolat":
+                        latencias_totales = []
+                        for mark_index in range(1, value2["measures"] + 1):
+                            latencia_parcial = conteolat(marcadores, tiempo, value2[f"mark{(mark_index * 2) - 1}"],
+                                                         value2[f"mark{(mark_index * 2)}"])
+                            latencias_totales.extend(latencia_parcial)
+                        sheetDict[value2["sheet"]][
+                            get_column_letter(value2["summary_column_list"][subject] + value2["offset"]) + str(
+                                session + 3)] = median(latencias_totales)
+                        esccolumnas(hojaind, value2["label"], value2["column"], latencias_totales, value2["substract"])
+
+                    elif key2 == "conteoresp":
+                        respuestas_totales = []
+                        for mark_index in range(1, value2["measures"] + 1):
+                            respuesta_parcial = conteolat(marcadores, value2[f"mark{(mark_index * 3) - 2}"],
+                                                          value2[f"mark{(mark_index * 3) - 1}"],
+                                                          value2[f"mark{(mark_index * 3)}"])
+                            respuestas_totales.extend(respuesta_parcial)
+                        sheetDict[value2["sheet"]][
+                            get_column_letter(value2["summary_column_list"][subject] + value2["offset"]) + str(
+                                session + 3)] = mean(respuestas_totales)
+                        esccolumnas(hojaind, value2["label"], value2["column"], respuestas_totales, value2["substract"])
+
+                    elif key2 == "conteototal":
+                        respuestas_totales = []
+                        for mark_index in range(1, value2["measures"] + 1):
+                            respuesta_parcial = conteolat(marcadores, value2[f"mark{(mark_index * 3) - 2}"],
+                                                          value2[f"mark{(mark_index * 3) - 1}"],
+                                                          value2[f"mark{(mark_index * 3)}"])
+                            respuestas_totales.extend(respuesta_parcial)
+                        sheetDict[value2["sheet"]][
+                            get_column_letter(value2["summary_column_list"][subject] + value2["offset"]) + str(
+                                session + 3)] = mean(respuestas_totales)
+                        esccolumnas(hojaind, value2["label"], value2["column"], respuestas_totales, value2["substract"])
 
             sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
         print("\n")

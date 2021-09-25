@@ -1,7 +1,7 @@
 import json
 from Funciones import *
 
-archivo = 'Prueba.xlsx'
+archivo = 'Prueba2.xlsx'
 # directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
 # directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
 directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
@@ -9,7 +9,7 @@ directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/Exper
 directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
 
 sujetos = ['E3', 'E4', 'E5', 'E7', 'E8', 'E9', 'E1']
-columnasProp = [2, 3, 4, 5, 6, 7, 8]
+columnasProp = [2, 4, 6, 8, 10, 12, 14]
 columnasResp = [2, 9, 16, 23, 30, 37, 44]
 columnasLatPal = [2, 7, 12, 17, 22, 27, 32]
 columnasEscapes = [2, 13, 24, 35, 46, 57, 68]
@@ -23,9 +23,16 @@ analysis_list = [
     # Proporciones
     {"fetch": {"sheet": "Proporciones",
                "summary_column_list": columnasProp,
-               "cell_column": 14,
-               "cell_row": 6,
+               "cell_row": 14,
+               "cell_column": 6,
                "offset": 0
+               }},
+    # Ensayos completados
+    {"fetch": {"sheet": "Proporciones",
+               "summary_column_list": columnasProp,
+               "cell_row": 15,
+               "cell_column": 2,
+               "offset": 1
                }},
 
     # Respuestas palancas
@@ -316,25 +323,27 @@ analysis_list = [
                    "summary_column_list": columnasLatPal,
                    "offset": 3}},
 
-    # Latencias Pal + Latencias Pal Escape Forzado
+    # Análisis múltiples
     # Latencias Pal Disc
-    {"agregatelat": {"mark1": 112, "mark2": 113,
-                     "mark3": 401, "mark4": 402,
-                     "label": "LatPalDiscTotal",
-                     "sheet": "Latencias",
-                     "column": 69,
-                     "substract": False,
-                     "summary_column_list": columnasLatPal,
-                     "offset": 0}},
+    {"agregate": {"conteolat": {"measures": 2,
+                                "mark1": 112, "mark2": 113,
+                                "mark3": 401, "mark4": 402,
+                                "label": "LatPalDiscTotal",
+                                "sheet": "Latencias",
+                                "column": 69,
+                                "substract": False,
+                                "summary_column_list": columnasLatPal,
+                                "offset": 0}}},
     # Latencias Pal No Disc
-    {"agregatelat": {"mark1": 132, "mark2": 133,
-                     "mark3": 404, "mark4": 405,
-                     "label": "LatPalNoDiscTotal",
-                     "sheet": "Latencias",
-                     "column": 71,
-                     "substract": False,
-                     "summary_column_list": columnasLatPal,
-                     "offset": 1}},
+    {"agregate": {"conteolat": {"measures": 2,
+                                "mark1": 132, "mark2": 133,
+                                "mark3": 404, "mark4": 405,
+                                "label": "LatPalNoDiscTotal",
+                                "sheet": "Latencias",
+                                "column": 71,
+                                "substract": False,
+                                "summary_column_list": columnasLatPal,
+                                "offset": 1}}},
 ]
 
 purgeSessions(directorioTemporal, sujetos, sesionesPresentes, columnasProp, columnasResp, columnasLatPal,
@@ -345,7 +354,8 @@ with open("data.json", "w") as data_file:
 with open("data.json", "r") as data_file:
     json_data = json.load(data_file)
 
-convertir(directorioTemporal, directorioBrutos, directorioConvertidos, sujetos, sesionesPresentes, subfijo="_SUBCHOIL_")
+# convertir(directorioTemporal, directorioBrutos, directorioConvertidos, sujetos, sesionesPresentes, subfijo="_SUBCHOIL_",
+#           mover=False)
 
 wb = createDocument(archivo, directorioConvertidos)
 
@@ -355,5 +365,3 @@ sheet_dict = create_sheets(wb, 'Proporciones', 'Respuestas', 'Latencias', 'Comed
 analyze(dirConv=directorioConvertidos, fileName=archivo, subList=sujetos, sessionList=sesionesPresentes,
         suffix="_SUBCHOIL_", workbook=wb, sheetDict=sheet_dict, analysisList=analysis_list, markColumn="P",
         timeColumn="O")
-
-wb.save(directorioConvertidos + archivo)
