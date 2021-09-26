@@ -32,9 +32,9 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
             sujetosFaltantes.append(sbj)
     # Si faltan sujetos se imprime quiénes son. Si no, se indica con un mensaje.
     if len(sujetosFaltantes) == 0:
-        print("Todos los sujetos tienen al menos una sesión por analizar.\n")
+        print("All subjects have at least one session yet to analyze.")
     else:
-        print(f"Sujetos faltantes: {str(sujetosFaltantes)}\n")
+        print(f"Missing subjects: {str(sujetosFaltantes)}")
 
     # Se hace una lista de listas con las sesiones presentes de cada sujeto.
     # El código compara el nombre de cada uno de los sujetos que sí tienen sesiones con el nombre de cada uno de los
@@ -52,7 +52,7 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
         indice += 1
 
     for i in range(len(listaTemp)):
-        print(f"Sesiones presentes del sujeto {listaTemp[i]}: {sessionList[i]}\n")
+        print(f"Sessions to analyze for subject {listaTemp[i]}: {sessionList[i]}")
 
     # Se eliminan los elementos pertinentes de las listas de columnas si algún sujeto falta.
     for sujetoFaltante in sujetosFaltantes:
@@ -60,6 +60,7 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
             if sujetoFaltante in subjectList:
                 del columnList[subjectList.index(sujetoFaltante)]
         del subjectList[subjectList.index(sujetoFaltante)]
+    print("\n")
 
 
 # Convertidor
@@ -78,7 +79,7 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
     """
     for sjt in range(len(subjectList)):
         for ssn in presentSessions[sjt]:
-            print(f"Convirtiendo sesión {str(ssn)} de sujeto {subjectList[sjt]}.")
+            print(f"Converting session {str(ssn)} of subject {subjectList[sjt]}.")
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
             # El argumento names indica cuántas columnas se crearán. Evita errores cuando se edita el archivo de Med.
             datos = pandas.read_csv(dirTemp + subjectList[sjt] + subfijo + str(ssn), header=None,
@@ -116,7 +117,7 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
                 for j in range(len(metalista[ii])):
                     if regex1.search(metalista[ii][j]):
                         metalista[ii][j] += '0'
-                    elif regex2.search(metalista[ii][j]):  # Esto está por probarse. No sé si necesito agregar '00'.
+                    elif regex2.search(metalista[ii][j]):
                         metalista[ii][j] += '00'
                     hojaCompleta[get_column_letter((ii * 2) + columnas + 3) + str(j + 1)] = int(
                         metalista[ii][j].split('.')[0])
@@ -134,7 +135,7 @@ def createDocument(fileName, targetDirectory):
     es creado. Esta función debe asignarse a una variable.\n
     :param fileName: Nombre del archivo de resumen.
     :param targetDirectory: Ubicación del directorio objetivo.
-    :return: Objeto de clase Workbook (openpyxl).
+    :return: Objeto de clase Workbook (Openpyxl).
     """
     if fileName in listdir(targetDirectory):
         print('Summary file found. Opening...\n')
@@ -325,7 +326,7 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                     sheetDict[value["sheet"]][
                         get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                             session + 3)] = respuestasTot
-                    esccolumnas(hojaind, value["label"], value["column"], respuestasTot, value["substract"])
+                    esccolumnas(hojaind, value["label"], value["column"], [respuestasTot], value["substract"])
 
                 elif key == "fetch":
                     cell_value = fetch(sujetoWs, value["cell_row"], value["cell_column"])
@@ -359,16 +360,15 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                         esccolumnas(hojaind, value2["label"], value2["column"], respuestas_totales, value2["substract"])
 
                     elif key2 == "conteototal":
-                        respuestas_totales = []
+                        respuestas_totales = 0
                         for mark_index in range(1, value2["measures"] + 1):
-                            respuesta_parcial = conteolat(marcadores, value2[f"mark{(mark_index * 3) - 2}"],
-                                                          value2[f"mark{(mark_index * 3) - 1}"],
-                                                          value2[f"mark{(mark_index * 3)}"])
-                            respuestas_totales.extend(respuesta_parcial)
+                            respuesta_parcial = conteototal(marcadores, value2[f"mark{mark_index}"])
+                            respuestas_totales += respuesta_parcial
                         sheetDict[value2["sheet"]][
                             get_column_letter(value2["summary_column_list"][subject] + value2["offset"]) + str(
-                                session + 3)] = mean(respuestas_totales)
-                        esccolumnas(hojaind, value2["label"], value2["column"], respuestas_totales, value2["substract"])
+                                session + 3)] = respuestas_totales
+                        esccolumnas(hojaind, value2["label"], value2["column"], [respuestas_totales],
+                                    value2["substract"])
 
             sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
         print("\n")

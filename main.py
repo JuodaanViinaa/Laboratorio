@@ -354,8 +354,8 @@ with open("data.json", "w") as data_file:
 with open("data.json", "r") as data_file:
     json_data = json.load(data_file)
 
-# convertir(directorioTemporal, directorioBrutos, directorioConvertidos, sujetos, sesionesPresentes, subfijo="_SUBCHOIL_",
-#           mover=False)
+convertir(directorioTemporal, directorioBrutos, directorioConvertidos, sujetos, sesionesPresentes, subfijo="_SUBCHOIL_",
+          mover=False)
 
 wb = createDocument(archivo, directorioConvertidos)
 
