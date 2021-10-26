@@ -7,7 +7,7 @@ import re
 from shutil import move
 
 
-def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
+def purgeSessions(temporaryDirectory, subjectList, sessionList):
     """
     Se genera una lista temporal que contiene aquellos sujetos cuyos datos sí están en la carpeta temporal; después, se
     eliminan las columnas pertinentes de cada una de las listas de columnas. Los argumentos son: el directorio temporal
@@ -56,14 +56,13 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList, *columnLists):
 
     # Se eliminan los elementos pertinentes de las listas de columnas si algún sujeto falta.
     for sujetoFaltante in sujetosFaltantes:
-        for columnList in columnLists:
-            if sujetoFaltante in subjectList:
-                del columnList[subjectList.index(sujetoFaltante)]
+        #     for columnList in columnLists:
+        #         if sujetoFaltante in subjectList:
+        #             del columnList[subjectList.index(sujetoFaltante)]
         del subjectList[subjectList.index(sujetoFaltante)]
     print("\n")
 
 
-# Convertidor
 def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=6, subfijo='_', mover=True):
     """
     Convierte archivos de texto plano de MedPC en hojas de cálculo en formato *.xlsx.
@@ -163,7 +162,6 @@ def create_sheets(workbook, *sheets):
             new_sheet = workbook[sheet]
         sheet_dict[sheet] = new_sheet
     return sheet_dict
-    # ¿Convertir a la lista de hojas en un diccionario y accesar a cada hoja por su key?
 
 
 def fetch(sheet, origin_cell_row, origin_cell_column):
@@ -177,8 +175,7 @@ def fetch(sheet, origin_cell_row, origin_cell_column):
     return sheet.cell(origin_cell_row, origin_cell_column).value
 
 
-# Función para contar respuestas por tipo de ensayo. Los argumentos son marcadores de Med.
-def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):
+def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):  # Count_per_trial
     """
     Cuenta respuestas entre el marcador de inicio de ensayo y el de fin de ensayo. En caso de que el marcador de la
     respuesta a contar sea el mismo que el de la respuesta que da inicio al ensayo se contará una respuesta adicional.
@@ -207,7 +204,6 @@ def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):
     return resp
 
 
-# Función para contar respuestas totales. El argumento es el marcador de Med.
 def conteototal(marcadores, respuesta):
     """
     Cuenta la cantidad total de veces que ocurrió un marcador particular en la sesión independientemente de los ensayos.
@@ -223,8 +219,6 @@ def conteototal(marcadores, respuesta):
     return contador
 
 
-# Función para contar latencias. Si en un ensayo no hay respuestas que contar, la función resulta en una lista con un
-# cero. Los argumentos son marcadores de Med.
 def conteolat(marcadores, tiempo, inicioensayo, respuesta):
     """
     Cuenta la latencia entre el inicio de un ensayo y una respuesta.\n
@@ -249,8 +243,6 @@ def conteolat(marcadores, tiempo, inicioensayo, respuesta):
     return lat
 
 
-# Función para escribir listas en columnas. El argumento "restar" indica si se debe restar uno a las respuestas dadas
-# en cada ensayo. Esto solo sucede en las palancas dado que se registra también la respuesta que le da inicio al ensayo.
 def esccolumnas(hojaind, titulo, columna, lista, restar):
     """
     Escribe listas completas en columnas. Útil para escribir los datos completos en los archivos individuales.\n
@@ -303,73 +295,148 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                 key, value = list(analysis.items())[0]
 
                 if key == "conteoresp":
-                    respuestas = conteoresp(marcadores, value["mark1"], value["mark2"], value["mark3"])
-                    if value["substract"] and mean(respuestas) - 1 >= 0:
+                    respuestas_totales = []
+                    for mark_index in range(1, value.get("measures", 1) + 1):
+                        respuesta_parcial = conteoresp(marcadores, value[f"mark{(mark_index * 3) - 2}"],
+                                                       value[f"mark{(mark_index * 3) - 1}"],
+                                                       value[f"mark{(mark_index * 3)}"])
+                        respuestas_totales.extend(respuesta_parcial)
+                    if value.get("substract", False):
+                        respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
                         sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
-                                session + 3)] = mean(respuestas) - 1
+                            get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                                session + 3)] = mean(respuestas_restadas)
                     else:
                         sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
-                                session + 3)] = mean(respuestas)
-                    esccolumnas(hojaind, value["label"], value["column"], respuestas, value["substract"])
+                            get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                                session + 3)] = mean(respuestas_totales)
+                    esccolumnas(hojaind, value["header"], value["column"], respuestas_totales,
+                                value.get("substract", False))
+
+                    # respuestas = conteoresp(marcadores, value["mark1"], value["mark2"], value["mark3"])
+                    # if value.get("substract", False) and mean(respuestas) - 1 >= 0:
+                    #     sheetDict[value["sheet"]][
+                    #         get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                    #             session + 3)] = mean(respuestas) - 1
+                    # else:
+                    #     sheetDict[value["sheet"]][
+                    #         get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                    #             session + 3)] = mean(respuestas)
+                    # esccolumnas(hojaind, value["header"], value["column"], respuestas, value.get("substract", False))
 
                 elif key == "conteolat":
-                    latencias = conteolat(marcadores, tiempo, value["mark1"], value["mark2"])
+                    latencias_totales = []
+                    for mark_index in range(1, value.get("measures", 1) + 1):
+                        latencia_parcial = conteolat(marcadores, tiempo, value[f"mark{(mark_index * 2) - 1}"],
+                                                     value[f"mark{(mark_index * 2)}"])
+                        latencias_totales.extend(latencia_parcial)
                     sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
-                            session + 3)] = median(latencias)
-                    esccolumnas(hojaind, value["label"], value["column"], latencias, value["substract"])
+                        get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                            session + 3)] = median(latencias_totales)
+                    esccolumnas(hojaind, value["header"], value["column"], latencias_totales,
+                                value.get("substract", False))
+                    # latencias = conteolat(marcadores, tiempo, value["mark1"], value["mark2"])
+                    # sheetDict[value["sheet"]][
+                    #     get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                    #         session + 3)] = median(latencias)
+                    # esccolumnas(hojaind, value["header"], value["column"], latencias, value.get("substract", False))
 
                 elif key == "conteototal":
-                    respuestasTot = str(conteototal(marcadores, value["mark1"]))
+                    respuestas_totales = 0
+                    for mark_index in range(1, value.get("measures", 1) + 1):
+                        respuesta_parcial = conteototal(marcadores, value[f"mark{mark_index}"])
+                        respuestas_totales += respuesta_parcial
                     sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
-                            session + 3)] = respuestasTot
-                    esccolumnas(hojaind, value["label"], value["column"], [respuestasTot], value["substract"])
+                        get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                            session + 3)] = respuestas_totales
+                    esccolumnas(hojaind, value["header"], value["column"], [respuestas_totales],
+                                value.get("substract", False))
+                    # respuestasTot = str(conteototal(marcadores, value["mark1"]))
+                    # sheetDict[value["sheet"]][
+                    #     get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                    #         session + 3)] = respuestasTot
+                    # esccolumnas(hojaind, value["header"], value["column"], [respuestasTot], value.get("substract", False))
 
                 elif key == "fetch":
                     cell_value = fetch(sujetoWs, value["cell_row"], value["cell_column"])
                     sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
+                        get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
                             session + 3)] = cell_value
 
-                elif key == "agregate":
-                    key2, value2 = list(value.items())[0]
-                    if key2 == "conteolat":
-                        latencias_totales = []
-                        for mark_index in range(1, value2["measures"] + 1):
-                            latencia_parcial = conteolat(marcadores, tiempo, value2[f"mark{(mark_index * 2) - 1}"],
-                                                         value2[f"mark{(mark_index * 2)}"])
-                            latencias_totales.extend(latencia_parcial)
-                        sheetDict[value2["sheet"]][
-                            get_column_letter(value2["summary_column_list"][subject] + value2["offset"]) + str(
-                                session + 3)] = median(latencias_totales)
-                        esccolumnas(hojaind, value2["label"], value2["column"], latencias_totales, value2["substract"])
-
-                    elif key2 == "conteoresp":
-                        respuestas_totales = []
-                        for mark_index in range(1, value2["measures"] + 1):
-                            respuesta_parcial = conteolat(marcadores, value2[f"mark{(mark_index * 3) - 2}"],
-                                                          value2[f"mark{(mark_index * 3) - 1}"],
-                                                          value2[f"mark{(mark_index * 3)}"])
-                            respuestas_totales.extend(respuesta_parcial)
-                        sheetDict[value2["sheet"]][
-                            get_column_letter(value2["summary_column_list"][subject] + value2["offset"]) + str(
-                                session + 3)] = mean(respuestas_totales)
-                        esccolumnas(hojaind, value2["label"], value2["column"], respuestas_totales, value2["substract"])
-
-                    elif key2 == "conteototal":
-                        respuestas_totales = 0
-                        for mark_index in range(1, value2["measures"] + 1):
-                            respuesta_parcial = conteototal(marcadores, value2[f"mark{mark_index}"])
-                            respuestas_totales += respuesta_parcial
-                        sheetDict[value2["sheet"]][
-                            get_column_letter(value2["summary_column_list"][subject] + value2["offset"]) + str(
-                                session + 3)] = respuestas_totales
-                        esccolumnas(hojaind, value2["label"], value2["column"], [respuestas_totales],
-                                    value2["substract"])
+                # elif key == "agregate":
+                #     key2, value2 = list(value.items())[0]
+                #     if key2 == "conteolat":
+                #         latencias_totales = []
+                #         for mark_index in range(1, value2["measures"] + 1):
+                #             latencia_parcial = conteolat(marcadores, tiempo, value2[f"mark{(mark_index * 2) - 1}"],
+                #                                          value2[f"mark{(mark_index * 2)}"])
+                #             latencias_totales.extend(latencia_parcial)
+                #         sheetDict[value2["sheet"]][
+                #             get_column_letter(value2["summary_column_list"][subList[subject]] + value2["offset"]) + str(
+                #                 session + 3)] = median(latencias_totales)
+                #         esccolumnas(hojaind, value2["header"], value2["column"], latencias_totales, value2.get("substract", False))
+                #
+                #     elif key2 == "conteoresp":
+                #         respuestas_totales = []
+                #         for mark_index in range(1, value2["measures"] + 1):
+                #             respuesta_parcial = conteolat(marcadores, value2[f"mark{(mark_index * 3) - 2}"],
+                #                                           value2[f"mark{(mark_index * 3) - 1}"],
+                #                                           value2[f"mark{(mark_index * 3)}"])
+                #             respuestas_totales.extend(respuesta_parcial)
+                #         sheetDict[value2["sheet"]][
+                #             get_column_letter(value2["summary_column_list"][subList[subject]] + value2["offset"]) + str(
+                #                 session + 3)] = mean(respuestas_totales)
+                #         esccolumnas(hojaind, value2["header"], value2["column"], respuestas_totales, value2.get("substract", False))
+                #
+                #     elif key2 == "conteototal":
+                #         respuestas_totales = 0
+                #         for mark_index in range(1, value2["measures"] + 1):
+                #             respuesta_parcial = conteototal(marcadores, value2[f"mark{mark_index}"])
+                #             respuestas_totales += respuesta_parcial
+                #         sheetDict[value2["sheet"]][
+                #             get_column_letter(value2["summary_column_list"][subList[subject]] + value2["offset"]) + str(
+                #                 session + 3)] = respuestas_totales
+                #         esccolumnas(hojaind, value2["header"], value2["column"], [respuestas_totales],
+                #                     value2.get("substract", False))
 
             sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
         print("\n")
     workbook.save(dirConv + fileName)
+
+
+def template():
+    print("""
+    analysis_list = [
+    {"fetch": {"sheet": "Sheet_1",
+               "summary_column_list": columns,
+               "cell_row": 10,
+               "cell_column": 10,
+               "offset": 0
+               }},
+    
+    {"conteoresp": {"measures": 2, # Optional argument. Default value: 1
+                    "mark1": 111, "mark2": 222, "mark3": 333,
+                    "header": "Generic_title",
+                    "sheet": "Sheet_2",
+                    "column": 1,
+                    "substract": True, # Optional argument. Default value: False
+                    "summary_column_list": columnasResp,
+                    "offset": 0}},
+    
+    {"conteolat": {"measures": 2, # Optional argument. Default value: 1
+                   "mark1": 112, "mark2": 113,
+                   "header": "LatPalDisc",
+                   "sheet": "Latencias",
+                   "column": 9,
+                   "summary_column_list": columnasLatPal,
+                   "offset": 0}},
+
+    {"conteototal": {"measures": 2, # Optional argument. Default value: 1
+                     "mark1": 301,
+                     "header": "EscForzDiscRef",
+                     "sheet": "Escapes",
+                     "column": 21,
+                     "summary_column_list": columnasEscapes,
+                     "offset": 0}},
+    ]
+    """)
