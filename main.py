@@ -1,7 +1,6 @@
-import json
 from Funciones import *
 
-archivo = 'Prueba_get2.xlsx'
+archivo = 'Prueba_enumerate.xlsx'
 # directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
 # directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
 directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
@@ -29,17 +28,17 @@ tiempo = []  # Lista vacía.
 
 analysis_list = [
     # Proporciones
-    {"fetch": {"sheet": "Proporciones",
-               "summary_column_list": columnasProp,
-               "cell_row": 14,
+    {"fetch": {"cell_row": 14,
                "cell_column": 6,
+               "sheet": "Proporciones",
+               "summary_column_list": columnasProp,
                "offset": 0
                }},
     # Ensayos completados
-    {"fetch": {"sheet": "Proporciones",
-               "summary_column_list": columnasProp,
-               "cell_row": 15,
+    {"fetch": {"cell_row": 15,
                "cell_column": 2,
+               "sheet": "Proporciones",
+               "summary_column_list": columnasProp,
                "offset": 1
                }},
 
@@ -323,10 +322,6 @@ analysis_list = [
 ]
 
 purgeSessions(directorioTemporal, sujetos, sesionesPresentes)
-# with open("data.json", "w") as data_file:
-#     json.dump(analysis_list, data_file, indent=4)
-# with open("data.json", "r") as data_file:
-#     json_data = json.load(data_file)
 
 convertir(dirTemp=directorioTemporal, dirPerm=directorioBrutos, dirConv=directorioConvertidos, subjectList=sujetos,
           presentSessions=sesionesPresentes, subfijo="_SUBCHOIL_", mover=False)

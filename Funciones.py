@@ -76,18 +76,16 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
     :param subfijo: Identificador del nombre de los archivos. Ejemplo: '_Alter_'. Valor por defecto: ''.
     :param mover: Booleano que indica si los archivos deben ser movidos a la carpeta permanente tras su conversión.
     """
-    for sjt in range(len(subjectList)):
-        for ssn in presentSessions[sjt]:
-            print(f"Converting session {str(ssn)} of subject {subjectList[sjt]}.")
+    for ind, sjt in enumerate(subjectList):
+        for ssn in presentSessions[ind]:
+            print(f"Converting session {ssn} of subject {sjt}.")
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
             # El argumento names indica cuántas columnas se crearán. Evita errores cuando se edita el archivo de Med.
-            datos = pandas.read_csv(dirTemp + subjectList[sjt] + subfijo + str(ssn), header=None,
-                                    names=range(columnas), sep=r'\s+')
-            datos.to_excel(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx', index=False,
-                           header=None)
+            datos = pandas.read_csv(f"{dirTemp}{sjt}{subfijo}{ssn}", header=None, names=range(columnas), sep=r'\s+')
+            datos.to_excel(f"{dirConv}{sjt}{subfijo}{ssn}.xlsx", index=False, header=None)
 
             # Openpyxl abre el archivo creado por pandas, lee la hoja y la almacena en la variable hojaCompleta.
-            archivoCompleto = load_workbook(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx')
+            archivoCompleto = load_workbook(f"{dirConv}{sjt}{subfijo}{ssn}.xlsx")
             hojaCompleta = archivoCompleto.active
 
             # Se genera una lista que contenga sub-listas con todos los valores de las listas dadas por Med.
@@ -100,7 +98,7 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
             columna1 = hojaCompleta['B']
             for fila in range(12, len(columna1) + 1):
                 for columna in range(2, columnas + 1):
-                    if hojaCompleta[get_column_letter(columna) + str(fila)].value is not None:
+                    if hojaCompleta[f"{get_column_letter(columna)}{fila}"].value is not None:
                         metalista[contadormetalista].append(str(float(hojaCompleta[get_column_letter(columna) +
                                                                                    str(fila)].value)))
                     elif hojaCompleta[get_column_letter(columna) + str(fila)].value is None and columna == 2:
@@ -122,9 +120,9 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
                         metalista[ii][j].split('.')[0])
                     hojaCompleta[get_column_letter((ii * 2) + columnas + 4) + str(j + 1)] = int(
                         metalista[ii][j].split('.')[1])
-            archivoCompleto.save(dirConv + subjectList[sjt] + subfijo + str(ssn) + '.xlsx')
+            archivoCompleto.save(f"{dirConv}{sjt}{subfijo}{ssn}.xlsx")
             if mover:
-                move(dirTemp + subjectList[sjt] + subfijo + str(ssn), dirPerm + subjectList[sjt] + subfijo + str(ssn))
+                move(f"{dirTemp}{sjt}{subfijo}{ssn}", f"{dirPerm}{sjt}{subfijo}{ssn}")
         print('\n')
 
 
@@ -243,27 +241,61 @@ def conteolat(marcadores, tiempo, inicioensayo, respuesta):
     return lat
 
 
-def esccolumnas(hojaind, titulo, columna, lista, restar):
+def esccolumnas(hojaind, titulo, columna, lista):
     """
     Escribe listas completas en columnas. Útil para escribir los datos completos en los archivos individuales.\n
     :param hojaind: Objeto de tipo Worksheet (Openpyxl) en el que se escribirá la lista.
     :param titulo: Rótulo que se escribirá en la primera celda de la columna.
     :param columna: Número de la columna en que se escribirá la lista (1-A, 2-B, etc.).
     :param lista: Lista a escribir en la columna.
-    :param restar: Booleano (True/False) que indica si debe restarse una unidad a cada uno de los valores de la lista.
-    Deberá ser True si la respuesta contada es la misma que da inicio al ensayo y, por lo tanto, se lleva contada una
-    respuesta adicional a las reales.
     """
     hojaind[get_column_letter(columna) + str(1)] = titulo
-    if restar:
-        for pos in range(len(lista)):
-            if lista[pos] > 0:
-                hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos] - 1
-            else:
-                hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
-    else:
-        for pos in range(len(lista)):
-            hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
+    for pos in range(len(lista)):
+        hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
+
+
+def template():
+    print("""
+    analysis_list = [
+    {"fetch": {"cell_row": 10,
+               "cell_column": 10,
+               "sheet": "Sheet_1",
+               "summary_column_list": column_dictionary,
+               "offset": 0
+               }},
+
+    {"conteoresp": {"measures": 2, # Optional argument. Default value: 1
+                    "mark1": 111, "mark2": 222, "mark3": 333,
+                    "mark4": 444, "mark5": 555, "mark6": 666, # Optional marks. Depends on the value of "measures"
+                    "substract": True, # Optional argument. Default value: False
+                    "column": 1,
+                    "header": "Generic_title",
+                    "sheet": "Sheet_2",
+                    "summary_column_list": column_dictionary2,
+                    "offset": 0,
+                    }},
+
+    {"conteolat": {"measures": 2, # Optional argument. Default value: 1
+                   "mark1": 111, "mark2": 222,
+                   "mark3": 333, "mark4": 444, # Optional marks. Depends on the value of "measures"
+                   "column": 9,
+                   "header": "LatPalDisc",
+                   "sheet": "Latencias",
+                   "summary_column_list": column_dictionary3,
+                   "offset": 0,
+                   }},
+
+    {"conteototal": {"measures": 2, # Optional argument. Default value: 1
+                     "mark1": 111,
+                     "mark2": 222, # Optional mark. Depends on the value of "measures"
+                     "column": 21,
+                     "header": "EscForzDiscRef",
+                     "sheet": "Escapes",
+                     "summary_column_list": column_dictionary4,
+                     "offset": 0,
+                     }},
+    ]
+    """)
 
 
 def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict, analysisList, markColumn, timeColumn):
@@ -282,10 +314,10 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
     :param markColumn: Columna ocupada por la lista de marcadores en los archivos individuales. Para obtenerla es necesario correr solamente la función de convertir y revisar manualmente la columna en que están escritos los marcadores.
     :param timeColumn: Columna ocupada por la lista de tiempos en vigésimas de segundo. Debe ser revisada manualmente, también.
     """
-    for subject in range(len(subList)):
-        for session in sessionList[subject]:
-            print(f"Trying session {session} of subject {subList[subject]}.")
-            sujetoWb = load_workbook(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
+    for index, subject in enumerate(subList):
+        for session in sessionList[index]:
+            print(f"Trying session {session} of subject {subject}.")
+            sujetoWb = load_workbook(f"{dirConv}{subject}{suffix}{str(session)}.xlsx")
             sujetoWs = sujetoWb.worksheets[0]
             hojaind = sujetoWb.create_sheet('FullLists')
             tiempo = sujetoWs[timeColumn]
@@ -304,25 +336,14 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                     if value.get("substract", False):
                         respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
                         sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                            get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                                 session + 3)] = mean(respuestas_restadas)
+                        esccolumnas(hojaind, value["header"], value["column"], respuestas_restadas)
                     else:
                         sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                            get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                                 session + 3)] = mean(respuestas_totales)
-                    esccolumnas(hojaind, value["header"], value["column"], respuestas_totales,
-                                value.get("substract", False))
-
-                    # respuestas = conteoresp(marcadores, value["mark1"], value["mark2"], value["mark3"])
-                    # if value.get("substract", False) and mean(respuestas) - 1 >= 0:
-                    #     sheetDict[value["sheet"]][
-                    #         get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
-                    #             session + 3)] = mean(respuestas) - 1
-                    # else:
-                    #     sheetDict[value["sheet"]][
-                    #         get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
-                    #             session + 3)] = mean(respuestas)
-                    # esccolumnas(hojaind, value["header"], value["column"], respuestas, value.get("substract", False))
+                        esccolumnas(hojaind, value["header"], value["column"], respuestas_totales)
 
                 elif key == "conteolat":
                     latencias_totales = []
@@ -331,15 +352,9 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                                                      value[f"mark{(mark_index * 2)}"])
                         latencias_totales.extend(latencia_parcial)
                     sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                             session + 3)] = median(latencias_totales)
-                    esccolumnas(hojaind, value["header"], value["column"], latencias_totales,
-                                value.get("substract", False))
-                    # latencias = conteolat(marcadores, tiempo, value["mark1"], value["mark2"])
-                    # sheetDict[value["sheet"]][
-                    #     get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
-                    #         session + 3)] = median(latencias)
-                    # esccolumnas(hojaind, value["header"], value["column"], latencias, value.get("substract", False))
+                    esccolumnas(hojaind, value["header"], value["column"], latencias_totales)
 
                 elif key == "conteototal":
                     respuestas_totales = 0
@@ -347,96 +362,16 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                         respuesta_parcial = conteototal(marcadores, value[f"mark{mark_index}"])
                         respuestas_totales += respuesta_parcial
                     sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                             session + 3)] = respuestas_totales
-                    esccolumnas(hojaind, value["header"], value["column"], [respuestas_totales],
-                                value.get("substract", False))
-                    # respuestasTot = str(conteototal(marcadores, value["mark1"]))
-                    # sheetDict[value["sheet"]][
-                    #     get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
-                    #         session + 3)] = respuestasTot
-                    # esccolumnas(hojaind, value["header"], value["column"], [respuestasTot], value.get("substract", False))
+                    esccolumnas(hojaind, value["header"], value["column"], [respuestas_totales])
 
                 elif key == "fetch":
                     cell_value = fetch(sujetoWs, value["cell_row"], value["cell_column"])
                     sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subList[subject]] + value["offset"]) + str(
+                        get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                             session + 3)] = cell_value
 
-                # elif key == "agregate":
-                #     key2, value2 = list(value.items())[0]
-                #     if key2 == "conteolat":
-                #         latencias_totales = []
-                #         for mark_index in range(1, value2["measures"] + 1):
-                #             latencia_parcial = conteolat(marcadores, tiempo, value2[f"mark{(mark_index * 2) - 1}"],
-                #                                          value2[f"mark{(mark_index * 2)}"])
-                #             latencias_totales.extend(latencia_parcial)
-                #         sheetDict[value2["sheet"]][
-                #             get_column_letter(value2["summary_column_list"][subList[subject]] + value2["offset"]) + str(
-                #                 session + 3)] = median(latencias_totales)
-                #         esccolumnas(hojaind, value2["header"], value2["column"], latencias_totales, value2.get("substract", False))
-                #
-                #     elif key2 == "conteoresp":
-                #         respuestas_totales = []
-                #         for mark_index in range(1, value2["measures"] + 1):
-                #             respuesta_parcial = conteolat(marcadores, value2[f"mark{(mark_index * 3) - 2}"],
-                #                                           value2[f"mark{(mark_index * 3) - 1}"],
-                #                                           value2[f"mark{(mark_index * 3)}"])
-                #             respuestas_totales.extend(respuesta_parcial)
-                #         sheetDict[value2["sheet"]][
-                #             get_column_letter(value2["summary_column_list"][subList[subject]] + value2["offset"]) + str(
-                #                 session + 3)] = mean(respuestas_totales)
-                #         esccolumnas(hojaind, value2["header"], value2["column"], respuestas_totales, value2.get("substract", False))
-                #
-                #     elif key2 == "conteototal":
-                #         respuestas_totales = 0
-                #         for mark_index in range(1, value2["measures"] + 1):
-                #             respuesta_parcial = conteototal(marcadores, value2[f"mark{mark_index}"])
-                #             respuestas_totales += respuesta_parcial
-                #         sheetDict[value2["sheet"]][
-                #             get_column_letter(value2["summary_column_list"][subList[subject]] + value2["offset"]) + str(
-                #                 session + 3)] = respuestas_totales
-                #         esccolumnas(hojaind, value2["header"], value2["column"], [respuestas_totales],
-                #                     value2.get("substract", False))
-
-            sujetoWb.save(dirConv + subList[subject] + suffix + str(session) + '.xlsx')
+            sujetoWb.save(dirConv + subject + suffix + str(session) + '.xlsx')
         print("\n")
     workbook.save(dirConv + fileName)
-
-
-def template():
-    print("""
-    analysis_list = [
-    {"fetch": {"sheet": "Sheet_1",
-               "summary_column_list": columns,
-               "cell_row": 10,
-               "cell_column": 10,
-               "offset": 0
-               }},
-    
-    {"conteoresp": {"measures": 2, # Optional argument. Default value: 1
-                    "mark1": 111, "mark2": 222, "mark3": 333,
-                    "header": "Generic_title",
-                    "sheet": "Sheet_2",
-                    "column": 1,
-                    "substract": True, # Optional argument. Default value: False
-                    "summary_column_list": columnasResp,
-                    "offset": 0}},
-    
-    {"conteolat": {"measures": 2, # Optional argument. Default value: 1
-                   "mark1": 112, "mark2": 113,
-                   "header": "LatPalDisc",
-                   "sheet": "Latencias",
-                   "column": 9,
-                   "summary_column_list": columnasLatPal,
-                   "offset": 0}},
-
-    {"conteototal": {"measures": 2, # Optional argument. Default value: 1
-                     "mark1": 301,
-                     "header": "EscForzDiscRef",
-                     "sheet": "Escapes",
-                     "column": 21,
-                     "summary_column_list": columnasEscapes,
-                     "offset": 0}},
-    ]
-    """)
