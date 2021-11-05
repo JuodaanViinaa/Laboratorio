@@ -15,7 +15,6 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList):
     :param temporaryDirectory: Directorio donde se almacenan temporalmente los datos brutos por analizar.
     :param subjectList: Lista con los nombres de todos los sujetos a analizar.
     :param sessionList: Lista vacía que contendrá las sesiones presentes por analizar para cada sujeto.
-    :param columnLists: Listas con los valores de las columnas en que se pegarán los datos para analizar.
     """
     sujetosFaltantes = []
     dirTemp = sorted(listdir(temporaryDirectory))
@@ -202,10 +201,103 @@ def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):  # Count_per_tri
     return resp
 
 
+def resp_dist(marcadores, tiempo, inicio_ensayo, fin_ensayo, respuesta, bin_size, bin_amount):
+    """
+    Cuenta las respuestas por bin de tiempo dentro de cada ensayo de la sesión. Se puede elegir la cantidad de bins y su
+    tamaño. La función puede lidiar tanto con situaciones en las que hay marcador de fin de ensayo (es decir, hay
+    intervalo entre ensayos) como situaciones en las que no. En caso de que el ensayo continúe más allá del último bin
+    declarado se contabilizarán todas las respuestas dadas desde el fin del último bin declarado hasta el fin del ensayo
+    como un único gran bin.
+    :param marcadores: Lista con los marcadores.
+    :param tiempo: Lista con el tiempo de la sesión.
+    :param inicio_ensayo: Marcador de inicio de ensayo.
+    :param fin_ensayo: Marcador de fin de ensayo.
+    :param respuesta: Marcador de respuesta a contar.
+    :param bin_size: Tamaño en segundos de los bins.
+    :param bin_amount: Cantidad de bins por ensayo.
+    :return:
+    """
+    inicio = 0
+    resp_por_ensayo = [0] * (bin_amount + 1)  # Generar lista con tantos ceros como diga el parámetro bin_amount
+    resp_totales = []
+    bin_tuples = []
+    if inicio_ensayo == fin_ensayo:
+        for index, mark in enumerate(marcadores):
+            if mark.value == inicio_ensayo and inicio == 0:
+                tiempo_inicio = tiempo[index].value
+                # Este loop crea una lista con tantas tuplas como bin_amount dicte. Cada tupla contendrá el tiempo de inicio
+                # y de fin de cada bin. El tiempo de fin de un bin es igual al tiempo de inicio del siguiente.
+                for i in range(bin_amount):
+                    tiempo_fin = tiempo_inicio + (bin_size * 20)
+                    bin_tuples.append((tiempo_inicio, tiempo_fin))
+                    tiempo_inicio = tiempo_fin
+                inicio = 1
+
+            elif mark.value == inicio_ensayo and inicio == 1:
+                resp_totales.append(resp_por_ensayo)
+                resp_por_ensayo = [0] * (bin_amount + 1)
+                bin_tuples = []
+                tiempo_inicio = tiempo[index].value
+                for i in range(bin_amount):
+                    tiempo_fin = tiempo_inicio + (bin_size * 20)
+                    bin_tuples.append((tiempo_inicio, tiempo_fin))
+                    tiempo_inicio = tiempo_fin
+
+            elif mark.value == respuesta and inicio == 1:
+                for idx, bin_tuple in enumerate(bin_tuples):
+                    if bin_tuple[0] <= tiempo[index].value < bin_tuple[1]:
+                        # Si se encuentra una respuesta, se comienza a ciclar a través de la lista de tuplas. Si el tiempo
+                        # en que ocurrió la respuesta está contenido en alguno de los intervalos dictados por las tuplas, se
+                        # agrega una unidad a la lista de resp_por_ensayo en la misma posición que tenga la tupla en su
+                        # propia lista.
+                        resp_por_ensayo[idx] += 1
+                    elif tiempo[index].value >= bin_tuples[-1][-1]:
+                        # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
+                        # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
+                        # ocurran después de los esperado según el parámetro bin_amount.
+                        resp_por_ensayo[-1] += 1
+        resp_totales.append(resp_por_ensayo)
+
+    else:
+        for index, mark in enumerate(marcadores):
+            if mark.value == inicio_ensayo and inicio == 0:
+                tiempo_inicio = tiempo[index].value
+                # Este loop crea una lista con tantas tuplas como bin_amount dicte. Cada tupla contendrá el tiempo de inicio
+                # y de fin de cada bin. El tiempo de fin de un bin es igual al tiempo de inicio del siguiente.
+                for i in range(bin_amount):
+                    tiempo_fin = tiempo_inicio + (bin_size * 20)
+                    bin_tuples.append((tiempo_inicio, tiempo_fin))
+                    tiempo_inicio = tiempo_fin
+                inicio = 1
+
+            elif mark.value == respuesta and inicio == 1:
+                for idx, bin_tuple in enumerate(bin_tuples):
+                    if bin_tuple[0] <= tiempo[index].value < bin_tuple[1]:
+                        # Si se encuentra una respuesta, se comienza a ciclar a través de la lista de tuplas. Si el tiempo
+                        # en que ocurrió la respuesta está contenido en alguno de los intervalos dictados por las tuplas, se
+                        # agrega una unidad a la lista de resp_por_ensayo en la misma posición que tenga la tupla en su
+                        # propia lista.
+                        resp_por_ensayo[idx] += 1
+                    elif tiempo[index].value >= bin_tuples[-1][-1]:
+                        # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
+                        # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
+                        # ocurran después de los esperado según el parámetro bin_amount.
+                        resp_por_ensayo[-1] += 1
+
+            elif mark.value == fin_ensayo:
+                # Al finalizar cada ensayo la lista con las respuestas por ensayo se agrega a una lista de orden superior
+                # llamada resp_totales. Los valores de resp_por_ensayo y bin_tuples se reinician.
+                inicio = 0
+                resp_totales.append(resp_por_ensayo)
+                resp_por_ensayo = [0] * (bin_amount + 1)
+                bin_tuples = []
+
+    return resp_totales
+
+
 def conteototal(marcadores, respuesta):
     """
-    Cuenta la cantidad total de veces que ocurrió un marcador particular en la sesión independientemente de los ensayos.
-    \n
+    Cuenta la cantidad total de veces que ocurrió un marcador particular en la sesión independientemente de los ensayos.\n
     :param marcadores: Lista con los marcadores.
     :param respuesta: Marcador de respuesta a contar.
     :return: Integer con la cantidad de ocasiones que ocurrió una respuesta.
@@ -254,6 +346,14 @@ def esccolumnas(hojaind, titulo, columna, lista):
         hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
 
 
+# def write_dist(hojaind, lista, bin_amount):
+#     for bi in bin_amount + 1:
+#         hojaind[get_column_letter(bi + 1) + str(1)] = f"Bin {bi + 1}"
+#     for index, sub_lista in enumerate(lista):
+#         for idx, item in enumerate(sub_lista):
+#             hojaind[get_column_letter(index + 1) + str(idx + 1)] = item
+
+
 def template():
     print("""
     analysis_list = [
@@ -294,6 +394,11 @@ def template():
                      "summary_column_list": column_dictionary4,
                      "offset": 0,
                      }},
+                     
+    {"resp_dist": {"mark1": 111, "mark2": 222, "mark3": 333,
+                   "bin_size": 1,
+                   "bin_amount": 15,
+                   }},
     ]
     """)
 
@@ -324,6 +429,10 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
             marcadores = sujetoWs[markColumn]
 
             for analysis in analysisList:
+                if "resp_dist" in analysis:
+                    resp_dist_sheets = create_sheets(workbook, *subList)
+                    dist_indiv_sheet = sujetoWb.create_sheet('RespDistrib')
+
                 key, value = list(analysis.items())[0]
 
                 if key == "conteoresp":
@@ -371,6 +480,23 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                     sheetDict[value["sheet"]][
                         get_column_letter(value["summary_column_list"][subject] + value["offset"]) + str(
                             session + 3)] = cell_value
+
+                elif key == "resp_dist":
+                    superlist = resp_dist(marcadores, tiempo, inicio_ensayo=value["mark1"], fin_ensayo=value["mark2"],
+                                          respuesta=value["mark3"], bin_size=value["bin_size"],
+                                          bin_amount=value["bin_amount"])
+                    aggregated = []
+                    means = []
+                    for i in range(len(superlist[0])):
+                        for sublist in superlist:
+                            aggregated.append(sublist[i])
+                        means.append(mean(aggregated))
+                        aggregated = []
+                    # Escribir en archivo de resumen
+                    esccolumnas(resp_dist_sheets[subject], f"Session {session}", session + 1, means)
+                    # Escribir en archivo individual
+                    for ix, sublist in enumerate(superlist):
+                        esccolumnas(dist_indiv_sheet, f"Trial {ix + 1}", ix + 1, sublist)
 
             sujetoWb.save(dirConv + subject + suffix + str(session) + '.xlsx')
         print("\n")
