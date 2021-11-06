@@ -5,9 +5,9 @@ Estos _scripts_ se sirven de las librerías [Openpyxl](https://openpyxl.readthed
 
 ## Librería _oop_funciones.py_
 
-Esta librería provee una manera simple de analizar los datos entregados por el programa de MedPC. Contiene funciones útiles para tareas y análisis básicos. 
+Esta librería provee una manera simple de analizar los datos entregados por el programa de [Med PC-IV](https://www.med-associates.com/). Contiene funciones útiles para tareas y análisis básicos. 
 
-De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes el análisis completo de uno o más días de experimentos puede realizarse con un clic.
+De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas de datos en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes el análisis completo de uno o más días de sesiones experimentales y de uno o más sujetos puede realizarse con un clic.
 
 Sin embargo, la librería requiere de la declaración de variables específicas y su llamada en forma de argumentos en las funciones pertinentes.
 
@@ -20,14 +20,14 @@ archivo_de_resumen = "Igualacion.xlsx"
 
 * Una variable que contenga la [dirección absoulta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`, y que cada nivel de la dirección sea separado por diagonales hacia adelante "`/`" y no hacia atrás "`\`". Ejemplo:
 ```python
-directorioTemporal = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Windows
-directorioTemporal = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Unix
+directorioTemporal = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Windows
+directorioTemporal = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Unix
 ```
 
 * Una variable que contenga la dirección absoluta del directorio permanente en que se guardarán los datos brutos después de haber sido utilizados (no es necesario mover los archivos manualmente después de su utilización; el programa se encarga de eso automáticamente). Ejemplo:
 ```python
-directorioBrutos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Windows
-directorioBrutos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Unix
+directorioBrutos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Windows
+directorioBrutos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Unix
 ```
 
 * Una variable que contenga la dirección absoluta del directorio en que se guardarán los datos convertidos después del análisis. En este directorio se almacenarán tanto los archivos individuales con extensión ".xlsx" como el archivo de resumen. Ejemplo:
@@ -46,7 +46,7 @@ hojas = ["RespuestasPalanca", "LatenciasPalanca", "RespuestasNosepoke"]
 sujetos = ["Rata1", "Rata2", "Rata3", "Rata4"]
 ```
 
-* Uno o más diccionarios que relacionen a cada sujeto con la columna en que sus datos se escribirán en cada hoja del archivo de resumen. Es decir: un mismo sujeto puede tener asociadas múltiples medidas (e.g., respuestas en palancas, respuestas en nosepoke, latencias, etc). Además, medidas distintas pueden tener subdivisiones diferentes (e.g., puede haber dos medidas de respuestas a palancas (izquierda y derecha), y una sola medida para respuestas a nosepoke). Así, es posible que en una hoja se encuentre un formato similar a este:
+* Uno o más [diccionarios](https://www.w3schools.com/python/python_dictionaries.asp) que relacionen a cada sujeto con la columna en que sus datos se escribirán en cada hoja del archivo de resumen. Es decir: un mismo sujeto puede tener asociadas múltiples medidas (e.g., respuestas en palancas, respuestas en nosepoke, latencias, etc). Además, medidas distintas pueden tener subdivisiones diferentes (e.g., puede haber dos medidas de respuestas a palancas (izquierda y derecha), y una sola medida para respuestas a nosepoke). Así, es posible que en una hoja se encuentre un formato similar a este:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565456-64e9654d-c711-45dd-962f-f6e91b3af9a5.png)
 
@@ -66,19 +66,19 @@ columnas_nosepoke = {"Rata1": 2, "Rata2": 5, "Rata3": 8,}
 ```python
 analysis_list = [
     {"conteoresp": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
-                    "substract": True,
                     "column": 1,
                     "header": "Palanca Izq",
                     "sheet": "Palancas",
                     "summary_column_list": columnas_palancas,
+		    "substract": True,
                     }},
     {"conteoresp": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
-                    "substract": True,
                     "column": 2,
                     "header": "Palanca Der",
                     "sheet": "Palancas",
                     "summary_column_list": columnas_palancas,
-                    "offset": 1,
+                    "substract": True,
+		    "offset": 1,
                     }},
     {"conteototal": {"respuesta": 777,
                      "column": 3,
@@ -108,7 +108,9 @@ analysis_list = [
 ]
 ```
 
-Esta función permite extraer directamente un único dato de los archivos ".xlsx" individuales. Es funcional, por ejemplo, para extraer rápidamente el número de ensayos completados (si es que éste se encuentra dentro de alguna de las listas otorgadas por MedPC). Los argumentos `"cell_row"` y `"cell_column"` dictan la posición de la celda que se quiere extraer: un dato que se encuentra, por ejemplo, en la celda "B7" requerirá de los argumentos `"cell_row": 7` y `"cell_column": 2`.
+Esta función permite extraer directamente un único dato de los archivos ".xlsx" individuales. Es funcional, por ejemplo, para extraer rápidamente el número de ensayos completados (si es que éste se encuentra dentro de alguna de las listas otorgadas por MedPC). Los argumentos `"cell_row"` y `"cell_column"` dictan la posición de la celda que se quiere extraer: un dato que se encuentra, por ejemplo, en la celda "B15" requerirá de los argumentos `"cell_row": 15` y `"cell_column": 2`. 
+
+![image](https://user-images.githubusercontent.com/87039101/140596672-7213c34d-061c-4d05-a4bc-eced2abb65c5.png)
 
 Los argumentos `"sheet"` y `"summary_column_list"` determinan la manera en que el dato extraído se escribirá en el archivo de resumen. El argumento `"sheet"` señala el nombre de la hoja de cálculo en que se escribirá el dato. Este nombre debe corresponder con uno de los elementos de la lista de hojas de cálculo generada anteriormente. Mientras, `"summary_column_list"` será el diccionario que asocia a sujetos con columnas (explicado anteriormente).
 
@@ -151,11 +153,11 @@ analysis_list = [
     {"conteoresp": {"measures": 2, # Opcional
                     "inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
                     "inicio_ensayo2": 444, "fin_ensayo2": 555, "respuesta2": 666, # Opcional
-                    "substract": True, # Opcional
                     "column": 1,
                     "header": "Generic_title",
                     "sheet": "Sheet_2",
                     "summary_column_list": column_dictionary2,
+		    "substract": True, # Opcional
                     "offset": 0,  # Opcional
                     }},
 ]
@@ -214,14 +216,15 @@ analysis_list = [
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
                    "summary_column_list": column_dictionary3,
+		   "statistic": "mean",  # Alternativa: "median"
                    "offset": 0,  # Opcional
                    }},
 ]
 ```
 
-Esta función permite contar las latencias por ensayo medidas en segundos desde el inicio del ensayo hasta la primera ocurrencia de la respuesta de interés. La lista completa con las latencias de respuesta de cada ensayo se escribe en el archivo individual ".xlsx", y la mediana (no la media) se escribe en el archivo de resumen.
+Esta función permite contar las latencias por ensayo medidas en segundos desde el inicio del ensayo hasta la primera ocurrencia de la respuesta de interés. La lista completa con las latencias de respuesta de cada ensayo se escribe en el archivo individual ".xlsx", y la el estadístico elegido (media o mediana) se escribe en el archivo de resumen.
 
-Los argumentos cumplen la misma función que en las funciones anteriores.
+El único argumento adicional es `"statistic"`, que permite determinar qué estadístico será calculado y escrito en el archivo de resumen: la media (`"mean"`) o la mediana (`"median"`).
 
 ### Resp_dist
 
@@ -326,8 +329,8 @@ analysis_list = [
                     "header": "PalDiscRef",
                     "sheet": "Respuestas",
                     "column": 1,
-                    "substract": True,
                     "summary_column_list": columnasRespuestas,
+		    "substract": True,
                     }},
 	# Latencias palancas
     {"conteolat": {"inicio_ensayo": 112, "respuesta": 113,
@@ -335,6 +338,7 @@ analysis_list = [
                    "sheet": "Latencias",
                    "column": 2,
                    "summary_column_list": columnasLatencias,
+		   "statistic": "mean",
                    }},
 	# Nosepokes
     {"conteototal": {"respuesta": 301,
