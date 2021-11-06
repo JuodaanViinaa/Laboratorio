@@ -3,11 +3,11 @@ Código utilizado en el laboratorio 101.
 
 Estos _scripts_ se sirven de las librerías [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) y [Pandas](https://pandas.pydata.org/pandas-docs/stable/), por lo que será útil leer su documentación para entender algunas de las funciones utilizadas.
 
-## Librería _Funciones.py_
+## Librería _oop_funciones.py_
 
 Esta librería provee una manera simple de analizar los datos entregados por el programa de MedPC. Contiene funciones útiles para tareas y análisis básicos. 
 
-De manera general la librería permite escanear una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes el análisis completo de uno o más días de experimentos puede realizarse con un clic.
+De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes el análisis completo de uno o más días de experimentos puede realizarse con un clic.
 
 Sin embargo, la librería requiere de la declaración de variables específicas y su llamada en forma de argumentos en las funciones pertinentes.
 
@@ -18,7 +18,7 @@ Las variables necesarias para utilizar la librería son:
 archivo_de_resumen = "Igualacion.xlsx"
 ```
 
-* Una variable que contenga la [dirección absoulta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`. Ejemplo:
+* Una variable que contenga la [dirección absoulta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`, y que cada nivel de la dirección sea separado por diagonales hacia adelante "`/`" y no hacia atrás "`\`". Ejemplo:
 ```python
 directorioTemporal = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Windows
 directorioTemporal = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Unix
@@ -36,6 +36,11 @@ directorioConvertidos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/Director
 directorioConvertidos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioConvertidos/"  # En el caso de Unix
 ```
 
+* Una lista de _strings_ con los nombres de las hojas de cálculo que debe contener el archivo de resumen. Ejemplo:
+```python
+hojas = ["RespuestasPalanca", "LatenciasPalanca", "RespuestasNosepoke"]
+```
+
 * Una lista con los nombres de los sujetos en forma de _string_. Ejemplo:
 ```python
 sujetos = ["Rata1", "Rata2", "Rata3", "Rata4"]
@@ -43,37 +48,31 @@ sujetos = ["Rata1", "Rata2", "Rata3", "Rata4"]
 
 * Uno o más diccionarios que relacionen a cada sujeto con la columna en que sus datos se escribirán en cada hoja del archivo de resumen. Es decir: un mismo sujeto puede tener asociadas múltiples medidas (e.g., respuestas en palancas, respuestas en nosepoke, latencias, etc). Además, medidas distintas pueden tener subdivisiones diferentes (e.g., puede haber dos medidas de respuestas a palancas (izquierda y derecha), y una sola medida para respuestas a nosepoke). Así, es posible que en una hoja se encuentre un formato similar a este:
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140447057-87d56167-8fe5-4322-97eb-50f3902f9b95.png)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565456-64e9654d-c711-45dd-962f-f6e91b3af9a5.png)
+
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mientras que en otra se puede encontrar un formato similar a este: 
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140447104-a501e12a-658e-4b7a-929e-46dc8c886edf.png)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565654-eb234a07-bb0b-464e-ae99-32faf808d86c.png)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Como se puede ver, medidas distintas para un mismo sujeto requerirían de cantidades distintas de columnas. Por ello será necesario declarar al menos dos diccionarios: uno que relacione a los sujetos con el espacio que ocupan en la primera hoja, y otro que los relacione con el espacio que ocupan en la segunda hoja. Estos diccionarios solamente necesitan declarar la primera columna ocupada. El resto es manejado más adelante. Así, un ejemplo de diccionarios sería:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Como se puede ver, medidas distintas para un mismo sujeto requerirían de cantidades distintas de columnas. Por ello será necesario declarar al menos dos diccionarios: uno que relacione a los sujetos con el espacio que ocupan en la primera hoja (respuestas en palancas), y otro que los relacione con el espacio que ocupan en la segunda hoja (respuestas en nosepoke). Estos diccionarios solamente necesitan declarar la primera columna ocupada traduciendo su letra en número (A = 1, B = 2, etc). El resto de las columnas es manejado más adelante. Así, un ejemplo de diccionarios sería:
 ```python
-columnas_palancas = {"Rata1": 1, "Rata2": 4, "Rata3": 7,}
-columnas_nosepoke = {"Rata1": 1, "Rata2": 3, "Rata3": 5,}
+columnas_palancas = {"Rata1": 2, "Rata2": 7, "Rata3": 12,}
+columnas_nosepoke = {"Rata1": 2, "Rata2": 5, "Rata3": 8,}
 ```
 
-* Tres listas vacías que serán pobladas por las propias funciones de la librería y que contendrán las sesiones por analizar para cada sujeto, los marcadores, y el tiempo en vigésimas de segundo. La primera lista será poblada por la función `purgeSessions()`. La segunda y tercera serán pobladas durante el análisis principal de la función `analyze()`. Ejemplo:
-```python
-sesiones_presentes = []
-marcadores = []
-tiempo = []
-```
-
-* Finalmente, el corazón de la librería es una lista de diccionarios que dictará las medidas que serán extraídas de los marcadores y del tiempo real, al igual que la manera de escribirlas en los archivos individuales y de resumen. Esta lista tiene un formato específico que puede obtenerse ejecutando la función `template()` incluida con la librería. Cada diccionario de la lista declara la función a utilizar (contar respuestas por ensayo, contar respuestas totales, contar latencias, contar respuestas por _bin_ de tiempo), junto con sus parámetros pertinentes (marcadores, columna en que se escribirán los datos en los archivos individuales y de resumen, etc). Ejemplo:
+* Finalmente, el corazón de la librería es una lista de diccionarios que dictará las medidas que serán extraídas de los marcadores y del tiempo, al igual que la manera de escribirlas en los archivos individuales y de resumen. Esta lista tiene un formato específico que puede obtenerse ejecutando la función `template()` incluida con la librería. Cada diccionario de la lista declara la función a utilizar (copiar directamente de una celda, contar respuestas por ensayo, contar respuestas totales, contar latencias, contar respuestas por _bin_ de tiempo), junto con sus parámetros pertinentes (marcadores, columna en que se escribirán los datos en los archivos individuales y de resumen, etc). Ejemplo:
 ```python
 analysis_list = [
-    {"conteoresp": {"mark1": 111, "mark2": 222, "mark3": 333,
+    {"conteoresp": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
                     "substract": True,
                     "column": 1,
                     "header": "Palanca Izq",
                     "sheet": "Palancas",
                     "summary_column_list": columnas_palancas,
-                    "offset": 0,
                     }},
-    {"conteoresp": {"mark1": 444, "mark2": 555, "mark3": 666,
+    {"conteoresp": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
                     "substract": True,
                     "column": 2,
                     "header": "Palanca Der",
@@ -81,7 +80,7 @@ analysis_list = [
                     "summary_column_list": columnas_palancas,
                     "offset": 1,
                     }},
-    {"conteototal": {"mark1": 777,
+    {"conteototal": {"respuesta": 777,
                      "column": 3,
                      "header": "Nosepoke",
                      "sheet": "Nosepoke",
@@ -109,9 +108,9 @@ analysis_list = [
 ]
 ```
 
-Esta función permite extraer directamente un único dato de los archivos ".xlsx" individuales. Es funcional, por ejemplo, para extraer rápidamente el número de ensayos completados (si es que éste se encuentra dentro de alguna de las listas otorgadas por MedPC). Los argumentos `"cell_row"` y `"cell_column"` dictan la posición de la celda que se quiere extraer: un dato que se encuentra, por ejemplo, en la celda "B7" requerirá de los argumentos `"cell_row": 7` y `"cell_column": 2`. El argumento `"sheet"` indica el nombre de la hoja del archivo de resumen en que se escribirá el dato extraído. 
+Esta función permite extraer directamente un único dato de los archivos ".xlsx" individuales. Es funcional, por ejemplo, para extraer rápidamente el número de ensayos completados (si es que éste se encuentra dentro de alguna de las listas otorgadas por MedPC). Los argumentos `"cell_row"` y `"cell_column"` dictan la posición de la celda que se quiere extraer: un dato que se encuentra, por ejemplo, en la celda "B7" requerirá de los argumentos `"cell_row": 7` y `"cell_column": 2`.
 
-El argumento `"summary_column_list"` indica el diccionario que asocia a cada sujeto con la columna particular en que se escribirá su dato. 
+Los argumentos `"sheet"` y `"summary_column_list"` determinan la manera en que el dato extraído se escribirá en el archivo de resumen. El argumento `"sheet"` señala el nombre de la hoja de cálculo en que se escribirá el dato. Este nombre debe corresponder con uno de los elementos de la lista de hojas de cálculo generada anteriormente. Mientras, `"summary_column_list"` será el diccionario que asocia a sujetos con columnas (explicado anteriormente).
 
 El argumento `"offset"` es un caso especial: en ocasiones se requerirá que medidas similares de un mismo sujeto sean escritas en columnas adyacentes de una misma hoja. Por ejemplo:
 
@@ -124,7 +123,7 @@ analysis_list = [
            "cell_column": 10,
            "sheet": "Sheet_1",
            "summary_column_list": column_dictionary,
-           "offset": 0
+           "offset": 0  # Innecesario
            }},
 {"fetch": {"cell_row": 20,
            "cell_column": 20,
@@ -141,30 +140,32 @@ analysis_list = [
 ]
 ```
 
-Esto resultaría en tres columnas: la primera se encontraría en la posición declarada por el diccionario `column_dictionary`, mientras que las otras dos se encontrarían una y dos posiciones a la derecha.
+Esto resultaría en tres columnas: la primera se encontraría en la posición declarada por el diccionario `column_dictionary`, mientras que las otras dos se encontrarían una y dos posiciones a la derecha. 
+
+Finalmente, si dentro del diccionario no se declara ningún valor para `"offset"`, éste tomará un valor por defecto de 0.
 
 ### Conteoresp
 
 ```python
 analysis_list = [
     {"conteoresp": {"measures": 2, # Opcional
-                    "mark1": 111, "mark2": 222, "mark3": 333,
-                    "mark4": 444, "mark5": 555, "mark6": 666, # Opcional
+                    "inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+                    "inicio_ensayo2": 444, "fin_ensayo2": 555, "respuesta2": 666, # Opcional
                     "substract": True, # Opcional
                     "column": 1,
                     "header": "Generic_title",
                     "sheet": "Sheet_2",
                     "summary_column_list": column_dictionary2,
-                    "offset": 0,
+                    "offset": 0,  # Opcional
                     }},
 ]
 ```
 
 Esta función permite contar la cantidad de respuestas que ocurren entre el inicio y el fin de un tipo de ensayo particular. Una lista con todas las respuestas por ensayo se escribe en el archivo individual ".xlsx", y la media de la sesión se escribe en el archivo de resumen.
 
-Los argumentos `"mark1"`, `"mark2"`, y `"mark3"` son los marcadores de inicio de ensayo, fin de ensayo, y respuesta de interés, respectivamente. 
+Los argumentos `"inicio_ensayo"`, `"fin_ensayo"`, y `"respuesta"` son los marcadores de inicio de ensayo, fin de ensayo, y respuesta de interés, respectivamente.
 
-El argumento `"substract"` es un argumento opcional que contempla el caso en el cual la respuesta que interesa contar sea también la respuesta que le da inicio al ensayo. En tal situación contar esa respuesta adicional resultaría en una imprecisión consistente que sobrestimaría en una unidad la cantidad total de respuestas por ensayo. Para solucionar esa situación, añadir el argumento `"substract": True` resultará en la resta de una unidad a cada uno de los conteos de respuestas por ensayo, lo cual nos devolverá a un conteo exacto.
+El argumento `"substract"` es un argumento opcional que contempla el caso en el cual la respuesta que interesa contar sea también la respuesta que le da inicio al ensayo. En tal situación contar esa respuesta adicional resultaría en una imprecisión consistente que sobrestimaría en una unidad la cantidad total de respuestas por ensayo. Para solucionar esa situación, añadir el argumento `"substract": True` resultará en la resta de una unidad a cada uno de los conteos de respuestas por ensayo, lo cual nos devolverá a un conteo exacto. En caso de no ser necesario, no delcarar el argumento lo hace tomar un valor por defecto de `False`, con lo que no se realizará la resta.
 
 Los argumentos `"column"` y `"header"` determinan la manera en que la lista completa de respuestas por ensayo se escribirá en el archivo individual ".xlsx". `"column"` indica la columna en la cual se pegará la lista (siendo que 1 = A, 2 = B, 3 = C, etc). El argumento `"header"` indica el rótulo que tendrá esa columna en su primera celda. 
 
@@ -173,114 +174,181 @@ Los argumentos `"sheet"` y `"summary_column_list"` determinan la manera en que l
 Esta función, junto con las funciones `conteolat` y `conteototal`, incorpora la posibilidad de realizar medidas "agregadas" o múltiples mediante el argumento `"measures"`: en algunas ocasiones es ventajoso sumar en una sola medida las respuesas (o latencias) provenientes de dos fuentes distintas. Como ejemplo se puede pensar en un caso en el cual haya respuestas en una palanca que lleven probabilísticamente a dos consecuencias diferentes y que, por descuido o planeación, tengan marcadores distintos. Las respuestas en ese caso deberán sumarse y contribuir a la misma media en el archivo de resumen. Para casos como ese el argumento `"measures"` permite agregar dentro de una misma medida fuentes distintas de información. `"measures"` indicará la cantidad de fuentes que se deberán agregar en la misma medida. Para cada medida adicional se deberán declarar además los marcadores pertinentes siguiendo la numeración lógica. Por ejemplo, para tres fuentes agregadas en una misma medida los argumentos serían:
 ```python
 analysis_list = [
-    {"conteoresp": {"measures": 2, # Opcional
-                    "mark1": 123, "mark2": 124, "mark3": 125,
-                    "mark4": 223, "mark5": 224, "mark6": 225, 
-                    "mark7": 323, "mark8": 324, "mark9": 325, 
+    {"conteoresp": {"measures": 3, # Opcional
+                    "inicio_ensayo": 123, "fin_ensayo": 124, "respuesta": 125,
+                    "inicio_ensayo2": 223, "fin_ensayo2": 224, "respuesta2": 225, 
+                    "inicio_ensayo3": 323, "fin_ensayo3": 324, "respuesta3": 325, 
+                    ...
 ```
 
-La atención debe centrarse en los dígitos que siguen a la palabra `mark`, notando que la numeración es consecutiva. Esta función puede manejar una cantidad indefinida de fuentes aglomeradas en una misma medida.
+La atención debe centrarse en los dígitos 2 y 3 que siguen a los argumentos, notando que la numeración es consecutiva y que para la primera medida no se debe declarar el dígito 1. Esta función puede manejar una cantidad indefinida de fuentes aglomeradas en una misma medida.
 
 ### Conteototal
 
 ```python
  analysis_list = [
     {"conteototal": {"measures": 2, # Opcional
-                     "mark1": 111,
-                     "mark2": 222, # Opcional
+                     "respuesta": 111,
+                     "respuesta2": 222, # Opcional
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Sheet_4",
                      "summary_column_list": column_dictionary4,
-                     "offset": 0,
+                     "offset": 0,  # Opcional
                      }},
 ]
 ```
 
-Esta función permite contar la cantidad total de respuestas en toda una sesión sin diferenciar entre ensayos. Sus argumentos son idénticos a los de `conteoresp()` salvo por dos excepciones: tiene un único argumento para marcador (el marcador de la respuesta de interés), por lo que al agregar más de una fuente en la misma medida la numeración saltará de uno en uno; y no tiene el argumento de `"substract"` en tanto que no hay una respuesta extra por descartar.
+Esta función permite contar la cantidad total de respuestas en toda una sesión sin diferenciar entre ensayos. El número de ocurrencias de la respuesta se escribe tanto en el archivo individual ".xlsx" como en el archivo de resumen.
+
+Sus argumentos son idénticos a los de `conteoresp()` salvo por dos excepciones: tiene un único argumento para marcador (el marcador de la respuesta de interés), por lo que al agregar más de una fuente en la misma medida mediante `"measures"` la numeración saltará de uno en uno; y no tiene el argumento de `"substract"` en tanto que no hay una respuesta extra por descartar.
 
 ### Conteolat
 
 ```python
 analysis_list = [
     {"conteolat": {"measures": 2, # Opcional
-                   "mark1": 111, "mark2": 222,
-                   "mark3": 333, "mark4": 444, # Opcional
+                   "inicio_ensayo": 111, "respuesta": 222,
+                   "inicio_ensayo2": 333, "respuesta2": 444, # Opcional
                    "column": 2,
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
                    "summary_column_list": column_dictionary3,
-                   "offset": 0,
+                   "offset": 0,  # Opcional
                    }},
 ]
 ```
 
-## Convertidor.py
+Esta función permite contar las latencias por ensayo medidas en segundos desde el inicio del ensayo hasta la primera ocurrencia de la respuesta de interés. La lista completa con las latencias de respuesta de cada ensayo se escribe en el archivo individual ".xlsx", y la mediana (no la media) se escribe en el archivo de resumen.
 
-El _script_ del convertidor toma los archivos de Med en texto sin formato y los convierte en archivos con extensión .xlsx separando los datos en columnas con base en los espacios en blanco. Cada lista dada por Med es separada en dos columnas con base en el punto decimal. El tiempo en vigésimas de segundo y los marcadores se escriben en las columnas O y P, respectivamente. El convertidor escanea una carpeta temporal y con base en ella determina los sujetos faltantes y las sesiones a convertir. Además, es flexible y puede lidiar con cualquier número de listas y distintas organizaciones por columnas en los archivos de Med. Después de ser convertidos, los archivos brutos son movidos a una carpeta permanente.
+Los argumentos cumplen la misma función que en las funciones anteriores.
 
-El convertidor es una función con dos argumentos opcionales: 
-```python
-convertir(columnas, subfijo)
-```
-
-El argumento de `columnas` indica en cuántas columnas está dividido el archivo original dado por Med (el valor por defecto es `6`). Por ejemplo:
-
-![image](https://user-images.githubusercontent.com/87039101/125010780-d31ce080-e02c-11eb-90cd-669ea14f8ab6.png)
-
-En este caso los datos se dividen en cuatro columnas (incluyendo a la primera, que avanza de cinco en cinco), de modo que el argumento `columnas` será `4`.
-
-El argumento `subfijo` indica el formato particular que tiene el nombre de los archivos a convertir (el valor por defecto es un _string_ vacío `''`). Por ejemplo, si el nombre de un archivo es "SujetoX_ALTER_1", el argumento `subfijo` será `'_ALTER_'` (con comillas, dado que se trata de un dato tipo _string_).
-
-Para convertir un conjunto de archivos llamados "Sujeto1_ALTER_1", "Sujeto2_ALTER_1",..., "SujetoN_ALTER_1", cuyos archivos de Med están organizados en seis columnas (la organización por defecto dada por Med si no se declara explícitamente algo distinto), la función del convertidor deberá ser llamada de esta forma:
+### Resp_dist
 
 ```python
-convertir(subfijo='_ALTER_')
+analysis_list = [
+    {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+                   "bin_size": 1,
+                   "bin_amount": 15,
+                   }},
+]
 ```
 
-Para convertir un conjunto de archivos llamados "Sujeto1", "Sujeto2",..., "SujetoN", cuyos archivos de Med están organizados en dos columnas, la función del convertidor deberá ser llamada de esta forma:
+Esta función permite determinar la distribución temporal de una respuesta de interés a lo largo de cada uno de los ensayos de una sesión. El programa dividirá cada ensayo en _bins_, después contará la cantidad de ocasiones que la respuesta de interés ocurrió en cada uno de los bins y almacenará la información en listas. Cada ensayo generará una lista separada, y todas las listas serán escritas en una misma hoja del archivo individual ".xlsx" distinta de aquella en que se escribe el resto de las listas generadas por las otras funciones. Además, una lista con las medias de respuestas por bin se escribirá en una columna en una hoja del archivo de resumen. Cada sujeto tendrá una hoja exclusiva que será generada automáticamente por el programa y cada sesión ocupará una columna en esa hoja.
+
+En aquellos casos en que no haya intervalo entre ensayos y no exista un marcador de fin de ensayo, sino que el fin de un ensayo sea señalado solamente por el inicio del ensayo siguiente, bastará con declarar el mismo marcador para los argumentos `"inicio_ensayo"` y `"fin_ensayo"`.
+
+Los argumentos `"bin_size"` y `"bin_amount"` determinan la duración en segundos de cada _bin_ y la cantidad de _bins_ por ensayo, respectivamente. Así, un ensayo de 15 segundos con _bins_ de un segundo tendrá como argumentos `"bin_size": 1` y `"bin_amount": 15`.
+
+El programa crea un _bin_ adicional a los declarados con `"bin_amount"` en el cual se aglomeran todas las respuestas que ocurran más allá del fin del último _bin_ declarado. De no haber tales respuestas el _bin_ final resultará vacío.
+
+___
+___
+## Uso
+
+Como primer paso será necesario importar la librería al proyecto actual e instalar las dependencias pertinentes, es decir, Openpyxl y Pandas.
+
+La importación de la librería puede realizarse descargando el archivo oop_funciones.py de este github y guardándolo en la misma carpeta en que se encuentre el script de python que se esté construyendo. Después, como primera línea del script se debe escribir
+```python
+from oop_funciones import *
+```
+
+para importar todas las funciones de la librería.
+
+Tras la declaración de todas las variables pertinentes será necesario solamente crear un objeto de tipo `Analyzer` y asignarlo a una variable con los argumentos adecuados. Los argumentos necesarios son:
+
+1. `fileName`, el nombre del archivo de resumen.
+2. `temporaryDirectory`, el directorio temporal declarado antes en el cual se almacenan los datos antes de su análisis.
+3. `permanentDirectory`, el directorio al que se moverán los datos brutos después de su utilización.
+4. `convertedDirectory`, el directorio en el que se guardarán los archivos individuales convertidos ".xlsx" y el archivo de resumen.
+5. `subjectList`, la lista con los nombres de los sujetos.
+6. `suffix`, un string que indica al programa el caracter o conjunto de caracteres que separa el nombre de los sujetos del número de la sesión en el nombre de los archivos. Se recomienda un valor de `"_"`.
+7. `sheets`, una lista de _strings_ con los nombres de las hojas de cálculo que deberán crearse dentro del archivo de resumen.
+8. `analysisList`, la lista de diccionarios que contiene los análisis a realizar.
+9. `markColumn`, la columna de los archivos individuales en la cual se escribieron los marcadores.
+10. `timeColumn`, la columna de los archivos individuales en la cual se escribió el tiempo asociado a cada marcador.
+11. `relocate`, un booleano (es decir, toma valores de `True` y `False`) que indica si los archivos crudos deberán ser movidos del directorio temporal al directorio permanente después del análisis. Es útil para evitar la necesidad de regresar los archivos manualmente al directorio temporal mientras se están haciendo pruebas con el código.
+
+Los argumentos `timeColumn` y `markColumn` no son necesarios inicialmente, sino que son obtenidos al aplicar parte del programa a los datos. Esto se verá a continuación.
+
+La creación inicial del objeto de tipo `Analyzer` puede ser como sigue (apelando a las variables creadas anteriormente):
+```python
+analyzer = Analyzer(fileName=archivo_de_resumen, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
+                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_", sheets=hojas,
+                    analysisList=analysis_list, relocate=False)
+```
+
+Sin embargo, aun no sería posible hacer el análisis completo de los datos, sino solamente su conversión, que es justamente el paso siguiente. Con el método `convert()` se pueden convertir los archivos contenidos en la carpeta temporal:
 
 ```python
-convertir(2)
+analyzer.convert()
 ```
-o, alternativamente,
+
+Esto generará los archivos individuales en formato .xlsx. Será necesario ahora abrir cualquiera de ellos con cualquier editor de hojas de cálculo y determinar manualmente las columnas en las cuales se escribieron las listas de tiempo y marcadores. Estas columnas serán después pasadas como argumentos en la declaración del objeto tipo `Analyzer`. Por ejemplo, suponiendo que en los archivos individuales encontrásemos que la lista con el tiempo fue escrita en la columna "M" y la lista con los marcadores en la columna "N", la declaración del objeto resultaría finalmente como:
 
 ```python
-convertir(columnas=2)
+analyzer = Analyzer(fileName=archivo, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
+                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_", sheets=hojas,
+                    analysisList=analysis_list, timeColumn="M", markColumn="N", relocate=False)
 ```
 
-Si la organización de los archivos es en seis columnas y no se requiere agregar un 'subfijo' al nombre de los archivos, bastará llamar la función sin ningún argumento.
-____
-El código del convertidor presupone la existencia de las siguientes variables:
+Así, el script completo preparado para analizar datos con un solo clic sería:
 
-* `directorioBrutos`, que indicará la dirección de la carpeta en la cual se encuentran los archivos a convertir. Se deben utilizar diagonales hacia adelante ('/') y no hacia atrás ('\\'), como suele hacer Windows, para separar las carpetas en la dirección, y el último caracter de la dirección debe ser una diagonal hacia adelante.
-* `directorioConvertidos`, que indicará la dirección de la carpeta en la cual se guardarán los archivos ya convertidos (además del archivo de resumen, si es que se utiliza el _script_ de ResumenUltimate.py). También será necesario usar diagonales hacia adelante y terminar con una diagonal.
-* `sesionesPresentes`, una lista vacía que se llenará con las sesiones a analizar de cada sujeto.
-* `sujetos`, que contendrá una lista con los nombres de los sujetos que forman el grupo a convertir.
+```python
+from oop_funciones import *
 
-Estas variables son las mismas utilizadas por el _script_ de resumen, de modo que solo es necesario declararlas una vez.
+archivo = 'Response_distribution.xlsx'
+directorioTemporal = '/home/usuario/Documents/Proyecto/Temporal/'
+directorioBrutos = '/home/usuario/Documents/Proyecto/Brutos/'
+directorioConvertidos = '/home/usuario/Documents/Proyecto/Convertidos/'
+hojas = ["Ensayos", "Respuestas", "Latencias", "Nosepokes",]
+sujetos = ["A1", "A2", "A3"]
+columnasEnsayos = {"A1": 2, "A2": 4, "A3": 6}
+columnasRespuestas = {"A1": 2, "A2": 5, "A3": 8}
+columnasLatencias = {"A1": 2, "A2": 7, "A3": 12}
+columnasNosepokes = {"A1": 2, "A2": 6, "A3": 10}
 
-## ResumenUltimate.py
+analysis_list = [
+	# Ensayos completados
+    {"fetch": {"cell_row": 15,
+               "cell_column": 2,
+               "sheet": "Ensayos",
+               "summary_column_list": columnasEnsayos,
+               "offset": 1
+               }},
+	# Distribucion respuestas
+    {"resp_dist": {"inicio_ensayo": 300, "fin_ensayo": 300, "respuesta": 200,
+                   "bin_size": 1,
+                   "bin_amount": 15,
+                   }},
+	# Respuestas palancas
+    {"conteoresp": {"inicio_ensayo": 114, "fin_ensayo": 180, "respuesta": 202,
+                    "header": "PalDiscRef",
+                    "sheet": "Respuestas",
+                    "column": 1,
+                    "substract": True,
+                    "summary_column_list": columnasRespuestas,
+                    }},
+	# Latencias palancas
+    {"conteolat": {"inicio_ensayo": 112, "respuesta": 113,
+                   "header": "LatPalDisc",
+                   "sheet": "Latencias",
+                   "column": 2,
+                   "summary_column_list": columnasLatencias,
+                   }},
+	# Nosepokes
+    {"conteototal": {"respuesta": 301,
+                     "header": "EscForzDiscRef",
+                     "sheet": "Nosepokes",
+                     "column": 3,
+                     "summary_column_list": columnasNosepokes,
+                     }},
+]
 
-El _script_ está adaptado para el experimento de _escape_. 
+analyzer = Analyzer(fileName=archivo, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
+                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_", sheets=hojas,
+                    analysisList=analysis_list, timeColumn="M", markColumn="N", relocate=False)
 
-Inicialmente, el código revisa una carpeta que contendrá temporalmente los archivos brutos a convertir y analizar. Busca los nombres de los sujetos declarados en la lista `sujetos` dentro de esta carpeta, y si algún sujeto no tiene ningún dato asociado, lo agrega a la lista `sujetosFaltantes`. Después se genera una lista hecha de sub-listas con las sesiones presentes para cada sujeto. Tener sesiones salteadas no debe generar ningún problema.
+analyzer.complete_analysis()
 
-Se compara la lista `sujetosFaltantes` con la lista `sujetos`. Todos aquellos sujetos que se encuentren en la lista `sujetosFaltantes` son eliminados junto con sus columnas asociadas en sus listas respectivas.
-
-El siguiente paso es la conversión de los archivos a formato .xlsx. Después de convertir los archivos, el código los lee nuevamente y realiza un conteo de respuestas y latencias que escribe en dos lugares: en una hoja nueva del archivo individual generado por el convertidor (donde se incluyen respuestas y latencias por ensayo) y en un archivo de resumen con extensión .xlsx (donde solo se incluyen medias para las respuestas y medianas para las latencias).
-
-El _script_ de resumen declara funciones para las tareas repetitivas:
-* `hoja(nombre)`: crea hojas de cálculo en el archivo de resumen con el nombre dado como argumento. Si una hoja con ese nombre ya existe, no se crea una hoja nueva, sino que ésta simplemente se abre. Esta función debe ser asignada a una variable (e.g., `latencias = hoja('Latencias')`).
-* `conteoresp(inicioEnsayo, finEnsayo, respuesta)`: cuenta respuestas por tipo de ensayo. Los argumentos son los marcadores de Med para inicio de ensayo, fin de ensayo, y respuesta de interés. Esta función resulta en una lista que contiene la cantidad de ocasiones que la respuesta ocurrió entre cada inicio y fin de ensayo. Si no ocurrieron ensayos del tipo de interés, la lista resultante tendrá un único cero para poder hacer cálculos de medias y medianas. Es importante tener en cuenta que generalmente los ensayos son iniciados por una respuesta. Esta primera respuesta ocurre después del marcador de inicio de ensayo, pero no forma parte del conteo de respuestas real. Dependiendo de que la respuesta que inicia el ensayo sea también la respuesta de interés a contar puede ser necesario restar una unidad al calcular la media de respuestas por ensayo. Esta función debe ser asignada a una variable.
-* `conteototal(respuesta)`: cuenta respuestas totales de un tipo dado en la sesión completa. El argumento es el marcador de Med de la respuesta de interés. Esta función resulta en un número entero que representa la cantidad de ocasiones que la respuesta ocurrió en la sesión completa. Esta función debe ser asignada a una variable.
-* `conteolat(inicioEnsayo, respuesta)`: cuenta la latencia entre el inicio de un ensayo de tipo determinado y la primera respuesta de interés. Los argumentos son los marcadores de Med de inicio de ensayo y respuesta. La función resulta en una lista con la latencia de respuesta en cada ensayo. Esta función debe ser asignada a una variable.
-* `esccolumnas(titulo, columna, lista, restar)`: escribe las respuestas y latencias por ensayo en el archivo convertido individual. El argumento de `titulo` es un _string_ e indica el encabezado que tendrá la columna en donde se escribirá la lista; `columna` es un número entero e indica la columna en la cual se escribirá la lista (1 = A, 2 = B, etc.); `lista` indicará el nombre de la variable que contiene la lista que será escrita en la columna (las listas serán los resultados de las funciones descritas anteriormente); y `restar` indicará si se debe restar una unidad a cada elemento de la lista antes de pegarlo en su columna individual (debido a que la función `conteoresp()` cuenta una respuesta adicional por ensayo en situaciones ya descritas), y puede tomar los valores de `True` y `False`. Si el argumento `restar` es `True` y hay un ensayo con cero respuestas, no se ejecuta la resta para evitar resultar en números negativos.
-
-La sección principal del _script_ se basa en dos ciclos `for`: uno que cicla a través de sujetos y otro anidado en el primero que lo hace a través de sesiones.
-
-El _script_ genera listas con los conteos de respuestas y latencias de cada sujeto, y escribe medias y medianas en los sitios correspondietes del archivo de resumen. Los sitios correspondientes son determinados consultando las listas `columnasProp`, `columnasResp`, `columnasLatPal`, `columnasEscapes`, y `columnasLatEsc`. Existe una lista por cada una de las variables que se analizan debido a que cada variable se escribe en una hoja distinta y ocupa una cantidad de columnas distinta. Cada lista declara el número correspondiente a la primera columna utilizada por cada uno de los sujetos, por lo que habrá tantos elementos en cada lista como sujetos en la lista de `sujetos`. 
-
-## Resumen(xls).py
-
-Este resumen está desacoplado del convertidor, y está hecho para utilizarse con el convertidor anterior del laboratorio (que produce archivos convertidos con extensión .xls en lugar de .xlsx). Tiene las mismas funciones que _ResumenUltimate.py_ salvo porque no pega datos por ensayo en el archivo individual. Es preferible no usar este script.
+```
