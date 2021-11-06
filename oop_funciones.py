@@ -233,6 +233,7 @@ def template():
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
                    "summary_column_list": column_dictionary3,
+                   "statistic": "mean",
                    "offset": 0,
                    }},
 
@@ -457,9 +458,14 @@ class Analyzer:
                                 latencia_parcial = conteolat(marcadores, tiempo, value[f"inicio_ensayo{mark_index}"],
                                                              value[f"respuesta{mark_index}"])
                             latencias_totales.extend(latencia_parcial)
-                        sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
-                                session + 3)] = median(latencias_totales)
+                        if value["statistic"] == "mean":
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = mean(latencias_totales)
+                        else:
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = median(latencias_totales)
                         esccolumnas(hojaind, value["header"], value["column"], latencias_totales)
 
                     elif key == "conteototal":

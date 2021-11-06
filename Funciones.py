@@ -7,7 +7,7 @@ import re
 from shutil import move
 
 
-def purgeSessions(temporaryDirectory, subjectList, sessionList):
+def get_sessions(temporaryDirectory, subjectList, sessionList):
     """
     Se genera una lista temporal que contiene aquellos sujetos cuyos datos sí están en la carpeta temporal; después, se
     eliminan las columnas pertinentes de cada una de las listas de columnas. Los argumentos son: el directorio temporal
@@ -62,29 +62,29 @@ def purgeSessions(temporaryDirectory, subjectList, sessionList):
     print("\n")
 
 
-def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=6, subfijo='_', mover=True):
+def convert(temporaryDirectory, permanentDirectory, convertedDirectory, subjectList, sessionList, suffix='_',
+            relocate=True):
     """
     Convierte archivos de texto plano de MedPC en hojas de cálculo en formato *.xlsx.
     Separa cada lista en dos columnas con base en el punto decimal.\n
-    :param dirTemp: Directorio donde se almacenan temporalmente los datos brutos por analizar.
-    :param dirPerm: Directorio donde se almacenarán finalmente los datos brutos después de la conversión.
-    :param dirConv: Directorio donde se almacenarán los archivos ya convertidos.
+    :param temporaryDirectory: Directorio donde se almacenan temporalmente los datos brutos por analizar.
+    :param permanentDirectory: Directorio donde se almacenarán finalmente los datos brutos después de la conversión.
+    :param convertedDirectory: Directorio donde se almacenarán los archivos ya convertidos.
     :param subjectList: Lista con los nombres de todos los sujetos.
-    :param presentSessions: Lista vacía rellenada por el programa con las sesiones presentes de cada sujeto.
-    :param columnas: Cantidad de columnas en que están divididos los archivos de texto de Med. Valor por defecto: 6.
-    :param subfijo: Identificador del nombre de los archivos. Ejemplo: '_Alter_'. Valor por defecto: ''.
-    :param mover: Booleano que indica si los archivos deben ser movidos a la carpeta permanente tras su conversión.
+    :param sessionList: Lista vacía rellenada por el programa con las sesiones presentes de cada sujeto.
+    :param suffix: Identificador del nombre de los archivos. Ejemplo: '_Alter_'. Valor por defecto: ''.
+    :param relocate: Booleano que indica si los archivos deben ser movidos a la carpeta permanente tras su conversión.
     """
     for ind, sjt in enumerate(subjectList):
-        for ssn in presentSessions[ind]:
+        for ssn in sessionList[ind]:
             print(f"Converting session {ssn} of subject {sjt}.")
             # Pandas lee los datos y los escribe en el archivo convertido en 6 columnas separando por los espacios.
             # El argumento names indica cuántas columnas se crearán. Evita errores cuando se edita el archivo de Med.
-            datos = pandas.read_csv(f"{dirTemp}{sjt}{subfijo}{ssn}", header=None, names=range(columnas), sep=r'\s+')
-            datos.to_excel(f"{dirConv}{sjt}{subfijo}{ssn}.xlsx", index=False, header=None)
+            datos = pandas.read_csv(f"{temporaryDirectory}{sjt}{suffix}{ssn}", header=None, names=range(6), sep=r'\s+')
+            datos.to_excel(f"{convertedDirectory}{sjt}{suffix}{ssn}.xlsx", index=False, header=None)
 
             # Openpyxl abre el archivo creado por pandas, lee la hoja y la almacena en la variable hojaCompleta.
-            archivoCompleto = load_workbook(f"{dirConv}{sjt}{subfijo}{ssn}.xlsx")
+            archivoCompleto = load_workbook(f"{convertedDirectory}{sjt}{suffix}{ssn}.xlsx")
             hojaCompleta = archivoCompleto.active
 
             # Se genera una lista que contenga sub-listas con todos los valores de las listas dadas por Med.
@@ -96,7 +96,7 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
 
             columna1 = hojaCompleta['B']
             for fila in range(12, len(columna1) + 1):
-                for columna in range(2, columnas + 1):
+                for columna in range(2, 6 + 1):
                     if hojaCompleta[f"{get_column_letter(columna)}{fila}"].value is not None:
                         metalista[contadormetalista].append(str(float(hojaCompleta[get_column_letter(columna) +
                                                                                    str(fila)].value)))
@@ -115,27 +115,27 @@ def convertir(dirTemp, dirPerm, dirConv, subjectList, presentSessions, columnas=
                         metalista[ii][j] += '0'
                     elif regex2.search(metalista[ii][j]):
                         metalista[ii][j] += '00'
-                    hojaCompleta[get_column_letter((ii * 2) + columnas + 3) + str(j + 1)] = int(
+                    hojaCompleta[get_column_letter((ii * 2) + 9) + str(j + 1)] = int(
                         metalista[ii][j].split('.')[0])
-                    hojaCompleta[get_column_letter((ii * 2) + columnas + 4) + str(j + 1)] = int(
+                    hojaCompleta[get_column_letter((ii * 2) + 10) + str(j + 1)] = int(
                         metalista[ii][j].split('.')[1])
-            archivoCompleto.save(f"{dirConv}{sjt}{subfijo}{ssn}.xlsx")
-            if mover:
-                move(f"{dirTemp}{sjt}{subfijo}{ssn}", f"{dirPerm}{sjt}{subfijo}{ssn}")
+            archivoCompleto.save(f"{convertedDirectory}{sjt}{suffix}{ssn}.xlsx")
+            if relocate:
+                move(f"{temporaryDirectory}{sjt}{suffix}{ssn}", f"{permanentDirectory}{sjt}{suffix}{ssn}")
         print('\n')
 
 
-def createDocument(fileName, targetDirectory):
+def create_document(fileName, convertedDirectory):
     """
     Se inspecciona el directorio objetivo en busca de un archivo de resumen. Si existe, el archivo es abierto. Si no,
     es creado. Esta función debe asignarse a una variable.\n
     :param fileName: Nombre del archivo de resumen.
-    :param targetDirectory: Ubicación del directorio objetivo.
+    :param convertedDirectory: Ubicación del directorio objetivo.
     :return: Objeto de clase Workbook (Openpyxl).
     """
-    if fileName in listdir(targetDirectory):
+    if fileName in listdir(convertedDirectory):
         print('Summary file found. Opening...\n')
-        wb = load_workbook(targetDirectory + fileName)
+        wb = load_workbook(convertedDirectory + fileName)
     else:
         print('Summary file not found. Creating...\n')
         wb = Workbook()
@@ -172,27 +172,27 @@ def fetch(sheet, origin_cell_row, origin_cell_column):
     return sheet.cell(origin_cell_row, origin_cell_column).value
 
 
-def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):  # Count_per_trial
+def conteoresp(marks, trialStart, trialEnd, response):  # Count_per_trial
     """
     Cuenta respuestas entre el marcador de inicio de ensayo y el de fin de ensayo. En caso de que el marcador de la
     respuesta a contar sea el mismo que el de la respuesta que da inicio al ensayo se contará una respuesta adicional.
     Esto puede corregirse en el análisis principal con la opción "substract", y en la función 'esccolumnas' mediante el
     parámetro "restar".\n
-    :param marcadores: Lista con los marcadores.
-    :param inicioEnsayo: Marcador de inicio de ensayo.
-    :param finEnsayo: Marcador de fin de ensayo.
-    :param respuesta: Marcador de respuesta a contar.
+    :param marks: Lista con los marcadores.
+    :param trialStart: Marcador de inicio de ensayo.
+    :param trialEnd: Marcador de fin de ensayo.
+    :param response: Marcador de respuesta a contar.
     :return: Lista con la cantidad de respuestas ocurridas por ensayo.
     """
     contadorTemp = 0
     inicio = 0
     resp = []
-    for n in range(1, len(marcadores)):
-        if marcadores[n].value == inicioEnsayo:
+    for n in range(1, len(marks)):
+        if marks[n].value == trialStart:
             inicio = 1
-        elif marcadores[n].value == respuesta and inicio == 1:
+        elif marks[n].value == response and inicio == 1:
             contadorTemp += 1
-        elif marcadores[n].value == finEnsayo and inicio == 1:
+        elif marks[n].value == trialEnd and inicio == 1:
             inicio = 0
             resp.append(contadorTemp)
             contadorTemp = 0
@@ -201,18 +201,18 @@ def conteoresp(marcadores, inicioEnsayo, finEnsayo, respuesta):  # Count_per_tri
     return resp
 
 
-def resp_dist(marcadores, tiempo, inicio_ensayo, fin_ensayo, respuesta, bin_size, bin_amount):
+def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount):
     """
     Cuenta las respuestas por bin de tiempo dentro de cada ensayo de la sesión. Se puede elegir la cantidad de bins y su
     tamaño. La función puede lidiar tanto con situaciones en las que hay marcador de fin de ensayo (es decir, hay
     intervalo entre ensayos) como situaciones en las que no. En caso de que el ensayo continúe más allá del último bin
     declarado se contabilizarán todas las respuestas dadas desde el fin del último bin declarado hasta el fin del ensayo
     como un único gran bin.\n
-    :param marcadores: Lista con los marcadores.
-    :param tiempo: Lista con el tiempo de la sesión.
-    :param inicio_ensayo: Marcador de inicio de ensayo.
-    :param fin_ensayo: Marcador de fin de ensayo.
-    :param respuesta: Marcador de respuesta a contar.
+    :param marks: Lista con los marcadores.
+    :param time: Lista con el tiempo de la sesión.
+    :param trialStart: Marcador de inicio de ensayo.
+    :param trialEnd: Marcador de fin de ensayo.
+    :param response: Marcador de respuesta a contar.
     :param bin_size: Tamaño en segundos de los bins.
     :param bin_amount: Cantidad de bins por ensayo.
     :return: Lista compuesta de sublistas con las respuestas ocurridas por bin por ensayo.
@@ -221,10 +221,10 @@ def resp_dist(marcadores, tiempo, inicio_ensayo, fin_ensayo, respuesta, bin_size
     resp_por_ensayo = [0] * (bin_amount + 1)  # Generar lista con tantos ceros como diga el parámetro bin_amount
     resp_totales = []
     bin_tuples = []
-    if inicio_ensayo == fin_ensayo:
-        for index, mark in enumerate(marcadores):
-            if mark.value == inicio_ensayo and inicio == 0:
-                tiempo_inicio = tiempo[index].value
+    if trialStart == trialEnd:
+        for index, mark in enumerate(marks):
+            if mark.value == trialStart and inicio == 0:
+                tiempo_inicio = time[index].value
                 # Este loop crea una lista con tantas tuplas como bin_amount dicte. Cada tupla contendrá el tiempo de inicio
                 # y de fin de cada bin. El tiempo de fin de un bin es igual al tiempo de inicio del siguiente.
                 for i in range(bin_amount):
@@ -233,25 +233,25 @@ def resp_dist(marcadores, tiempo, inicio_ensayo, fin_ensayo, respuesta, bin_size
                     tiempo_inicio = tiempo_fin
                 inicio = 1
 
-            elif mark.value == inicio_ensayo and inicio == 1:
+            elif mark.value == trialStart and inicio == 1:
                 resp_totales.append(resp_por_ensayo)
                 resp_por_ensayo = [0] * (bin_amount + 1)
                 bin_tuples = []
-                tiempo_inicio = tiempo[index].value
+                tiempo_inicio = time[index].value
                 for i in range(bin_amount):
                     tiempo_fin = tiempo_inicio + (bin_size * 20)
                     bin_tuples.append((tiempo_inicio, tiempo_fin))
                     tiempo_inicio = tiempo_fin
 
-            elif mark.value == respuesta and inicio == 1:
+            elif mark.value == response and inicio == 1:
                 for idx, bin_tuple in enumerate(bin_tuples):
-                    if bin_tuple[0] <= tiempo[index].value < bin_tuple[1]:
+                    if bin_tuple[0] <= time[index].value < bin_tuple[1]:
                         # Si se encuentra una respuesta, se comienza a ciclar a través de la lista de tuplas. Si el tiempo
                         # en que ocurrió la respuesta está contenido en alguno de los intervalos dictados por las tuplas, se
                         # agrega una unidad a la lista de resp_por_ensayo en la misma posición que tenga la tupla en su
                         # propia lista.
                         resp_por_ensayo[idx] += 1
-                    elif tiempo[index].value >= bin_tuples[-1][-1]:
+                    elif time[index].value >= bin_tuples[-1][-1]:
                         # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
                         # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
                         # ocurran después de los esperado según el parámetro bin_amount.
@@ -259,9 +259,9 @@ def resp_dist(marcadores, tiempo, inicio_ensayo, fin_ensayo, respuesta, bin_size
         resp_totales.append(resp_por_ensayo)
 
     else:
-        for index, mark in enumerate(marcadores):
-            if mark.value == inicio_ensayo and inicio == 0:
-                tiempo_inicio = tiempo[index].value
+        for index, mark in enumerate(marks):
+            if mark.value == trialStart and inicio == 0:
+                tiempo_inicio = time[index].value
                 # Este loop crea una lista con tantas tuplas como bin_amount dicte. Cada tupla contendrá el tiempo de inicio
                 # y de fin de cada bin. El tiempo de fin de un bin es igual al tiempo de inicio del siguiente.
                 for i in range(bin_amount):
@@ -270,21 +270,21 @@ def resp_dist(marcadores, tiempo, inicio_ensayo, fin_ensayo, respuesta, bin_size
                     tiempo_inicio = tiempo_fin
                 inicio = 1
 
-            elif mark.value == respuesta and inicio == 1:
+            elif mark.value == response and inicio == 1:
                 for idx, bin_tuple in enumerate(bin_tuples):
-                    if bin_tuple[0] <= tiempo[index].value < bin_tuple[1]:
+                    if bin_tuple[0] <= time[index].value < bin_tuple[1]:
                         # Si se encuentra una respuesta, se comienza a ciclar a través de la lista de tuplas. Si el tiempo
                         # en que ocurrió la respuesta está contenido en alguno de los intervalos dictados por las tuplas, se
                         # agrega una unidad a la lista de resp_por_ensayo en la misma posición que tenga la tupla en su
                         # propia lista.
                         resp_por_ensayo[idx] += 1
-                    elif tiempo[index].value >= bin_tuples[-1][-1]:
+                    elif time[index].value >= bin_tuples[-1][-1]:
                         # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
                         # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
                         # ocurran después de los esperado según el parámetro bin_amount.
                         resp_por_ensayo[-1] += 1
 
-            elif mark.value == fin_ensayo:
+            elif mark.value == trialEnd:
                 # Al finalizar cada ensayo la lista con las respuestas por ensayo se agrega a una lista de orden superior
                 # llamada resp_totales. Los valores de resp_por_ensayo y bin_tuples se reinician.
                 inicio = 0
@@ -295,55 +295,55 @@ def resp_dist(marcadores, tiempo, inicio_ensayo, fin_ensayo, respuesta, bin_size
     return resp_totales
 
 
-def conteototal(marcadores, respuesta):
+def conteototal(marks, response):
     """
     Cuenta la cantidad total de veces que ocurrió un marcador particular en la sesión independientemente de los ensayos.\n
-    :param marcadores: Lista con los marcadores.
-    :param respuesta: Marcador de respuesta a contar.
+    :param marks: Lista con los marcadores.
+    :param response: Marcador de respuesta a contar.
     :return: Integer con la cantidad de ocasiones que ocurrió una respuesta.
     """
     contador = 0
-    for n in range(len(marcadores)):
-        if marcadores[n].value == respuesta:
+    for n in range(len(marks)):
+        if marks[n].value == response:
             contador += 1
     return contador
 
 
-def conteolat(marcadores, tiempo, inicioensayo, respuesta):
+def conteolat(marks, time, trialStart, response):
     """
     Cuenta la latencia entre el inicio de un ensayo y una respuesta.\n
-    :param marcadores: Lista con los marcadores.
-    :param tiempo: Lista con el tiempo de la sesión.
-    :param inicioensayo: Marcador de inicio de ensayo.
-    :param respuesta: Marcador de respuesta de interés.
+    :param marks: Lista con los marcadores.
+    :param time: Lista con el tiempo de la sesión.
+    :param trialStart: Marcador de inicio de ensayo.
+    :param response: Marcador de respuesta de interés.
     :return: Lista con las latencias por ensayo.
     """
     inicio = 0
     lat = []
     tiempoini = 0
-    for n in range(1, len(marcadores)):
-        if marcadores[n].value == inicioensayo:
+    for n in range(1, len(marks)):
+        if marks[n].value == trialStart:
             inicio = 1
-            tiempoini = tiempo[n].value
-        elif marcadores[n].value == respuesta and inicio == 1:
-            lat.append((tiempo[n].value - tiempoini) / 20)
+            tiempoini = time[n].value
+        elif marks[n].value == response and inicio == 1:
+            lat.append((time[n].value - tiempoini) / 20)
             inicio = 0
     if len(lat) == 0:
         lat = [0]
     return lat
 
 
-def esccolumnas(hojaind, titulo, columna, lista):
+def esccolumnas(indivSheet, header, column, data):
     """
     Escribe listas completas en columnas. Útil para escribir los datos completos en los archivos individuales.\n
-    :param hojaind: Objeto de tipo Worksheet (Openpyxl) en el que se escribirá la lista.
-    :param titulo: Rótulo que se escribirá en la primera celda de la columna.
-    :param columna: Número de la columna en que se escribirá la lista (1-A, 2-B, etc.).
-    :param lista: Lista a escribir en la columna.
+    :param indivSheet: Objeto de tipo Worksheet (Openpyxl) en el que se escribirá la lista.
+    :param header: Rótulo que se escribirá en la primera celda de la columna.
+    :param column: Número de la columna en que se escribirá la lista (1-A, 2-B, etc.).
+    :param data: Lista a escribir en la columna.
     """
-    hojaind[get_column_letter(columna) + str(1)] = titulo
-    for pos in range(len(lista)):
-        hojaind[get_column_letter(columna) + str(pos + 2)] = lista[pos]
+    indivSheet[get_column_letter(column) + str(1)] = header
+    for pos in range(len(data)):
+        indivSheet[get_column_letter(column) + str(pos + 2)] = data[pos]
 
 
 def template():
@@ -360,8 +360,8 @@ def template():
                }},
 
     {"conteoresp": {"measures": 2, # Optional argument. Default value: 1
-                    "mark1": 111, "mark2": 222, "mark3": 333,
-                    "mark4": 444, "mark5": 555, "mark6": 666, # Optional marks. Depends on the value of "measures"
+                    "inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+                    "inicio_ensayo2": 444, "fin_ensayo2": 555, "respuesta2": 666, # Optional marks. Depends on the value of "measures"
                     "substract": True, # Optional argument. Default value: False
                     "column": 1,
                     "header": "Generic_title",
@@ -371,8 +371,8 @@ def template():
                     }},
                     
     {"conteototal": {"measures": 2, # Optional argument. Default value: 1
-                     "mark1": 111,
-                     "mark2": 222, # Optional mark. Depends on the value of "measures"
+                     "respuesta": 111,
+                     "respuesta2": 222, # Optional mark. Depends on the value of "measures"
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Sheet_4",
@@ -381,16 +381,17 @@ def template():
                      }},
 
     {"conteolat": {"measures": 2, # Optional argument. Default value: 1
-                   "mark1": 111, "mark2": 222,
-                   "mark3": 333, "mark4": 444, # Optional marks. Depends on the value of "measures"
+                   "inicio_ensayo": 111, "respuesta": 222,
+                   "inicio_ensayo2": 333, "respuesta2": 444, # Optional marks. Depends on the value of "measures"
                    "column": 2,
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
                    "summary_column_list": column_dictionary3,
+                   "statistic": "mean",
                    "offset": 0,
                    }},
 
-    {"resp_dist": {"mark1": 111, "mark2": 222, "mark3": 333,
+    {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
                    }},
@@ -398,15 +399,16 @@ def template():
     """)
 
 
-def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict, analysisList, markColumn, timeColumn):
+def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, workbook, sheetDict, analysisList,
+            markColumn, timeColumn):
     """
     Función principal de análisis. Toma los conteos realizados por las otras funciones y pega medidas de tendencia
     central en un archivo general de resumen. Además pega las listas completas en los archivos convertidos
     individuales.\n
-    :param dirConv: Dirección de la carpeta donde se guardarán los archivos convertidos y el archivo de resumen. La dirección debe ser absoluta y estar separada por diagonales hacia adelante.
+    :param convertedDirectory: Dirección de la carpeta donde se guardarán los archivos convertidos y el archivo de resumen. La dirección debe ser absoluta y estar separada por diagonales hacia adelante.
     :param fileName: Nombre del archivo de resumen.
-    :param subList: Lista con los nombres de los suejetos a analizar.
-    :param sessionList: Lista con las sesiones presentes para cada sujeto. Inicialmente está vacía y es poblada por la función de purgeSessions
+    :param subjectList: Lista con los nombres de los suejetos a analizar.
+    :param sessionList: Lista con las sesiones presentes para cada sujeto. Inicialmente está vacía y es poblada por la función de get_sessions
     :param suffix: Caracter o conjunto de caracteres que separa el nombre del sujeto del número de sesión en cada uno de los archivos. Ejemplo: "_"
     :param workbook: Hoja de cálculo generada por la función createDocument.
     :param sheetDict: Diccionario creado por la función create_sheets.
@@ -414,10 +416,10 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
     :param markColumn: Columna ocupada por la lista de marcadores en los archivos individuales. Para obtenerla es necesario correr solamente la función de convertir y revisar manualmente la columna en que están escritos los marcadores.
     :param timeColumn: Columna ocupada por la lista de tiempos en vigésimas de segundo. Debe ser revisada manualmente, también.
     """
-    for index, subject in enumerate(subList):
+    for index, subject in enumerate(subjectList):
         for session in sessionList[index]:
             print(f"Trying session {session} of subject {subject}.")
-            sujetoWb = load_workbook(f"{dirConv}{subject}{suffix}{str(session)}.xlsx")
+            sujetoWb = load_workbook(f"{convertedDirectory}{subject}{suffix}{str(session)}.xlsx")
             sujetoWs = sujetoWb.worksheets[0]
             hojaind = sujetoWb.create_sheet('FullLists')
             tiempo = sujetoWs[timeColumn]
@@ -425,7 +427,7 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
 
             for analysis in analysisList:
                 if "resp_dist" in analysis:
-                    resp_dist_sheets = create_sheets(workbook, *subList)
+                    resp_dist_sheets = create_sheets(workbook, *subjectList)
                     dist_indiv_sheet = sujetoWb.create_sheet('RespDistrib')
 
                 key, value = list(analysis.items())[0]
@@ -463,9 +465,14 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                             latencia_parcial = conteolat(marcadores, tiempo, value[f"inicio_ensayo{mark_index}"],
                                                          value[f"respuesta{mark_index}"])
                         latencias_totales.extend(latencia_parcial)
-                    sheetDict[value["sheet"]][
-                        get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
-                            session + 3)] = median(latencias_totales)
+                    if value["statistic"] == "mean":
+                        sheetDict[value["sheet"]][
+                            get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                session + 3)] = mean(latencias_totales)
+                    else:
+                        sheetDict[value["sheet" ]][
+                            get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                session + 3)] = median(latencias_totales)
                     esccolumnas(hojaind, value["header"], value["column"], latencias_totales)
 
                 elif key == "conteototal":
@@ -488,8 +495,9 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                             session + 3)] = cell_value
 
                 elif key == "resp_dist":
-                    superlist = resp_dist(marcadores, tiempo, inicio_ensayo=value["inicio_ensayo"], fin_ensayo=value["fin_ensayo"],
-                                          respuesta=value["respuesta"], bin_size=value["bin_size"],
+                    superlist = resp_dist(marcadores, tiempo, trialStart=value["inicio_ensayo"],
+                                          trialEnd=value["fin_ensayo"],
+                                          response=value["respuesta"], bin_size=value["bin_size"],
                                           bin_amount=value["bin_amount"])
                     aggregated = []
                     means = []
@@ -504,6 +512,6 @@ def analyze(dirConv, fileName, subList, sessionList, suffix, workbook, sheetDict
                     for ix, sublist in enumerate(superlist):
                         esccolumnas(dist_indiv_sheet, f"Trial {ix + 1}", ix + 1, sublist)
 
-            sujetoWb.save(dirConv + subject + suffix + str(session) + '.xlsx')
+            sujetoWb.save(convertedDirectory + subject + suffix + str(session) + '.xlsx')
         print("\n")
-    workbook.save(dirConv + fileName)
+    workbook.save(convertedDirectory + fileName)

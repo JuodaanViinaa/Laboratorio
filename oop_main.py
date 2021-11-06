@@ -1,8 +1,6 @@
-from Funciones import *
+from oop_funciones import *
 
-archivo = 'Prueba_better_offset.xlsx'
-# directorioBrutos = 'C:/Users/Admin/Desktop/Escape/Datos/Brutos/'
-# directorioConvertidos = 'C:/Users/Admin/Desktop/Escape/Datos/ConvertidosPython/Escape/'
+archivo = 'Prueba_mean.xlsx'
 directorioTemporal = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Temporal/'
 directorioBrutos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/PruebasBrutos/'
 directorioConvertidos = '/home/daniel/Documents/Doctorado/Proyecto de Doctorado/ExperimentoEscape/Flex/'
@@ -14,17 +12,9 @@ columnasLatPal = {"E3": 2, "E4": 7, "E5": 12, "E7": 17, "E8": 22, "E9": 27, "E1"
 columnasEscapes = {"E3": 2, "E4": 13, "E5": 24, "E7": 35, "E8": 46, "E9": 57, "E1": 68}
 columnasLatEsc = {"E3": 2, "E4": 13, "E5": 24, "E7": 35, "E8": 46, "E9": 57, "E1": 68}
 columnasEscForz = {"E3": 2, "E4": 7, "E5": 12, "E7": 17, "E8": 22, "E9": 27, "E1": 32}
+hojas = ['Proporciones', 'Respuestas', 'Latencias', 'Comedero', 'Escapes', 'LatNosepoke', 'EscapesForzados',
+         'LatEscapeForz', 'LatEscapeForzPorEstim']
 
-# sujetos = ["S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"]
-# columnasProp = {"S3": 2, "S4": 4, "S5": 6, "S6": 8, "S7": 10, "S8": 12, "S9": 14, "S10": 16}
-# columnasResp = {"S3": 2, "S4": 9, "S5": 16, "S6": 23, "S7": 30, "S8": 37, "S9": 44, "S10": 51}
-# columnasLatPal = {"S3": 2, "S4": 7, "S5": 12, "S6": 17, "S7": 22, "S8": 27, "S9": 32, "S10": 37}
-# columnasEscapes = {"S3": 2, "S4": 13, "S5": 24, "S6": 35, "S7": 46, "S8": 57, "S9": 68, "S10": 79}
-# columnasLatEsc = {"S3": 2, "S4": 13, "S5": 24, "S6": 35, "S7": 46, "S8": 57, "S9": 68, "S10": 79}
-# columnasEscForz = {"S3": 2, "S4": 7, "S5": 12, "S6": 17, "S7": 22, "S8": 27, "S9": 32, "S10": 37}
-sesionesPresentes = []  # Lista vacía.
-marcadores = []  # Lista vacía.
-tiempo = []  # Lista vacía.
 
 analysis_list = [
     # Proporciones
@@ -365,16 +355,8 @@ analysis_list = [
                    }},
 ]
 
-get_sessions(directorioTemporal, sujetos, sesionesPresentes)
+analyzer = Analyzer(fileName=archivo, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
+                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_SUBCHOIL_", sheets=hojas,
+                    analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
 
-convert(temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos, convertedDirectory=directorioConvertidos, subjectList=sujetos,
-        sessionList=sesionesPresentes, suffix="_SUBCHOIL_", relocate=False)
-
-wb = create_document(fileName=archivo, convertedDirectory=directorioConvertidos)
-
-sheet_dict = create_sheets(wb, 'Proporciones', 'Respuestas', 'Latencias', 'Comedero', 'Escapes', 'LatNosepoke',
-                           'EscapesForzados', 'LatEscapeForz', 'LatEscapeForzPorEstim')
-
-analyze(convertedDirectory=directorioConvertidos, fileName=archivo, subjectList=sujetos, sessionList=sesionesPresentes,
-        suffix="_SUBCHOIL_", workbook=wb, sheetDict=sheet_dict, analysisList=analysis_list, markColumn="P",
-        timeColumn="O")
+analyzer.complete_analysis()
