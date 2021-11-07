@@ -7,7 +7,7 @@ Estos _scripts_ se sirven de las librerías [Openpyxl](https://openpyxl.readthed
 
 Esta librería provee una manera simple de analizar los datos entregados por el programa de [Med PC-IV](https://www.med-associates.com/). Contiene funciones útiles para tareas y análisis básicos. 
 
-De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas de datos en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes el análisis completo de uno o más días de sesiones experimentales y de uno o más sujetos puede realizarse con un clic.
+De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas de datos en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes, el análisis completo de uno o más días de sesiones experimentales y de uno o más sujetos puede realizarse con un clic.
 
 Sin embargo, la librería requiere de la declaración de variables específicas y su llamada en forma de argumentos en las funciones pertinentes.
 
@@ -222,7 +222,7 @@ analysis_list = [
 ]
 ```
 
-Esta función permite contar las latencias por ensayo medidas en segundos desde el inicio del ensayo hasta la primera ocurrencia de la respuesta de interés. La lista completa con las latencias de respuesta de cada ensayo se escribe en el archivo individual ".xlsx", y la el estadístico elegido (media o mediana) se escribe en el archivo de resumen.
+Esta función permite contar las latencias por ensayo medidas en segundos desde el inicio del ensayo hasta la primera ocurrencia de la respuesta de interés. La lista completa con las latencias de respuesta de cada ensayo se escribe en el archivo individual ".xlsx", y el estadístico elegido (media o mediana) se escribe en el archivo de resumen.
 
 El único argumento adicional es `"statistic"`, que permite determinar qué estadístico será calculado y escrito en el archivo de resumen: la media (`"mean"`) o la mediana (`"median"`).
 
@@ -238,7 +238,7 @@ analysis_list = [
 ]
 ```
 
-Esta función permite determinar la distribución temporal de una respuesta de interés a lo largo de cada uno de los ensayos de una sesión. El programa dividirá cada ensayo en _bins_, después contará la cantidad de ocasiones que la respuesta de interés ocurrió en cada uno de los bins y almacenará la información en listas. Cada ensayo generará una lista separada, y todas las listas serán escritas en una misma hoja del archivo individual ".xlsx" distinta de aquella en que se escribe el resto de las listas generadas por las otras funciones. Además, una lista con las medias de respuestas por bin se escribirá en una columna en una hoja del archivo de resumen. Cada sujeto tendrá una hoja exclusiva que será generada automáticamente por el programa y cada sesión ocupará una columna en esa hoja.
+Esta función permite determinar la distribución temporal de una respuesta de interés a lo largo de cada uno de los ensayos de una sesión. El programa dividirá cada ensayo en _bins_, después contará la cantidad de ocasiones que la respuesta de interés ocurrió en cada uno de los _bins_ y almacenará la información en listas. Cada ensayo generará una lista separada, y todas las listas serán escritas en una misma hoja del archivo individual ".xlsx" distinta de aquella en que se escribe el resto de las listas generadas por las otras funciones. Además, una lista con las medias de respuestas por bin se escribirá en una columna en una hoja del archivo de resumen. Cada sujeto tendrá una hoja exclusiva que será generada automáticamente por el programa y cada sesión ocupará una columna en esa hoja. En tanto que cada distribución de respuestas para cada sujeto es escrita en una hoja separada generada automáticamente, esta función no necesita de los argumentos `"column"`, `"header"`, `"sheet"`, y `"summary_column_list"`.
 
 En aquellos casos en que no haya intervalo entre ensayos y no exista un marcador de fin de ensayo, sino que el fin de un ensayo sea señalado solamente por el inicio del ensayo siguiente, bastará con declarar el mismo marcador para los argumentos `"inicio_ensayo"` y `"fin_ensayo"`.
 
@@ -340,12 +340,12 @@ analysis_list = [
                "cell_column": 2,
                "sheet": "Ensayos",
                "summary_column_list": columnasEnsayos,
-               "offset": 1
                }},
 	# Distribucion respuestas
     {"resp_dist": {"inicio_ensayo": 300, "fin_ensayo": 300, "respuesta": 200,
                    "bin_size": 1,
                    "bin_amount": 15,
+		   "label": "Respuestas",
                    }},
 	# Respuestas palancas
     {"conteoresp": {"inicio_ensayo": 114, "fin_ensayo": 180, "respuesta": 202,
@@ -363,7 +363,7 @@ analysis_list = [
                    "summary_column_list": columnasLatencias,
 		   "statistic": "mean",
                    }},
-	# Nosepokes
+	# Respuestas nosepokes
     {"conteototal": {"respuesta": 301,
                      "header": "EscForzDiscRef",
                      "sheet": "Nosepokes",
