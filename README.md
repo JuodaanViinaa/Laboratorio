@@ -233,6 +233,7 @@ analysis_list = [
     {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
+		   "label": "Generic_title"  # Opcional
                    }},
 ]
 ```
@@ -244,6 +245,28 @@ En aquellos casos en que no haya intervalo entre ensayos y no exista un marcador
 Los argumentos `"bin_size"` y `"bin_amount"` determinan la duración en segundos de cada _bin_ y la cantidad de _bins_ por ensayo, respectivamente. Así, un ensayo de 15 segundos con _bins_ de un segundo tendrá como argumentos `"bin_size": 1` y `"bin_amount": 15`.
 
 El programa crea un _bin_ adicional a los declarados con `"bin_amount"` en el cual se aglomeran todas las respuestas que ocurran más allá del fin del último _bin_ declarado. De no haber tales respuestas el _bin_ final resultará vacío.
+
+En caso de que se requiera obtener la distribución de más de una respuesta del mismo experimento se debe declarar el argumento opcional `"label"` con un nombre que identifique a cada una de las medidas que se requieren. El programa creará una hoja separada para cada medida de cada sujeto y le pondrá como título el nombre del sujeto seguido del _string_ que se haya utilizado como argumento de `"label"`, y cada sesión ocupará una columna en su hoja pertinente. Por ejemplo, si se requiere obtener distribuciones de respuestas en palancas y en nosepoke, los diccionarios necesarios podrían tener un formato como este:
+
+```python 
+analysis_list = [
+    {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+                   "bin_size": 1,
+                   "bin_amount": 15,
+		   "label": "Palancas"  # Opcional
+                   }},
+
+    {"resp_dist": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
+                   "bin_size": 1,
+                   "bin_amount": 15,
+		   "label": "Nosepoke"  # Opcional
+                   }},
+]
+```
+
+Y el archivo de resumen resultante tendría dos hojas para cada sujeto: una asignada a las distribuciones de respuestas en palancas y otra asignada a las distribuciones de respuesta en nosepoke. Si los sujetos fuesen `"Rata1"` y `"Rata2"`, las hojas resultantes tendrían los nombres de `"Rata1_Palancas"`, `"Rata1_Nosepoke"`, `"Rata2_Palancas"`, y `"Rata2_Nosepoke"`. Por otro lado, el archivo ".xlsx" individual de cada sujeto contendría dos hojas: una para cada medida. Estas hojas son creadas automáticamente y llevan por título el valor del argumento `"label"`.
+
+En caso de que el argumento `"label"` sea omitido se creará en el archivo de resumen una sola hoja por sujeto, y ésta llevará por título el nombre del sujeto. Si se declaran múltiples distribuciones de respuestas y en todas se omite el argumento `"label"`, éstas se sobreescribirán entre sí y solamente será visible la última medida declarada.
 
 ___
 ___

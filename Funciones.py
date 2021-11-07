@@ -426,9 +426,9 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
             marcadores = sujetoWs[markColumn]
 
             for analysis in analysisList:
-                if "resp_dist" in analysis:
-                    resp_dist_sheets = create_sheets(workbook, *subjectList)
-                    dist_indiv_sheet = sujetoWb.create_sheet('RespDistrib')
+                # if "resp_dist" in analysis:
+                #     resp_dist_sheets = create_sheets(workbook, *subjectList)
+                #     dist_indiv_sheet = sujetoWb.create_sheet('RespDistrib')
 
                 key, value = list(analysis.items())[0]
 
@@ -495,6 +495,12 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                             session + 3)] = cell_value
 
                 elif key == "resp_dist":
+                    if "label" in value:
+                        resp_dist_sheet = create_sheets(workbook, [f"{subject}_{value['label']}"])
+                        dist_indiv_sheet = sujetoWb.create_sheet(value["label"])
+                    else:
+                        resp_dist_sheet = create_sheets(workbook, [subject])
+                        dist_indiv_sheet = sujetoWb.create_sheet('RespDistrib')
                     superlist = resp_dist(marcadores, tiempo, trialStart=value["inicio_ensayo"],
                                           trialEnd=value["fin_ensayo"],
                                           response=value["respuesta"], bin_size=value["bin_size"],
@@ -507,7 +513,10 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                         means.append(mean(aggregated))
                         aggregated = []
                     # Escribir en archivo de resumen
-                    esccolumnas(resp_dist_sheets[subject], f"Session {session}", session + 1, means)
+                    if "label" in value:
+                        esccolumnas(resp_dist_sheet[f'{subject}_{value["label"]}'], f"Session {session}", session + 1, means)
+                    else:
+                        esccolumnas(resp_dist_sheet[subject], f"Session {session}", session + 1, means)
                     # Escribir en archivo individual
                     for ix, sublist in enumerate(superlist):
                         esccolumnas(dist_indiv_sheet, f"Trial {ix + 1}", ix + 1, sublist)
