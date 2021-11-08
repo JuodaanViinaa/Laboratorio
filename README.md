@@ -5,7 +5,7 @@ Estos _scripts_ se sirven de las librerías [Openpyxl](https://openpyxl.readthed
 
 ## Librería _oop_funciones.py_
 
-Esta librería provee una manera simple de analizar los datos entregados por el programa de [Med PC-IV](https://www.med-associates.com/). Contiene funciones útiles para tareas y análisis básicos. 
+Esta librería provee una manera simple de analizar los datos entregados por el programa de [Med PC-IV](https://www.med-associates.com/). Contiene funciones útiles para tareas y análisis básicos. La librería solamente ha sido probada con los archivos entregados por Med PC-IV, por lo que desconozco su funcionamiento con versiones distintas. Agradeceré cualquier realimentaci
 
 De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas de datos en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes, el análisis completo de uno o más días de sesiones experimentales y de uno o más sujetos puede realizarse con un clic.
 
