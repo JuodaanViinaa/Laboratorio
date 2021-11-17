@@ -358,7 +358,24 @@ class Analyzer:
                 contadormetalista = 0
 
                 columna1 = hojaCompleta['B']
-                for fila in range(12, len(columna1) + 1):
+                rx = re.compile(r'^\d+\.\d+$')
+                # Esta sección servirá si encontramos una situación en la cual las listas de Med comiencen en una fila
+                # distinta de 11 o 12. Es levemente más tardada, por lo que no será implementada si no hace falta.
+                # place = 1
+                # while True:
+                #     if rx.search(hojaCompleta[f"B{place}"].value):
+                #         start = place
+                #         break
+                #     elif place >= 12:
+                #         start = 12
+                #         break
+                #     else:
+                #         place += 1
+                if rx.search(hojaCompleta["B11"].value):
+                    start = 11
+                else:
+                    start = 12
+                for fila in range(start, len(columna1) + 1):
                     for columna in range(2, 6 + 1):
                         if hojaCompleta[f"{get_column_letter(columna)}{fila}"].value is not None:
                             metalista[contadormetalista].append(str(float(hojaCompleta[get_column_letter(columna) +
