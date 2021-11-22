@@ -292,7 +292,7 @@ class Analyzer:
         listaTemp = []
         for sbj in self.subject_list:
             for datoTemp in dirTemp:
-                if sbj == datoTemp.split('_')[0] and sbj not in listaTemp:
+                if sbj == datoTemp.split(self.suffix)[0] and sbj not in listaTemp:
                     listaTemp.append(sbj)
 
         # Los sujetos que no forman parte de la lista temporal son agregados a la lista sujetosFaltantes para que sus
@@ -316,8 +316,8 @@ class Analyzer:
             self.session_list.append([])
             sublista = []
             for datoTemp in dirTemp:
-                if sujetoPresente == datoTemp.split('_')[0]:
-                    sublista.append(int(datoTemp.split('_')[-1]))
+                if sujetoPresente == datoTemp.split(self.suffix)[0]:
+                    sublista.append(int(datoTemp.split(self.suffix)[-1]))
             self.session_list[indice] = sorted(sublista)
             indice += 1
 
@@ -371,10 +371,10 @@ class Analyzer:
                 #         break
                 #     else:
                 #         place += 1
-                if rx.search(hojaCompleta["B11"].value):
-                    start = 11
-                else:
-                    start = 12
+                start = 12
+                if hojaCompleta["B11"].value is not None:
+                    if rx.search(hojaCompleta["B11"].value):
+                        start = 11
                 for fila in range(start, len(columna1) + 1):
                     for columna in range(2, 6 + 1):
                         if hojaCompleta[f"{get_column_letter(columna)}{fila}"].value is not None:
