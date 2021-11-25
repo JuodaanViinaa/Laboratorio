@@ -18,7 +18,7 @@ Las variables necesarias para utilizar la librería son:
 archivo_de_resumen = "Igualacion.xlsx"
 ```
 
-* Una variable que contenga la [dirección absoulta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`, y que cada nivel de la dirección sea separado por diagonales hacia adelante "`/`" y no hacia atrás "`\`". Ejemplo:
+* Una variable que contenga la [dirección absoluta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`, y que cada nivel de la dirección sea separado por diagonales hacia adelante "`/`" y no hacia atrás "`\`". Ejemplo:
 ```python
 directorioTemporal = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Windows
 directorioTemporal = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Unix
@@ -131,13 +131,13 @@ analysis_list = [
            "cell_column": 20,
            "sheet": "Sheet_1",
            "summary_column_list": column_dictionary,
-           "offset": 1
+           "offset": 1  # <------
            }},
 {"fetch": {"cell_row": 30,
            "cell_column": 30,
            "sheet": "Sheet_1",
            "summary_column_list": column_dictionary,
-           "offset": 2
+           "offset": 2  # <------
            }},
 ]
 ```
@@ -176,7 +176,7 @@ Los argumentos `"sheet"` y `"summary_column_list"` determinan la manera en que l
 Esta función, junto con las funciones `conteolat` y `conteototal`, incorpora la posibilidad de realizar medidas "agregadas" o múltiples mediante el argumento `"measures"`: en algunas ocasiones es ventajoso sumar en una sola medida las respuesas (o latencias) provenientes de dos fuentes distintas. Como ejemplo se puede pensar en un caso en el cual haya respuestas en una palanca que lleven probabilísticamente a dos consecuencias diferentes y que, por descuido o planeación, tengan marcadores distintos. Las respuestas en ese caso deberán sumarse y contribuir a la misma media en el archivo de resumen. Para casos como ese el argumento `"measures"` permite agregar dentro de una misma medida fuentes distintas de información. `"measures"` indicará la cantidad de fuentes que se deberán agregar en la misma medida. Para cada medida adicional se deberán declarar además los marcadores pertinentes siguiendo la numeración lógica. Por ejemplo, para tres fuentes agregadas en una misma medida los argumentos serían:
 ```python
 analysis_list = [
-    {"conteoresp": {"measures": 3, # Opcional
+    {"conteoresp": {"measures": 3,
                     "inicio_ensayo": 123, "fin_ensayo": 124, "respuesta": 125,
                     "inicio_ensayo2": 223, "fin_ensayo2": 224, "respuesta2": 225, 
                     "inicio_ensayo3": 323, "fin_ensayo3": 324, "respuesta3": 325, 
