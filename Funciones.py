@@ -461,17 +461,30 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                                                            value[f"fin_ensayo{mark_index}"],
                                                            value[f"respuesta{mark_index}"])
                         respuestas_totales.extend(respuesta_parcial)
-                    if value.get("substract", False):
-                        respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
-                        sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
-                                session + 3)] = mean(respuestas_restadas)
-                        esccolumnas(hojaind, value["header"], value["column"], respuestas_restadas)
+                    if value.get("statistic", "mean") == "mean":
+                        if value.get("substract", False):
+                            respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = mean(respuestas_restadas)
+                            esccolumnas(hojaind, value["header"], value["column"], respuestas_restadas)
+                        else:
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = mean(respuestas_totales)
+                            esccolumnas(hojaind, value["header"], value["column"], respuestas_totales)
                     else:
-                        sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
-                                session + 3)] = mean(respuestas_totales)
-                        esccolumnas(hojaind, value["header"], value["column"], respuestas_totales)
+                        if value.get("substract", False):
+                            respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = median(respuestas_restadas)
+                            esccolumnas(hojaind, value["header"], value["column"], respuestas_restadas)
+                        else:
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = median(respuestas_totales)
+                            esccolumnas(hojaind, value["header"], value["column"], respuestas_totales)
 
                 elif key == "conteolat":
                     latencias_totales = []
@@ -482,7 +495,7 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                             latencia_parcial = conteolat(marcadores, tiempo, value[f"inicio_ensayo{mark_index}"],
                                                          value[f"respuesta{mark_index}"])
                         latencias_totales.extend(latencia_parcial)
-                    if value["statistic"] == "mean":
+                    if value.get("statistic", "mean") == "mean":
                         sheetDict[value["sheet"]][
                             get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
                                 session + 3)] = mean(latencias_totales)
@@ -527,8 +540,12 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                     for i in range(len(superlist[0])):
                         for sublist in superlist:
                             aggregated.append(sublist[i])
-                        means.append(mean(aggregated))
+                        if value.get("statistic", "mean") == "mean":
+                            means.append(mean(aggregated))
+                        else:
+                            means.append(median(aggregated))
                         aggregated = []
+
                     # Escribir en archivo de resumen
                     if "label" in value:
                         esccolumnas(resp_dist_sheet[f'{subject}_{value["label"]}'], f"Session {session}", session + 1, means)
