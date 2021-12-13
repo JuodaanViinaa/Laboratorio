@@ -268,11 +268,11 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount)
                         # agrega una unidad a la lista de resp_por_ensayo en la misma posición que tenga la tupla en su
                         # propia lista.
                         resp_por_ensayo[idx] += 1
-                    elif time[index].value >= bin_tuples[-1][-1]:
-                        # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
-                        # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
-                        # ocurran después de los esperado según el parámetro bin_amount.
-                        resp_por_ensayo[-1] += 1
+                if time[index].value >= bin_tuples[-1][-1]:
+                    # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
+                    # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
+                    # ocurran después de los esperado según el parámetro bin_amount.
+                    resp_por_ensayo[-1] += 1
         resp_totales.append(resp_por_ensayo)
 
     else:
@@ -295,11 +295,11 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount)
                         # agrega una unidad a la lista de resp_por_ensayo en la misma posición que tenga la tupla en su
                         # propia lista.
                         resp_por_ensayo[idx] += 1
-                    elif time[index].value >= bin_tuples[-1][-1]:
-                        # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
-                        # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
-                        # ocurran después de los esperado según el parámetro bin_amount.
-                        resp_por_ensayo[-1] += 1
+                if time[index].value >= bin_tuples[-1][-1]:
+                    # Si el tiempo está más allá del dictado por las tuplas se agrega una unidad a la última posición de
+                    # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
+                    # ocurran después de los esperado según el parámetro bin_amount.
+                    resp_por_ensayo[-1] += 1
 
             elif mark.value == trialEnd:
                 # Al finalizar cada ensayo la lista con las respuestas por ensayo se agrega a una lista de orden superior
