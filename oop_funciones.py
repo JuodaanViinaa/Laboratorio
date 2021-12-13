@@ -129,7 +129,6 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount)
                     # la lista resp_por_ensayo. Esta última posición contendrá el aglomerado de todas las respuestas que
                     # ocurran después de los esperado según el parámetro bin_amount.
                     resp_por_ensayo[-1] += 1
-                    print(resp_por_ensayo)
 
             elif mark.value == trialEnd:
                 # Al finalizar cada ensayo la lista con las respuestas por ensayo se agrega a una lista de orden superior
