@@ -158,12 +158,13 @@ analysis_list = [
                     "sheet": "Sheet_2",
                     "summary_column_list": column_dictionary2,
 		    "substract": True, # Opcional
-                    "offset": 0,  # Opcional
+                    "statistic": "mean",  # Opcional. Alternativa: "median"
+		    "offset": 0,  # Opcional
                     }},
 ]
 ```
 
-Esta función permite contar la cantidad de respuestas que ocurren entre el inicio y el fin de un tipo de ensayo particular. Una lista con todas las respuestas por ensayo se escribe en el archivo individual ".xlsx", y la media de la sesión se escribe en el archivo de resumen.
+Esta función permite contar la cantidad de respuestas que ocurren entre el inicio y el fin de un tipo de ensayo particular. Una lista con todas las respuestas por ensayo se escribe en el archivo individual ".xlsx", y una medida de tendencia central (media o mediana) por sesión se escribe en el archivo de resumen.
 
 Los argumentos `"inicio_ensayo"`, `"fin_ensayo"`, y `"respuesta"` son los marcadores de inicio de ensayo, fin de ensayo, y respuesta de interés, respectivamente.
 
@@ -184,6 +185,8 @@ analysis_list = [
 ```
 
 La atención debe centrarse en los dígitos 2 y 3 que siguen a los argumentos, notando que la numeración es consecutiva y que para la primera medida no se debe declarar el dígito 1. Esta función puede manejar una cantidad indefinida de fuentes aglomeradas en una misma medida.
+
+Finalmente, el argumento `"statistic"` determina la medida de tendencia central (media o mediana) que será escrita en el archivo de resumen. Su valor por defecto es `"mean"`, por lo que si no se declara ningún valor, la medida escrita será la media.
 
 ### Conteototal
 
@@ -216,7 +219,7 @@ analysis_list = [
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
                    "summary_column_list": column_dictionary3,
-		   "statistic": "mean",  # Alternativa: "median"
+		   "statistic": "mean",  # Opcional. Alternativa: "median"
                    "offset": 0,  # Opcional
                    }},
 ]
@@ -224,7 +227,7 @@ analysis_list = [
 
 Esta función permite contar las latencias por ensayo medidas en segundos desde el inicio del ensayo hasta la primera ocurrencia de la respuesta de interés. La lista completa con las latencias de respuesta de cada ensayo se escribe en el archivo individual ".xlsx", y el estadístico elegido (media o mediana) se escribe en el archivo de resumen.
 
-El único argumento adicional es `"statistic"`, que permite determinar qué estadístico será calculado y escrito en el archivo de resumen: la media (`"mean"`) o la mediana (`"median"`).
+Al igual que `conteoresp`, esta función incorpora el argumento `"statistic"` para determinar la medida de tendencia central escrita en el archivo de resumen.
 
 ### Resp_dist
 
@@ -234,6 +237,7 @@ analysis_list = [
                    "bin_size": 1,
                    "bin_amount": 15,
 		   "label": "Generic_title"  # Opcional
+		   "statistic": "mean",  # Opcional. Alternativa: "median"
                    }},
 ]
 ```
@@ -267,6 +271,9 @@ analysis_list = [
 Y el archivo de resumen resultante tendría dos hojas para cada sujeto: una asignada a las distribuciones de respuestas en palancas y otra asignada a las distribuciones de respuesta en nosepoke. Si los sujetos fuesen `"Rata1"` y `"Rata2"`, las hojas resultantes tendrían los nombres de `"Rata1_Palancas"`, `"Rata1_Nosepoke"`, `"Rata2_Palancas"`, y `"Rata2_Nosepoke"`. Por otro lado, el archivo ".xlsx" individual de cada sujeto contendría dos hojas: una para cada medida. Estas hojas son creadas automáticamente y llevan por título el valor del argumento `"label"`.
 
 En caso de que el argumento `"label"` sea omitido se creará en el archivo de resumen una sola hoja por sujeto, y ésta llevará por título el nombre del sujeto. Si se declaran múltiples distribuciones de respuestas y en todas se omite el argumento `"label"`, éstas se sobreescribirán entre sí y solamente será visible la última medida declarada.
+
+Esta función, al igual que `conteoresp` y `conteolat`, incorpora el argumento `"statistic"` para determinar la medida de tendencia central escrita en el archivo de resumen.
+
 
 ___
 ___
