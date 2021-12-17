@@ -59,7 +59,7 @@ def get_sessions(temporaryDirectory, subjectList, sessionList):
         #         if sujetoFaltante in subjectList:
         #             del columnList[subjectList.index(sujetoFaltante)]
         del subjectList[subjectList.index(sujetoFaltante)]
-    print("\n")
+    print("-" * 70)
 
 
 def convert(temporaryDirectory, permanentDirectory, convertedDirectory, subjectList, sessionList, suffix='_',
@@ -139,7 +139,7 @@ def convert(temporaryDirectory, permanentDirectory, convertedDirectory, subjectL
             archivoCompleto.save(f"{convertedDirectory}{sjt}{suffix}{ssn}.xlsx")
             if relocate:
                 move(f"{temporaryDirectory}{sjt}{suffix}{ssn}", f"{permanentDirectory}{sjt}{suffix}{ssn}")
-        print('\n')
+        print("-" * 70)
 
 
 def create_document(fileName, convertedDirectory):
@@ -151,10 +151,10 @@ def create_document(fileName, convertedDirectory):
     :return: Objeto de clase Workbook (Openpyxl).
     """
     if fileName in listdir(convertedDirectory):
-        print('Summary file found. Opening...\n')
+        print('\nSummary file found. Opening...\n')
         wb = load_workbook(convertedDirectory + fileName)
     else:
-        print('Summary file not found. Creating...\n')
+        print('\nSummary file not found. Creating...\n')
         wb = Workbook()
     return wb
 
@@ -435,7 +435,7 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
     """
     for index, subject in enumerate(subjectList):
         for session in sessionList[index]:
-            print(f"Trying session {session} of subject {subject}.")
+            print(f"Trying session {session} of subject {subject}...", end="")
             sujetoWb = load_workbook(f"{convertedDirectory}{subject}{suffix}{str(session)}.xlsx")
             sujetoWs = sujetoWb.worksheets[0]
             hojaind = sujetoWb.create_sheet('FullLists')
@@ -556,5 +556,7 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                         esccolumnas(dist_indiv_sheet, f"Trial {ix + 1}", ix + 1, sublist)
 
             sujetoWb.save(convertedDirectory + subject + suffix + str(session) + '.xlsx')
-        print("\n")
+            print(" Success.\n")
+        if len(sessionList[index]) >= 2:
+            print("-" * 70)
     workbook.save(convertedDirectory + fileName)

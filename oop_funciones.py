@@ -330,7 +330,7 @@ class Analyzer:
             #         if sujetoFaltante in subjectList:
             #             del columnList[subjectList.index(sujetoFaltante)]
             del self.subject_list[self.subject_list.index(sujetoFaltante)]
-        print("\n")
+        print("-" * 70)
 
     def converter(self):
         """
@@ -402,7 +402,7 @@ class Analyzer:
                 archivoCompleto.save(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx")
                 if self.relocate:
                     move(f"{self.temp_directory}{sjt}{self.suffix}{ssn}", f"{self.perm_directory}{sjt}{self.suffix}{ssn}")
-            print('\n')
+        print("-" * 70)
 
     def create_document(self):
         """
@@ -411,10 +411,10 @@ class Analyzer:
         :return: Objeto de clase Workbook (Openpyxl).
         """
         if self.file_name in listdir(self.conv_directory):
-            print('Summary file found. Opening...\n')
+            print('\nSummary file found. Opening...\n')
             wb = load_workbook(self.conv_directory + self.file_name)
         else:
-            print('Summary file not found. Creating...\n')
+            print('\nSummary file not found. Creating...\n')
             wb = Workbook()
         return wb
 
@@ -423,12 +423,12 @@ class Analyzer:
         Función principal de análisis. Toma los conteos realizados por las otras funciones y pega medidas de tendencia
         central en un archivo general de resumen. Además pega las listas completas en los archivos convertidos
         individuales.\n
-        :param workbook: Hoja de cálculo generada por la función createDocument.
+        :param workbook: Hoja de cálculo generada por la función create_document.
         :param sheetDict: Diccionario creado por la función create_sheets.
         """
         for index, subject in enumerate(self.subject_list):
             for session in self.session_list[index]:
-                print(f"Trying session {session} of subject {subject}.")
+                print(f"Trying session {session} of subject {subject}...", end="")
                 sujetoWb = load_workbook(f"{self.conv_directory}{subject}{self.suffix}{str(session)}.xlsx")
                 sujetoWs = sujetoWb.worksheets[0]
                 hojaind = sujetoWb.create_sheet('FullLists')
@@ -529,7 +529,6 @@ class Analyzer:
                                               trialEnd=value["fin_ensayo"],
                                               response=value["respuesta"], bin_size=value["bin_size"],
                                               bin_amount=value["bin_amount"])
-                        print(superlist)
                         aggregated = []
                         means = []
                         for i in range(len(superlist[0])):
@@ -551,7 +550,9 @@ class Analyzer:
                             esccolumnas(dist_indiv_sheet, f"Trial {ix + 1}", ix + 1, sublist)
 
                 sujetoWb.save(self.conv_directory + subject + self.suffix + str(session) + '.xlsx')
-            print("\n")
+                print(" Success.\n")
+            if len(self.session_list[index]) >= 2:
+                print("-" * 70)
         workbook.save(self.conv_directory + self.file_name)
 
     def convert(self):
