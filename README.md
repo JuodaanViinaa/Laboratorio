@@ -221,6 +221,7 @@ analysis_list = [
                    "summary_column_list": column_dictionary3,
 		   "statistic": "mean",  # Opcional. Alternativa: "median"
                    "offset": 0,  # Opcional
+		   "unit": 20
                    }},
 ]
 ```
@@ -229,6 +230,8 @@ Esta función permite contar las latencias por ensayo medidas en segundos desde 
 
 Al igual que `conteoresp`, esta función incorpora el argumento `"statistic"` para determinar la medida de tendencia central escrita en el archivo de resumen.
 
+Esta función incorpora el argumento `unit`, que determina la resolución temporal utilizada en Med. El argumento corresponde con las unidades entre las que se divide cada segundo. Si, por ejemplo, la resolución temporal utilizada es de vigésimas de segundo entonces el argumento `unit` deberá tomar el valor de 20.
+
 ### Resp_dist
 
 ```python
@@ -236,8 +239,9 @@ analysis_list = [
     {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Generic_title"  # Opcional
+		   "label": "Generic_title",  # Opcional
 		   "statistic": "mean",  # Opcional. Alternativa: "median"
+		   "unit": 20,
                    }},
 ]
 ```
@@ -257,13 +261,17 @@ analysis_list = [
     {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Palancas"  # Opcional
+		   "label": "Palancas", # Opcional
+		   "statistic": "mean",
+		   "unit": 20,
                    }},
 
     {"resp_dist": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Nosepoke"  # Opcional
+		   "label": "Nosepoke",  # Opcional
+		   "statistic": "mean",
+		   "unit": 20,
                    }},
 ]
 ```
@@ -273,6 +281,8 @@ Y el archivo de resumen resultante tendría dos hojas para cada sujeto: una asig
 En caso de que el argumento `"label"` sea omitido se creará en el archivo de resumen una sola hoja por sujeto, y ésta llevará por título el nombre del sujeto. Si se declaran múltiples distribuciones de respuestas y en todas se omite el argumento `"label"`, éstas se sobreescribirán entre sí y solamente será visible la última medida declarada.
 
 Esta función, al igual que `conteoresp` y `conteolat`, incorpora el argumento `"statistic"` para determinar la medida de tendencia central escrita en el archivo de resumen.
+
+Al igual que `conteolat` esta función incorpora el argumento `unit` para dictar la resolución temporal del análisis.
 
 
 ___
