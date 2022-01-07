@@ -218,7 +218,7 @@ def conteoresp(marks, trialStart, trialEnd, response):  # Count_per_trial
     return resp
 
 
-def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount):
+def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount, unit):
     """
     Cuenta las respuestas por bin de tiempo dentro de cada ensayo de la sesión. Se puede elegir la cantidad de bins y su
     tamaño. La función puede lidiar tanto con situaciones en las que hay marcador de fin de ensayo (es decir, hay
@@ -233,6 +233,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount)
     :param bin_size: Tamaño en segundos de los bins.
     :param bin_amount: Cantidad de bins por ensayo.
     :return: Lista compuesta de sublistas con las respuestas ocurridas por bin por ensayo.
+    :param unit: Unidades entre las que se dividen los segundos de tiempo real.
     """
     inicio = 0
     resp_por_ensayo = [0] * (bin_amount + 1)  # Generar lista con tantos ceros como diga el parámetro bin_amount
@@ -245,7 +246,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount)
                 # Este loop crea una lista con tantas tuplas como bin_amount dicte. Cada tupla contendrá el tiempo de inicio
                 # y de fin de cada bin. El tiempo de fin de un bin es igual al tiempo de inicio del siguiente.
                 for i in range(bin_amount):
-                    tiempo_fin = tiempo_inicio + (bin_size * 20)
+                    tiempo_fin = tiempo_inicio + (bin_size * unit)
                     bin_tuples.append((tiempo_inicio, tiempo_fin))
                     tiempo_inicio = tiempo_fin
                 inicio = 1
@@ -256,7 +257,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount)
                 bin_tuples = []
                 tiempo_inicio = time[index].value
                 for i in range(bin_amount):
-                    tiempo_fin = tiempo_inicio + (bin_size * 20)
+                    tiempo_fin = tiempo_inicio + (bin_size * unit)
                     bin_tuples.append((tiempo_inicio, tiempo_fin))
                     tiempo_inicio = tiempo_fin
 
@@ -282,7 +283,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount)
                 # Este loop crea una lista con tantas tuplas como bin_amount dicte. Cada tupla contendrá el tiempo de inicio
                 # y de fin de cada bin. El tiempo de fin de un bin es igual al tiempo de inicio del siguiente.
                 for i in range(bin_amount):
-                    tiempo_fin = tiempo_inicio + (bin_size * 20)
+                    tiempo_fin = tiempo_inicio + (bin_size * unit)
                     bin_tuples.append((tiempo_inicio, tiempo_fin))
                     tiempo_inicio = tiempo_fin
                 inicio = 1
@@ -326,7 +327,7 @@ def conteototal(marks, response):
     return contador
 
 
-def conteolat(marks, time, trialStart, response):
+def conteolat(marks, time, trialStart, response, unit):
     """
     Cuenta la latencia entre el inicio de un ensayo y una respuesta.\n
     :param marks: Lista con los marcadores.
@@ -334,6 +335,7 @@ def conteolat(marks, time, trialStart, response):
     :param trialStart: Marcador de inicio de ensayo.
     :param response: Marcador de respuesta de interés.
     :return: Lista con las latencias por ensayo.
+    :param unit: Unidades entre las que se dividen los segundos de tiempo real.
     """
     inicio = 0
     lat = []
@@ -343,7 +345,7 @@ def conteolat(marks, time, trialStart, response):
             inicio = 1
             tiempoini = time[n].value
         elif marks[n].value == response and inicio == 1:
-            lat.append((time[n].value - tiempoini) / 20)
+            lat.append((time[n].value - tiempoini) / unit)
             inicio = 0
     if len(lat) == 0:
         lat = [0]
@@ -406,11 +408,15 @@ def template():
                    "summary_column_list": column_dictionary3,
                    "statistic": "mean",
                    "offset": 0,
+                   "unit": 20,
                    }},
 
     {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
+                   "label": "Generic_label",
+                   "statistic": "median"  # Alternative value: "mean"
+                   "unit": 20,
                    }},
     ]
     """)
@@ -490,10 +496,11 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                     latencias_totales = []
                     for mark_index in range(1, value.get("measures", 1) + 1):
                         if mark_index == 1:
-                            latencia_parcial = conteolat(marcadores, tiempo, value["inicio_ensayo"], value["respuesta"])
+                            latencia_parcial = conteolat(marcadores, tiempo, value["inicio_ensayo"], value["respuesta"],
+                                                         unit=value["unit"])
                         else:
                             latencia_parcial = conteolat(marcadores, tiempo, value[f"inicio_ensayo{mark_index}"],
-                                                         value[f"respuesta{mark_index}"])
+                                                         value[f"respuesta{mark_index}"], unit=value["unit"])
                         latencias_totales.extend(latencia_parcial)
                     if value.get("statistic", "mean") == "mean":
                         sheetDict[value["sheet"]][
@@ -534,7 +541,8 @@ def analyze(convertedDirectory, fileName, subjectList, sessionList, suffix, work
                     superlist = resp_dist(marcadores, tiempo, trialStart=value["inicio_ensayo"],
                                           trialEnd=value["fin_ensayo"],
                                           response=value["respuesta"], bin_size=value["bin_size"],
-                                          bin_amount=value["bin_amount"])
+                                          bin_amount=value["bin_amount"],
+                                          unit=value["unit"])
                     aggregated = []
                     means = []
                     for i in range(len(superlist[0])):
