@@ -33,7 +33,7 @@ def conteoresp(marks, trialStart, trialEnd, response):  # Count_per_trial
     contadorTemp = 0
     inicio = 0
     resp = []
-    for n in range(1, len(marks)):
+    for n in range(len(marks)):
         if marks[n].value == trialStart:
             inicio = 1
         elif marks[n].value == response and inicio == 1:
@@ -66,23 +66,26 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
     """
     inicio = 0
     resp_por_ensayo = [0] * (bin_amount + 1)  # Generar lista con tantos ceros como diga el parámetro bin_amount
-    resp_totales = []
-    bin_tuples = []
-    if trialStart == trialEnd:
+    resp_totales = []  # Lista que contendrá sublistas con las respuestas por cada bin
+    bin_tuples = []  # Lista de pares de tiempos: de inicio y fin de cada bin
+    if trialStart == trialEnd:  # Si hay un solo marcador para inicio y fin de ensayo se toma esta ruta
         for index, mark in enumerate(marks):
             if mark.value == trialStart and inicio == 0:
                 tiempo_inicio = time[index].value
                 # Este loop crea una lista con tantas tuplas como bin_amount dicte. Cada tupla contendrá el tiempo de inicio
                 # y de fin de cada bin. El tiempo de fin de un bin es igual al tiempo de inicio del siguiente.
                 for i in range(bin_amount):
-                    tiempo_fin = tiempo_inicio + (bin_size * unit)
+                    tiempo_fin = tiempo_inicio + (bin_size * unit)  # El tiempo de fin se genera sumando el parámetro
+                    # bin_size a el tiempo de inicio
                     bin_tuples.append((tiempo_inicio, tiempo_fin))
                     tiempo_inicio = tiempo_fin
                 inicio = 1
 
             elif mark.value == trialStart and inicio == 1:
+                # Si se encuentra el inicio del siguiente ensayo las respuestas acumuladas en el ensayo se integran a la
+                # lista de respuestas totales.
                 resp_totales.append(resp_por_ensayo)
-                resp_por_ensayo = [0] * (bin_amount + 1)
+                resp_por_ensayo = [0] * (bin_amount + 1)  # resp_por_ensayo y bin_tuples vuelven a vaciarse
                 bin_tuples = []
                 tiempo_inicio = time[index].value
                 for i in range(bin_amount):
@@ -169,7 +172,7 @@ def conteolat(marks, time, trialStart, response, unit):
     inicio = 0
     lat = []
     tiempoini = 0
-    for n in range(1, len(marks)):
+    for n in range(len(marks)):
         if marks[n].value == trialStart:
             inicio = 1
             tiempoini = time[n].value
@@ -238,7 +241,7 @@ def template():
                    "summary_column_list": column_dictionary3,
                    "statistic": "mean",  # Alternative value: "median"
                    "offset": 0,
-                   "unit": 20,
+                   "unit": 20,  # Optional
                    }},
 
     {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
@@ -246,7 +249,7 @@ def template():
                    "bin_amount": 15,
                    "label": "Generic_label",
                    "statistic": "median"  # Alternative value: "mean"
-                   "unit": 20,
+                   "unit": 20,  # Optional
                    }},
     ]
     """)
@@ -491,10 +494,10 @@ class Analyzer:
                         for mark_index in range(1, value.get("measures", 1) + 1):
                             if mark_index == 1:
                                 latencia_parcial = conteolat(marcadores, tiempo, value["inicio_ensayo"],
-                                                             value["respuesta"], unit=value["unit"])
+                                                             value["respuesta"], unit=value.get("unit", 1))
                             else:
                                 latencia_parcial = conteolat(marcadores, tiempo, value[f"inicio_ensayo{mark_index}"],
-                                                             value[f"respuesta{mark_index}"], unit=value["unit"])
+                                                             value[f"respuesta{mark_index}"], unit=value.get("unit", 1))
                             latencias_totales.extend(latencia_parcial)
                         if value.get("statistic", "mean") == "mean":
                             sheetDict[value["sheet"]][
@@ -536,7 +539,7 @@ class Analyzer:
                                               trialEnd=value["fin_ensayo"],
                                               response=value["respuesta"], bin_size=value["bin_size"],
                                               bin_amount=value["bin_amount"],
-                                              unit=value["unit"])
+                                              unit=value.get("unit", 1))
                         aggregated = []
                         means = []
                         for i in range(len(superlist[0])):

@@ -204,7 +204,7 @@ def conteoresp(marks, trialStart, trialEnd, response):  # Count_per_trial
     contadorTemp = 0
     inicio = 0
     resp = []
-    for n in range(1, len(marks)):
+    for n in range(len(marks)):
         if marks[n].value == trialStart:
             inicio = 1
         elif marks[n].value == response and inicio == 1:
@@ -340,7 +340,7 @@ def conteolat(marks, time, trialStart, response, unit):
     inicio = 0
     lat = []
     tiempoini = 0
-    for n in range(1, len(marks)):
+    for n in range(len(marks)):
         if marks[n].value == trialStart:
             inicio = 1
             tiempoini = time[n].value
