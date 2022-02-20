@@ -1,11 +1,19 @@
 # MedPCPy
 
-The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. For each subject the library delivers an individual file with properly labeled lists containing all relevant counts, and a single summary file which contains central tendency measures (either mean or median) for each count.
+The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. The library delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest; the summary file contains central tendency measures (either mean or median) for each variable.
 
 This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
 
 ## Quick start
 
+Once the python script is properly set, an example workflow could be as follows:
+
+1. Run experiments on a MedPC interface.
+2. Transfer the raw MedPC files to a temporary directory which the script will read.
+3. Run the python script. The script will automatically read the files, convert them, extract all declared measures, write them on individual files as well as on a summary file, and move the raw files to a permanent directory so that the temporary directory is empty once again.
+
+No other interaction is needed as long as the files are properly located and named.
+_____
 The first step is to install the library with the command
 
 ```python
@@ -18,9 +26,9 @@ and then import it to the working script with
 from medpcpy import *
 ```
 
-to get access to all the necessary functions without the need to call `medpcpy` on every use.
+to get access to all the necessary functions without the need to call `medpcpy.` on every use.
 
-All of the work is performed by a single object of class `Analyzer` which contains methods to convert the MedPC files to .xlsx and then extract and summarize the relevant data. The `Analyzer` object requires several arguments to be declared before its use. These arguments are:
+All of the work is performed by a single object of class `Analyzer` which contains methods to convert the MedPC files to .xlsx and then extract and summarize the relevant data. The `Analyzer` object requires several arguments to be initialized. These arguments are:
 
 1. `fileName`, the name of the summary file.
 2. `temporaryDirectory`, the directory in which raw MedPC files are stored before the analysis.
@@ -28,11 +36,12 @@ All of the work is performed by a single object of class `Analyzer` which contai
 4. `convertedDirectory`, the directory in which individual .xlsx files and the summary file will be stored after the analysis.
 5. `subjectList`, a list of _strings_ with the names of all subjects.
 6. `suffix`, a _string_ which indicates the character or characters which separate the subject name from the session number in the raw MedPC filenames (ex.: if raw files are named "subject1_1", "subject2_1", etc., then the value for the `suffix` argument should be `"_"`).
+	* The filenames must follow the format `"[subject name][spacing character][session number]"` so that the library can properly read them. Ex.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character and, thus, the value for the `suffix` argument.
 7. `sheets`, a list of _strings_ which represent the names of each individual sheet which will be created in the summary file.
 8. `analysisList`, a list of dictionaries which declares the details of every relevant measure to extract. The template for this list can be printed with the `template()` function. A more in depth explanation is provided further down this file.
-10. `markColumn`, the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
-11. `timeColumn`, the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
-12. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates wheter or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid manualy moving the files back to the temporary directory while the code is being tested and debugged.
+9. `markColumn`, the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
+10. `timeColumn`, the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
+11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manualy move the files back to the temporary directory while the code is being tested and debugged.
 
 The `timeColumn` and `markColumn` arguments are not needed to initialize the `Analyzer` object. The values for these arguments are obtained after first initializing the object without them and using the `.convert()` method to convert at least one file to .xlsx format:
 
@@ -45,7 +54,7 @@ analyzer.convert()
 ```
 
 
-Then, this file must be manually inspected in order to get the letters of the columns which contain both the marks and the time registry. These columns are next to each other and are the same lenght, and they are likely to be the longest columns in the entire file. 
+Then, this file must be manually inspected in order to get the letters of the columns which contain both the marks and the time registry. These columns are next to each other and are the same lenght, and are likely to be the longest columns in the entire file. 
 
 ![get_columns](https://user-images.githubusercontent.com/87039101/154622118-d96b7011-21d8-4414-87b0-9b2fa7c5df6f.png)
 
@@ -68,7 +77,7 @@ summary_file = 'Response_distribution.xlsx'
 temporary_directory = '/home/usuario/Documents/Proyecto/Temporal/'
 raw_directory = '/home/usuario/Documents/Proyecto/Brutos/'
 converted_directory = '/home/usuario/Documents/Proyecto/Convertidos/'
-sheets = ["Ensayos", "Respuestas", "Latencias", "Nosepokes",]
+sheets = ["Trials", "Responses", "Latencies", "Nosepokes",]
 subjects = ["A1", "A2", "A3"]
 trials_columns = {"A1": 2, "A2": 4, "A3": 6}
 levers_columns = {"A1": 2, "A2": 5, "A3": 8}
@@ -79,43 +88,43 @@ analysis_list = [
 	# Completed trials
     {"fetch": {"cell_row": 15,
                "cell_column": 2,
-               "sheet": "Ensayos",
-               "summary_column_list": columnasEnsayos,
+               "sheet": "Trials",
+               "summary_column_dict": trials_columns,
                }},
 	# Response distributions
-    {"resp_dist": {"inicio_ensayo": 300, "fin_ensayo": 300, "respuesta": 200,
+    {"resp_dist": {"trial_start": 300, "trial_end": 300, "response": 200,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Respuestas",
+		   "label": "Responses",
                    }},
 	# Lever presses
-    {"conteoresp": {"inicio_ensayo": 114, "fin_ensayo": 180, "respuesta": 202,
+    {"conteoresp": {"trial_start": 114, "trial_end": 180, "response": 202,
                     "header": "PalDiscRef",
-                    "sheet": "Respuestas",
+                    "sheet": "Responses",
                     "column": 1,
-                    "summary_column_list": columnasRespuestas,
+                    "summary_column_dict": levers_columns,
 		    "substract": True,
                     }},
 	# Lever latencies
-    {"conteolat": {"inicio_ensayo": 112, "respuesta": 113,
+    {"conteolat": {"trial_start": 112, "response": 113,
                    "header": "LatPalDisc",
-                   "sheet": "Latencias",
+                   "sheet": "Latencies",
                    "column": 2,
-                   "summary_column_list": columnasLatencias,
+                   "summary_column_dict": latencies_columns,
 		   "statistic": "mean",
                    }},
 	# Nosepoke responses
-    {"conteototal": {"respuesta": 301,
+    {"conteototal": {"response": 301,
                      "header": "EscForzDiscRef",
                      "sheet": "Nosepokes",
                      "column": 3,
-                     "summary_column_list": columnasNosepokes,
+                     "summary_column_dict": nosepokes_columns,
                      }},
 ]
 
-analyzer = Analyzer(fileName=archivo, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
-                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_", sheets=hojas,
-                    analysisList=analysis_list, timeColumn="M", markColumn="N", relocate=False)
+analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_directory, raw_directory=directorioBrutos,
+                    convertedDirectory=converted_directory, subjectList=subjects, suffix="_", sheets=sheets,
+                    analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
 
 analyzer.complete_analysis()
 
