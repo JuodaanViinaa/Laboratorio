@@ -211,45 +211,45 @@ def template():
     {"fetch": {"cell_row": 10,
                "cell_column": 10,
                "sheet": "Sheet_1",
-               "summary_column_list": column_dictionary,
+               "summary_column_dict": column_dictionary,
                "offset": 0
                }},
 
     {"count_resp": {"measures": 2, # Optional argument. Default value: 1
-                    "inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
-                    "inicio_ensayo2": 444, "fin_ensayo2": 555, "respuesta2": 666, # Optional marks. Depends on the value of "measures"
+                    "trial_start": 111, "trial_end": 222, "response": 333,
+                    "trial_start2": 444, "trial_end2": 555, "response2": 666, # Optional marks. Depends on the value of "measures"
                     "column": 1,
                     "header": "Generic_title",
                     "sheet": "Sheet_2",
-                    "summary_column_list": column_dictionary2,
+                    "summary_column_dict": column_dictionary2,
                     "subtract": True, # Optional argument. Default value: False
                     "statistic": "mean",  # Alternative value: "median"
                     "offset": 0,
                     }},
 
     {"total_count": {"measures": 2, # Optional argument. Default value: 1
-                     "respuesta": 111,
-                     "respuesta2": 222, # Optional mark. Depends on the value of "measures"
+                     "response": 111,
+                     "response2": 222, # Optional mark. Depends on the value of "measures"
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Sheet_4",
-                     "summary_column_list": column_dictionary4,
+                     "summary_column_dict": column_dictionary4,
                      "offset": 0,
                      }},
 
     {"lat_count": {"measures": 2, # Optional argument. Default value: 1
-                   "inicio_ensayo": 111, "respuesta": 222,
-                   "inicio_ensayo2": 333, "respuesta2": 444, # Optional marks. Depends on the value of "measures"
+                   "trial_start": 111, "response": 222,
+                   "trial_start2": 333, "response2": 444, # Optional marks. Depends on the value of "measures"
                    "column": 2,
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
-                   "summary_column_list": column_dictionary3,
+                   "summary_column_dict": column_dictionary3,
                    "statistic": "mean",  # Alternative value: "median"
                    "offset": 0,
                    "unit": 20,  # Optional
                    }},
 
-    {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+    {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
                    "label": "Generic_label",
@@ -434,6 +434,7 @@ class Analyzer:
                 if self.relocate:
                     move(f"{self.temp_directory}{sjt}{self.suffix}{ssn}",
                          f"{self.perm_directory}{sjt}{self.suffix}{ssn}")
+            print("")
         print("-" * 70)
 
     def create_document(self):
@@ -477,13 +478,13 @@ class Analyzer:
                         # If the argument "measures" is greater than 1 then several measures are aggregated.
                         for mark_index in range(1, value.get("measures", 1) + 1):
                             if mark_index == 1:
-                                respuesta_parcial = count_resp(marcadores, value["inicio_ensayo"],
-                                                               value["fin_ensayo"],
-                                                               value["respuesta"])
+                                respuesta_parcial = count_resp(marcadores, value["trial_start"],
+                                                               value["trial_end"],
+                                                               value["response"])
                             else:
                                 respuesta_parcial = count_resp(marcadores, value[f"inicio_ensyo{mark_index}"],
-                                                               value[f"fin_ensayo{mark_index}"],
-                                                               value[f"respuesta{mark_index}"])
+                                                               value[f"trial_end{mark_index}"],
+                                                               value[f"response{mark_index}"])
                             respuestas_totales.extend(respuesta_parcial)
                         if value.get("statistic", "mean") == "mean":  # Decide whether mean or median will be written.
                             if value.get("subtract",
@@ -491,14 +492,14 @@ class Analyzer:
                                 respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
                                 sheetDict[value["sheet"]][
                                     get_column_letter(
-                                        value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = mean(respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
                             else:
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][
                                     get_column_letter(
-                                        value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = mean(respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
                                 write_cols(hojaind, value["header"], value["column"], respuestas_totales)
@@ -507,14 +508,14 @@ class Analyzer:
                                 respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
                                 sheetDict[value["sheet"]][
                                     get_column_letter(
-                                        value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = median(respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
                             else:
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][
                                     get_column_letter(
-                                        value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = median(respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
                                 write_cols(hojaind, value["header"], value["column"], respuestas_totales)
@@ -524,21 +525,21 @@ class Analyzer:
                         latencias_totales = []
                         for mark_index in range(1, value.get("measures", 1) + 1):
                             if mark_index == 1:
-                                latencia_parcial = lat_count(marcadores, tiempo, value["inicio_ensayo"],
-                                                             value["respuesta"], unit=value.get("unit", 1))
+                                latencia_parcial = lat_count(marcadores, tiempo, value["trial_start"],
+                                                             value["response"], unit=value.get("unit", 1))
                             else:
-                                latencia_parcial = lat_count(marcadores, tiempo, value[f"inicio_ensayo{mark_index}"],
-                                                             value[f"respuesta{mark_index}"], unit=value.get("unit", 1))
+                                latencia_parcial = lat_count(marcadores, tiempo, value[f"trial_start{mark_index}"],
+                                                             value[f"response{mark_index}"], unit=value.get("unit", 1))
                             latencias_totales.extend(latencia_parcial)
                         if value.get("statistic", "mean") == "mean":  # Decide whether mean or median will be written.
                             # The measure of central tendency is written on the summary file.
                             sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                     session + 3)] = mean(latencias_totales)
                         else:
                             # The measure of central tendency is written on the summary file.
                             sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                     session + 3)] = median(latencias_totales)
                         # The entire list is written on the individual .xlsx file.
                         write_cols(hojaind, value["header"], value["column"], latencias_totales)
@@ -547,13 +548,13 @@ class Analyzer:
                         respuestas_totales = 0
                         for mark_index in range(1, value.get("measures", 1) + 1):
                             if mark_index == 1:
-                                respuesta_parcial = total_count(marcadores, value["respuesta"])
+                                respuesta_parcial = total_count(marcadores, value["response"])
                             else:
-                                respuesta_parcial = total_count(marcadores, value[f"respuesta{mark_index}"])
+                                respuesta_parcial = total_count(marcadores, value[f"response{mark_index}"])
                             respuestas_totales += respuesta_parcial
                         # The measure of central tendency is written on the summary file.
                         sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                            get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                 session + 3)] = respuestas_totales
                         # The entire list is written to the individual .xlsx file.
                         write_cols(hojaind, value["header"], value["column"], [respuestas_totales])
@@ -562,7 +563,7 @@ class Analyzer:
                         cell_value = fetch(sujetoWs, value["cell_row"], value["cell_column"])
                         # The single value is written on the summary file.
                         sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_list"][subject] + value.get("offset", 0)) + str(
+                            get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                 session + 3)] = cell_value
 
                     elif key == "resp_dist":
@@ -574,9 +575,9 @@ class Analyzer:
                             resp_dist_sheet = create_sheets(workbook, [subject])
                             dist_indiv_sheet = sujetoWb.create_sheet('RespDistrib')
                         # A superlist is populated with lists of response distributions per trial.
-                        superlist = resp_dist(marcadores, tiempo, trialStart=value["inicio_ensayo"],
-                                              trialEnd=value["fin_ensayo"],
-                                              response=value["respuesta"], bin_size=value["bin_size"],
+                        superlist = resp_dist(marcadores, tiempo, trialStart=value["trial_start"],
+                                              trialEnd=value["trial_end"],
+                                              response=value["response"], bin_size=value["bin_size"],
                                               bin_amount=value["bin_amount"],
                                               unit=value.get("unit", 1))
                         # Either the mean or the median of each bin (not each trial) is calculated.
