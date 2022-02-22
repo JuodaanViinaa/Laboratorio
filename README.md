@@ -1,6 +1,6 @@
 # MedPCPy
 
-The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. The library delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest; the summary file contains central tendency measures (either mean or median) for each variable.
+The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. The library delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest; the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
 
 This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
 
@@ -14,13 +14,22 @@ Once the python script is properly set, an example workflow could be as follows:
 
 No other interaction is needed as long as the files are properly located and named.
 _____
+
+### Requirements
+
+1. Python must be installed on the machine which will be used.
+2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character. Ex.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
+3. All files must be placed inside the temporary directory (explained below) before the analysis.
+
+_____
+
 The first step is to install the library with the command
 
 ```python
 pip install medpcpy
 ```
 
-and then import it to the working script with
+(or using the tools provided by an [Integrated Development Environment](https://www.redhat.com/en/topics/middleware/what-is-ide) such as [Pycharm](https://www.jetbrains.com/pycharm/)), and then import it to the working script with
 
 ```python
 from medpcpy import *
@@ -28,19 +37,19 @@ from medpcpy import *
 
 to get access to all the necessary functions without the need to call `medpcpy.` on every use.
 
-All of the work is performed by a single object of class `Analyzer` which contains methods to convert the MedPC files to .xlsx and then extract and summarize the relevant data. The `Analyzer` object requires several arguments to be initialized. These arguments are:
+All of the work is performed by a single [object](https://www.geeksforgeeks.org/python-object/) of class `Analyzer` which contains [methods](https://www.w3schools.com/python/gloss_python_object_methods.asp) to convert MedPC files to .xlsx and then extract and summarize the relevant data. The `Analyzer` object requires several arguments to be initialized. These arguments are:
 
-1. `fileName`, the name of the summary file.
-2. `temporaryDirectory`, the directory in which raw MedPC files are stored before the analysis.
-3. `permanentDirectory`, the directory to which raw MedPC files will be moved after analysis.
-4. `convertedDirectory`, the directory in which individual .xlsx files and the summary file will be stored after the analysis.
-5. `subjectList`, a list of _strings_ with the names of all subjects.
-6. `suffix`, a _string_ which indicates the character or characters which separate the subject name from the session number in the raw MedPC filenames (ex.: if raw files are named "subject1_1", "subject2_1", etc., then the value for the `suffix` argument should be `"_"`).
+1. `fileName`, the name of the summary file. The file is created automatically if it does not exist yet. There is no need to manually create it.
+2. `temporaryDirectory`, a [string](https://www.geeksforgeeks.org/python-strings/) indicating the directory in which raw MedPC files are stored before the analysis. All back slashes `"\"`, if any, must be replaced by forward slashes `"/"`, and the last character of the _string_ must be a forward slash. Ex.: `"C:/Users/Admin/Desktop/Path/To/Your/Directory/"`
+3. `permanentDirectory`, the directory to which raw MedPC files will be moved after analysis. Must follow the same rules as the temporary directory.
+4. `convertedDirectory`, the directory in which individual .xlsx files and the summary file will be stored after the analysis. Must follow the same rules as the temporary directory.
+5. `subjectList`, a [list](https://www.w3schools.com/python/python_lists.asp) of _strings_ with the names of all subjects.
+6. `suffix`, a _string_ which indicates the character or characters which separate the subject name from the session number in the raw MedPC filenames (ex.: if raw files are named "subject1_1", "subject2_1", etc., then the value for the `suffix` argument should be `"_"`). This is how the library determines the sessions to analyze for each subject.
 	* The filenames must follow the format `"[subject name][spacing character][session number]"` so that the library can properly read them. Ex.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character and, thus, the value for the `suffix` argument.
-7. `sheets`, a list of _strings_ which represent the names of each individual sheet which will be created in the summary file.
-8. `analysisList`, a list of dictionaries which declares the details of every relevant measure to extract. The template for this list can be printed with the `template()` function. A more in depth explanation is provided further down this file.
-9. `markColumn`, the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
-10. `timeColumn`, the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
+7. `sheets`, a list of _strings_ which represent the names of each individual sheet which will be created in the summary file. Much like the summary file, sheets are automatically created. This argument simply states the names each sheet should have.
+8. `analysisList`, a list of [dictionaries](https://www.w3schools.com/python/python_dictionaries.asp) which declares the details of every relevant measure to extract. The template for this list can be printed with the `template()` function. A more in depth explanation is provided further down this file.
+9. `markColumn`, a _string_ stating the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
+10. `timeColumn`, a _string_ stating the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
 11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manualy move the files back to the temporary directory while the code is being tested and debugged.
 
 The `timeColumn` and `markColumn` arguments are not needed to initialize the `Analyzer` object. The values for these arguments are obtained after first initializing the object without them and using the `.convert()` method to convert at least one file to .xlsx format:
@@ -54,13 +63,11 @@ analyzer.convert()
 ```
 
 
-Then, this file must be manually inspected in order to get the letters of the columns which contain both the marks and the time registry. These columns are next to each other and are the same lenght, and are likely to be the longest columns in the entire file. 
+Then, this file must be manually inspected in order to get the letters of the columns which contain both the marks and the time registry. These columns are next to each other, are the same lenght, and are likely to be the longest columns in the entire file. 
 
 ![get_columns](https://user-images.githubusercontent.com/87039101/154622118-d96b7011-21d8-4414-87b0-9b2fa7c5df6f.png)
 
-
-
-After the column letters are obtained the `timeColumn` and `markColumn` arguments can be provided and the `Analyzer` object is now ready to extract data.
+After the column letters are obtained, the `timeColumn` and `markColumn` arguments can be provided and the `Analyzer` object is now ready to extract data.
 
 ```python
 analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_directory, permanentDirectory=raw_directory,
