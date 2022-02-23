@@ -137,6 +137,79 @@ analyzer.complete_analysis()
 
 ```
 
+## Analysis list
+
+The syntax for the `analysisList` argument of the `Analyzer` object is given next.
+
+The library contains several functions to extract and summarize data in common ways. Specifically, the library can
+* Grab a value from a specific cell in the individual .xlsx files given a row and column number (`fetch`).
+* Count all occurences of a response per trial (`count_resp`).
+* Count all occurences of a response in a session (`total_count`)
+* Count the latencies from the beginning of each trial to the first occurence of the response of interest (`lat_count`)
+* Count the responses occured per user-defined time-bin per trial (`resp_dist`)
+
+Most of these functions need the declaration of a special dictionary which relates each subject with a specific column in which its data will be written. That is, we may be interested in getting more than one measure from each subject (e.g., lever presses, nosepoke entries, latencies, etc.), and different measures may have different sub-divisions (e.g., there may be four levers, but two nosepokes). Thus, if we want to keep each type of response in its own separate sheet, we may need a format that is similar to this for the lever presses:
+
+![image](https://user-images.githubusercontent.com/87039101/155408994-7b69ecd9-94dc-49ee-9af8-6b9d14cc4d11.png)
+
+While for the nosepokes we may need a format that is similar to this:
+
+![image](https://user-images.githubusercontent.com/87039101/155409189-dc7d0a95-0f9e-4028-b380-2d0634fd1934.png)
+
+As it can be seen, distinct measures for a single subject require a different amount of columns in different sheets. For this reason in this particular example it will be necessary to declare at least two dictionaries: one which relates each subject with the space it occupies in the lever-response sheet, and another one which relates them with the space they occupy in the nosepoke-response sheet. These two dictionaries only need to declare the first column occupied by the subject, and substitute the letter for its equivalent number (A = 1, B = 2, etc.). All other columns are dealt with later. Then, the dictionaries needed for this example would be:
+
+```python
+lever_cols = {"Rat1": 2, "Rat2": 7, "Rat3": 12,}
+nosepoke_cols = {"Rat1": 2, "Rat2": 5, "Rat3": 8,}
+```
+
+### Fetch
+```python
+analysis_list = [
+{"fetch": {"cell_row": 10,
+           "cell_column": 10,
+           "sheet": "Sheet_1",
+           "summary_column_dict": column_dictionary,
+           "offset": 0
+           }}
+]
+```
+
+This function allows the extraction of a single data point from the .xlsx individual files. It is useful to quickly extract measures such as the number of completed trials (if such data is available in one of the MedPC arrays). The arguments `"cell_row"` and `"cell_column"` dictate the position of the cell whose data will be extracted: if the data point is located, say, in cell "B15", then the required arguments will be `"cell_row": 15` and `"cell_column": 2`. 
+
+![image](https://user-images.githubusercontent.com/87039101/140596672-7213c34d-061c-4d05-a4bc-eced2abb65c5.png)
+
+The `"sheet"` and `"summary_column_dict"` arguments determine the way in which the extracted data point will be written on the summary file. `"sheet"` indicates the name of the sheet in which the data point will be written. This name must correspond with one of the elements of the sheet list given as an argument to the `Analyzer` object. `"summary_column_dict"` is the dictionary that relates each subject with the column in which their data will be written.
+
+The `offset` argument helps deal with situations in which similar measures for a single subject need to be written in adjacent columns in a single sheet (e.g., presses to different levers). In such cases it is not necessary to declare several dictionaries that relate each subject with a single column and then use those dictionaries as values for each `"summary_column_dict"` argument. A more economic way to do it will be to use a single "base" dictionary for all similar measures, and then incrementally add units to the `"offset"` argument. Each unit in `"offset"` will move the measure in question one column to the right. Ex.:
+
+```python
+analysis_list = [
+{"fetch": {"cell_row": 10,
+           "cell_column": 10,
+           "sheet": "Levers",
+           "summary_column_list": lever_cols,
+           "offset": 0  # Unnecessary
+           }},
+{"fetch": {"cell_row": 20,
+           "cell_column": 20,
+           "sheet": "Levers",
+           "summary_column_list": lever_cols,
+           "offset": 1  # <------
+           }},
+{"fetch": {"cell_row": 30,
+           "cell_column": 30,
+           "sheet": "Levers",
+           "summary_column_list": lever_cols,
+           "offset": 2  # <------
+           }},
+]
+```
+
+This will result in three columns. The first will be in the position declared by the `lever_cols` dictionary. The second and third will be one and two positions to the right.
+
+Finally, if the `"offset"` argument is not declared, it will take a default value of `0`.
+
 
 ## Librería _oop_funciones.py_
 
@@ -231,55 +304,7 @@ analysis_list = [
 
 De manera más específica, hay cinco funciones utilizables y, por lo tanto, cinco formatos de diccionario. Son los siguientes:
 
-### Fetch
-```python
-analysis_list = [
-{"fetch": {"cell_row": 10,
-           "cell_column": 10,
-           "sheet": "Sheet_1",
-           "summary_column_list": column_dictionary,
-           "offset": 0
-           }}
-]
-```
 
-Esta función permite extraer directamente un único dato de los archivos ".xlsx" individuales. Es funcional, por ejemplo, para extraer rápidamente el número de ensayos completados (si es que éste se encuentra dentro de alguna de las listas otorgadas por MedPC). Los argumentos `"cell_row"` y `"cell_column"` dictan la posición de la celda que se quiere extraer: un dato que se encuentra, por ejemplo, en la celda "B15" requerirá de los argumentos `"cell_row": 15` y `"cell_column": 2`. 
-
-![image](https://user-images.githubusercontent.com/87039101/140596672-7213c34d-061c-4d05-a4bc-eced2abb65c5.png)
-
-Los argumentos `"sheet"` y `"summary_column_list"` determinan la manera en que el dato extraído se escribirá en el archivo de resumen. El argumento `"sheet"` señala el nombre de la hoja de cálculo en que se escribirá el dato. Este nombre debe corresponder con uno de los elementos de la lista de hojas de cálculo generada anteriormente. Mientras, `"summary_column_list"` será el diccionario que asocia a sujetos con columnas (explicado anteriormente).
-
-El argumento `"offset"` es un caso especial: en ocasiones se requerirá que medidas similares de un mismo sujeto sean escritas en columnas adyacentes de una misma hoja. Por ejemplo:
-
-![image](https://user-images.githubusercontent.com/87039101/140452655-3109ae8b-3256-4596-93fe-d0b78196fd59.png)
-
-En casos así no es necesario declarar diccionarios adicionales que asocien cada medida con una columna específica. Una manera más económica es declarar en varias medidas un único diccionario que asocie al sujeto con una columna "base", y después agregar incrementalmente unidades al argumento `"offset"`. Cada unidad en `"offset"` desplazará la medida en cuestión una columna hacia la derecha. Por ejemplo:
-```python
-analysis_list = [
-{"fetch": {"cell_row": 10,
-           "cell_column": 10,
-           "sheet": "Sheet_1",
-           "summary_column_list": column_dictionary,
-           "offset": 0  # Innecesario
-           }},
-{"fetch": {"cell_row": 20,
-           "cell_column": 20,
-           "sheet": "Sheet_1",
-           "summary_column_list": column_dictionary,
-           "offset": 1  # <------
-           }},
-{"fetch": {"cell_row": 30,
-           "cell_column": 30,
-           "sheet": "Sheet_1",
-           "summary_column_list": column_dictionary,
-           "offset": 2  # <------
-           }},
-]
-```
-
-Esto resultaría en tres columnas: la primera se encontraría en la posición declarada por el diccionario `column_dictionary`, mientras que las otras dos se encontrarían una y dos posiciones a la derecha. 
-
-Finalmente, si dentro del diccionario no se declara ningún valor para `"offset"`, éste tomará un valor por defecto de 0.
 
 ### Conteoresp
 
