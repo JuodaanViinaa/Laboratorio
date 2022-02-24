@@ -29,10 +29,10 @@ def fetch(sheet, origin_cell_row, origin_cell_column):
 
 def count_resp(marks, trialStart, trialEnd, response):  # Count_per_trial
     """
-    Counts responses between the beginning of the trial (trial start) and the end of the trial (trial end). If a single marker identifies both the response to count and the
+    Counts responses between the beginning of the trial and the end of the trial. If a single mark identifies both the response to count and the
     response that marks the beginning of the trial, then there will be an extra response counted. This can be corrected with the
     "subtract" option in the analysis list.\n
-    :param marks: List of markers.
+    :param marks: List of marks.
     :param trialStart: Mark for start of trial.
     :param trialEnd: Mark for end of trial.
     :param response: Mark for response to count.
@@ -58,14 +58,14 @@ def count_resp(marks, trialStart, trialEnd, response):  # Count_per_trial
 def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount, unit):
     """
     Counts responses per time-bin in each trial of the session. The size and amount of bins can be specified. This
-    function can deal with situations in which there is a trial-end marker (there is an inter-trial interval) as well
+    function can deal with situations in which there is a trial-end mark (there is an inter-trial interval) as well
     as situations in which there is not. If there are responses beyond the last declared bin, then all the responses
     that occurred between the end of the last bin and the end of the trial will be aggregated in a single extra bin.\n
-    :param marks: List of markers.
+    :param marks: List of marks.
     :param time: List with session time.
     :param trialStart: Mark for start of trial.
     :param trialEnd: Mark for end of trial.
-    :param response: Marker of the response of interest.
+    :param response: Mark of the response of interest.
     :param bin_size: Bin size in seconds.
     :param bin_amount: Amount of bins per trial.
     :return: List made of sub-lists which contain all responses per-bin, per-trial.
@@ -75,7 +75,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
     resp_por_ensayo = [0] * (bin_amount + 1)  # Generates a list with as many zeros as the parameter bin_amount dictates.
     resp_totales = []  # List which will contain sublist with the responses per-bin.
     bin_tuples = []  # List of time pairs: bin-start and bin-stop.
-    if trialStart == trialEnd:  # This route is taken if there is a single marker for both the start and the end of the trial.
+    if trialStart == trialEnd:  # This route is taken if there is a single mark for both the start and the end of the trial.
         for index, mark in enumerate(marks):
             if mark.value == trialStart and inicio == 0:
                 tiempo_inicio = time[index].value
@@ -114,7 +114,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
                     resp_por_ensayo[-1] += 1
         resp_totales.append(resp_por_ensayo)
 
-    else:  # This route is taken if there are separate markers for both trial-start and trial-end.
+    else:  # This route is taken if there are separate marks for both trial-start and trial-end.
         for index, mark in enumerate(marks):
             if mark.value == trialStart and inicio == 0:
                 tiempo_inicio = time[index].value
@@ -152,9 +152,9 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
 
 def total_count(marks, response):
     """
-    Counts all the occurences of a particular marker during the entire sesion regardless of trials.\n
-    :param marks: List of markers.
-    :param response: Response of interest marker.
+    Counts all the occurences of a particular mark during the entire sesion regardless of trials.\n
+    :param marks: List of marks.
+    :param response: Response of interest mark.
     :return: Int with the total occurences of the response of interest.
     """
     contador = 0
@@ -167,10 +167,10 @@ def total_count(marks, response):
 def lat_count(marks, time, trialStart, response, unit):
     """
     Computes the latency between the start of a trial and the first response of interest.\n
-    :param marks: List of markers.
+    :param marks: List of marks.
     :param time: List with session time.
     :param trialStart: Mark for start of trial.
-    :param response: Marker for response of interest.
+    :param response: Mark for response of interest.
     :param unit: Temporal resolution. The quantity by which seconds are divided in your MedPc setup.
     :return: List with latencies per trial.
     """
@@ -375,18 +375,7 @@ class Analyzer:
                 archivoCompleto = load_workbook(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx")
                 hojaCompleta = archivoCompleto.active
 
-                ######### VERIFICAR QUE ESTÉ CORRECTA LA TRADUCCIÓN #########
-                
-                # A list containing sub-lists with all the values from the lists provided by Med.
-                # Code works for any number of lists.
-                # Data are converte dinto floats, so that all of them have a decimal point, and then to string so that later
-                # the split metho can separet them by the decimal point.
-                # A list of lists which will contain the data of all arrays is created.
-                
-                # Se genera una lista que contenga sub-listas con todos los valores de las listas dadas por Med.
-                # Funciona para cualquier cantidad de listas.
-                # Los datos se convierten en flotantes para que todos tengan punto decimal, y luego en string para que mas
-                # adelante el método split los pueda separar por el punto.
+               
                 # A list of lists which will contain the data of all arrays is created.
                 metalista = [[]]
                 contadormetalista = 0
