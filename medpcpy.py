@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on 18-February-2022 12:22
 Code by Daniel Maldonado
@@ -287,7 +285,7 @@ class Analyzer:
 
     def __init__(self, fileName: str, temporaryDirectory: str, permanentDirectory: str, convertedDirectory: str,
                  subjectList: list, suffix: str, sheets: list, analysisList: list, timeColumn: str = None,
-                 markColumn: str = None, relocate: bool = True):
+                 markColumn: str = None, relocate: bool = True, colDivision: int = 6):
         """
         :param fileName: The name of the summary file.
         :param temporaryDirectory: The directory in which raw MedPC files are stored before the analysis.
@@ -300,11 +298,13 @@ class Analyzer:
         :param timeColumn: The column in which the time is written in the individual .xlsx files.
         :param markColumn: The column in which the marks are written in the individual .xlsx files.
         :param relocate: A boolean which indicates if the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis.
+        :param colDivision: The number of columns to divide the raw MedPC files into.
         """
         self.file_name = fileName
         self.temp_directory = temporaryDirectory
         self.perm_directory = permanentDirectory
         self.conv_directory = convertedDirectory
+        self.col_division = colDivision
         self.subject_list = subjectList
         self.session_list = []
         self.suffix = suffix
@@ -367,15 +367,14 @@ class Analyzer:
             for ssn in self.session_list[ind]:
                 print(f"Converting session {ssn} of subject {sjt}.")
                 # Pandas reads the file and separates it into six columns based on white space.
-                datos = pandas.read_csv(f"{self.temp_directory}{sjt}{self.suffix}{ssn}", header=None, names=range(6),
-                                        sep=r'\s+')
+                datos = pandas.read_csv(f"{self.temp_directory}{sjt}{self.suffix}{ssn}", header=None,
+                names=range(self.col_division), sep=r'\s+')
                 datos.to_excel(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx", index=False, header=None)
 
                 # The file created by pandas is read by Openpyxl and saved on a variable named hojaCompleta.
                 archivoCompleto = load_workbook(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx")
                 hojaCompleta = archivoCompleto.active
 
-               
                 # A list of lists which will contain the data of all arrays is created.
                 metalista = [[]]
                 contadormetalista = 0
@@ -422,9 +421,9 @@ class Analyzer:
                         elif regex2.search(metalista[ii][j]):
                             metalista[ii][j] += '00'
                         # Each list is separated in two columns based on the decimal point.
-                        hojaCompleta[get_column_letter((ii * 2) + 9) + str(j + 1)] = int(
+                        hojaCompleta[get_column_letter((ii * 2) + (self.col_division + 3)) + str(j + 1)] = int(
                             metalista[ii][j].split('.')[0])
-                        hojaCompleta[get_column_letter((ii * 2) + 10) + str(j + 1)] = int(
+                        hojaCompleta[get_column_letter((ii * 2) + (self.col_division + 4)) + str(j + 1)] = int(
                             metalista[ii][j].split('.')[1])
                 # Finally the individual .xlsx file is saved and the raw file is moved to the permanent directory.
                 archivoCompleto.save(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx")
