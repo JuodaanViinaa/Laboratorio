@@ -4,7 +4,7 @@ The purpose of this library is to provide an easy and accesible way to convert M
 
 This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
 
-## Quick start
+## Introduction
 
 Once the python script is properly set, an example workflow could be as follows:
 
@@ -75,7 +75,9 @@ analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_director
                     analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
 ```
 
-Thus, an example of a full script ready to analyze with a single click could be as follows:
+Besides these arguments, some other variables containing dictionaries that relate subjects to columns need to be declared before the main analysis takes place. Their use is explained below.
+
+<!-- Thus, an example of a full script ready to analyze with a single click could be as follows:
 
 ```python
 from medpcpy import *
@@ -136,7 +138,7 @@ analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_director
 analyzer.complete_analysis()
 
 ```
-
+-->
 ## Analysis list
 
 The syntax for the `analysisList` argument of the `Analyzer` object is given next.
@@ -210,103 +212,7 @@ This will result in three columns. The first will be in the position declared by
 
 Finally, if the `"offset"` argument is not declared, it will take a default value of `0`.
 
-
-## Librería _oop_funciones.py_
-
-Esta librería provee una manera simple de analizar los datos entregados por el programa de [Med PC-IV](https://www.med-associates.com/). Contiene funciones útiles para tareas y análisis básicos. La librería solamente ha sido probada con los archivos entregados por Med PC-IV, por lo que desconozco su funcionamiento con versiones distintas. Agradeceré cualquier realimentación al respecto.
-
-De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas de datos en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes, el análisis completo de uno o más días de sesiones experimentales y de uno o más sujetos puede realizarse con un clic.
-
-Sin embargo, la librería requiere de la declaración de variables específicas y su llamada en forma de argumentos en las funciones pertinentes.
-
-Las variables necesarias para utilizar la librería son:
-
-* Una variable que contenga el nombre del archivo de resumen en forma de _string_ en que se guardarán los datos. El _string_ debe contener la extensión ".xlsx". Ejemplo:
-```python
-archivo_de_resumen = "Igualacion.xlsx"
-```
-
-* Una variable que contenga la [dirección absoluta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`, y que cada nivel de la dirección sea separado por diagonales hacia adelante "`/`" y no hacia atrás "`\`". Ejemplo:
-```python
-directorioTemporal = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Windows
-directorioTemporal = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Unix
-```
-
-* Una variable que contenga la dirección absoluta del directorio permanente en que se guardarán los datos brutos después de haber sido utilizados (no es necesario mover los archivos manualmente después de su utilización; el programa se encarga de eso automáticamente). Ejemplo:
-```python
-directorioBrutos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Windows
-directorioBrutos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Unix
-```
-
-* Una variable que contenga la dirección absoluta del directorio en que se guardarán los datos convertidos después del análisis. En este directorio se almacenarán tanto los archivos individuales con extensión ".xlsx" como el archivo de resumen. Ejemplo:
-```python
-directorioConvertidos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioConvertidos/"  # En el caso de Windows
-directorioConvertidos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioConvertidos/"  # En el caso de Unix
-```
-
-* Una lista de _strings_ con los nombres de las hojas de cálculo que debe contener el archivo de resumen. Ejemplo:
-```python
-hojas = ["RespuestasPalanca", "LatenciasPalanca", "RespuestasNosepoke"]
-```
-
-* Una lista con los nombres de los sujetos en forma de _string_. Ejemplo:
-```python
-sujetos = ["Rata1", "Rata2", "Rata3", "Rata4"]
-```
-
-* Uno o más [diccionarios](https://www.w3schools.com/python/python_dictionaries.asp) que relacionen a cada sujeto con la columna en que sus datos se escribirán en cada hoja del archivo de resumen. Es decir: un mismo sujeto puede tener asociadas múltiples medidas (e.g., respuestas en palancas, respuestas en nosepoke, latencias, etc). Además, medidas distintas pueden tener subdivisiones diferentes (e.g., puede haber dos medidas de respuestas a palancas (izquierda y derecha), y una sola medida para respuestas a nosepoke). Así, es posible que en una hoja se encuentre un formato similar a este:
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565456-64e9654d-c711-45dd-962f-f6e91b3af9a5.png)
-
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mientras que en otra se puede encontrar un formato similar a este: 
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565654-eb234a07-bb0b-464e-ae99-32faf808d86c.png)
-
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Como se puede ver, medidas distintas para un mismo sujeto requerirían de cantidades distintas de columnas. Por ello será necesario declarar al menos dos diccionarios: uno que relacione a los sujetos con el espacio que ocupan en la primera hoja (respuestas en palancas), y otro que los relacione con el espacio que ocupan en la segunda hoja (respuestas en nosepoke). Estos diccionarios solamente necesitan declarar la primera columna ocupada traduciendo su letra en número (A = 1, B = 2, etc). El resto de las columnas es manejado más adelante. Así, un ejemplo de diccionarios sería:
-```python
-columnas_palancas = {"Rata1": 2, "Rata2": 7, "Rata3": 12,}
-columnas_nosepoke = {"Rata1": 2, "Rata2": 5, "Rata3": 8,}
-```
-
-* Finalmente, el corazón de la librería es una lista de diccionarios que dictará las medidas que serán extraídas de los marcadores y del tiempo, al igual que la manera de escribirlas en los archivos individuales y de resumen. Esta lista tiene un formato específico que puede obtenerse ejecutando la función `template()` incluida con la librería. Cada diccionario de la lista declara la función a utilizar (copiar directamente de una celda, contar respuestas por ensayo, contar respuestas totales, contar latencias, contar respuestas por _bin_ de tiempo), junto con sus parámetros pertinentes (marcadores, columna en que se escribirán los datos en los archivos individuales y de resumen, etc). Ejemplo:
-```python
-analysis_list = [
-    {"conteoresp": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
-                    "column": 1,
-                    "header": "Palanca Izq",
-                    "sheet": "Palancas",
-                    "summary_column_list": columnas_palancas,
-		    "substract": True,
-                    }},
-    {"conteoresp": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
-                    "column": 2,
-                    "header": "Palanca Der",
-                    "sheet": "Palancas",
-                    "summary_column_list": columnas_palancas,
-                    "substract": True,
-		    "offset": 1,
-                    }},
-    {"conteototal": {"respuesta": 777,
-                     "column": 3,
-                     "header": "Nosepoke",
-                     "sheet": "Nosepoke",
-                     "summary_column_list": columnas_nosepoke,
-                     "offset": 0,
-                     }},
-    ]
-```
-
-****
-****
-
-
-De manera más específica, hay cinco funciones utilizables y, por lo tanto, cinco formatos de diccionario. Son los siguientes:
-
-
-
-### Conteoresp
+### Resp_count
 
 ```python
 analysis_list = [
@@ -324,15 +230,15 @@ analysis_list = [
 ]
 ```
 
-Esta función permite contar la cantidad de respuestas que ocurren entre el inicio y el fin de un tipo de ensayo particular. Una lista con todas las respuestas por ensayo se escribe en el archivo individual ".xlsx", y una medida de tendencia central (media o mediana) por sesión se escribe en el archivo de resumen.
+This function counts the amount of responses of interest occurred between the start and the end of each trial ina session. It writes a list with all the responses per trial in the individual .xlsx file, and a measure of central tendency (either mean or median) in the summary file.
 
-Los argumentos `"inicio_ensayo"`, `"fin_ensayo"`, y `"respuesta"` son los marcadores de inicio de ensayo, fin de ensayo, y respuesta de interés, respectivamente.
+The arguments `"trial_start"`, `"trial_end"`, and `"response"` are the marks for the start of the trial, end of the trial, and response of interest, respectively.
 
-El argumento `"substract"` es un argumento opcional que contempla el caso en el cual la respuesta que interesa contar sea también la respuesta que le da inicio al ensayo. En tal situación contar esa respuesta adicional resultaría en una imprecisión consistente que sobrestimaría en una unidad la cantidad total de respuestas por ensayo. Para solucionar esa situación, añadir el argumento `"substract": True` resultará en la resta de una unidad a cada uno de los conteos de respuestas por ensayo, lo cual nos devolverá a un conteo exacto. En caso de no ser necesario, no delcarar el argumento lo hace tomar un valor por defecto de `False`, con lo que no se realizará la resta.
+The `"subtract"` argument is optional, and deals with the special case in which the response of interest is also the response that signals the start of the trial, and one desires not to count that first "starting" response as a part of the per-trial count. In such a situation, counting that additional response would overestimate the total responses per trial. To deal accomodate for that situation adding the optional argument `"subtract": True` will subtract one unit from all non-zero response counts, which will result in an accurate measure. If this is not the case, then simply not declaring the argument will make it take a default value of `False`, and the subtraction will not be carried out.
 
-Los argumentos `"column"` y `"header"` determinan la manera en que la lista completa de respuestas por ensayo se escribirá en el archivo individual ".xlsx". `"column"` indica la columna en la cual se pegará la lista (siendo que 1 = A, 2 = B, 3 = C, etc). El argumento `"header"` indica el rótulo que tendrá esa columna en su primera celda. 
+The `"column"`and `"header"`arguments determine the way in which the complete list of responses per trial will be written on the individual .xlsx file. `"column"` indicates the column in which the list will be written (being that 1 = A, 2 = B, 3 = C, etc.). The `"header"`argument determines the title which the column will have in its first cell. In order to not overwrite any data, each declared dictionary from the analysis list must have a different value for `"column"`, and it is recommended to use an incremental order.
 
-Los argumentos `"sheet"` y `"summary_column_list"` determinan la manera en que la media de respuestas por ensayo de la sesión se escribirá en el archivo de resumen. El argumento `"sheet"` señala el nombre de la hoja de cálculo en que se escribirá el dato. Mientras, `"summary_column_list"` será el diccionario que asocia a sujetos con columnas (explicado anteriormente).
+The `"sheet"` and `"summary_column_dict"` arguments work the same as in the `Fetch` function.
 
 Esta función, junto con las funciones `conteolat` y `conteototal`, incorpora la posibilidad de realizar medidas "agregadas" o múltiples mediante el argumento `"measures"`: en algunas ocasiones es ventajoso sumar en una sola medida las respuesas (o latencias) provenientes de dos fuentes distintas. Como ejemplo se puede pensar en un caso en el cual haya respuestas en una palanca que lleven probabilísticamente a dos consecuencias diferentes y que, por descuido o planeación, tengan marcadores distintos. Las respuestas en ese caso deberán sumarse y contribuir a la misma media en el archivo de resumen. Para casos como ese el argumento `"measures"` permite agregar dentro de una misma medida fuentes distintas de información. `"measures"` indicará la cantidad de fuentes que se deberán agregar en la misma medida. Para cada medida adicional se deberán declarar además los marcadores pertinentes siguiendo la numeración lógica. Por ejemplo, para tres fuentes agregadas en una misma medida los argumentos serían:
 ```python
@@ -443,6 +349,104 @@ En caso de que el argumento `"label"` sea omitido se creará en el archivo de re
 Esta función, al igual que `conteoresp` y `conteolat`, incorpora el argumento `"statistic"` para determinar la medida de tendencia central escrita en el archivo de resumen.
 
 Al igual que `conteolat` esta función incorpora el argumento `unit` para dictar la resolución temporal del análisis.
+
+
+## Librería _oop_funciones.py_
+
+Esta librería provee una manera simple de analizar los datos entregados por el programa de [Med PC-IV](https://www.med-associates.com/). Contiene funciones útiles para tareas y análisis básicos. La librería solamente ha sido probada con los archivos entregados por Med PC-IV, por lo que desconozco su funcionamiento con versiones distintas. Agradeceré cualquier realimentación al respecto.
+
+De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas de datos en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes, el análisis completo de uno o más días de sesiones experimentales y de uno o más sujetos puede realizarse con un clic.
+
+Sin embargo, la librería requiere de la declaración de variables específicas y su llamada en forma de argumentos en las funciones pertinentes.
+
+Las variables necesarias para utilizar la librería son:
+
+* Una variable que contenga el nombre del archivo de resumen en forma de _string_ en que se guardarán los datos. El _string_ debe contener la extensión ".xlsx". Ejemplo:
+```python
+archivo_de_resumen = "Igualacion.xlsx"
+```
+
+* Una variable que contenga la [dirección absoluta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`, y que cada nivel de la dirección sea separado por diagonales hacia adelante "`/`" y no hacia atrás "`\`". Ejemplo:
+```python
+directorioTemporal = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Windows
+directorioTemporal = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Unix
+```
+
+* Una variable que contenga la dirección absoluta del directorio permanente en que se guardarán los datos brutos después de haber sido utilizados (no es necesario mover los archivos manualmente después de su utilización; el programa se encarga de eso automáticamente). Ejemplo:
+```python
+directorioBrutos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Windows
+directorioBrutos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Unix
+```
+
+* Una variable que contenga la dirección absoluta del directorio en que se guardarán los datos convertidos después del análisis. En este directorio se almacenarán tanto los archivos individuales con extensión ".xlsx" como el archivo de resumen. Ejemplo:
+```python
+directorioConvertidos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioConvertidos/"  # En el caso de Windows
+directorioConvertidos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioConvertidos/"  # En el caso de Unix
+```
+
+* Una lista de _strings_ con los nombres de las hojas de cálculo que debe contener el archivo de resumen. Ejemplo:
+```python
+hojas = ["RespuestasPalanca", "LatenciasPalanca", "RespuestasNosepoke"]
+```
+
+* Una lista con los nombres de los sujetos en forma de _string_. Ejemplo:
+```python
+sujetos = ["Rata1", "Rata2", "Rata3", "Rata4"]
+```
+
+* Uno o más [diccionarios](https://www.w3schools.com/python/python_dictionaries.asp) que relacionen a cada sujeto con la columna en que sus datos se escribirán en cada hoja del archivo de resumen. Es decir: un mismo sujeto puede tener asociadas múltiples medidas (e.g., respuestas en palancas, respuestas en nosepoke, latencias, etc). Además, medidas distintas pueden tener subdivisiones diferentes (e.g., puede haber dos medidas de respuestas a palancas (izquierda y derecha), y una sola medida para respuestas a nosepoke). Así, es posible que en una hoja se encuentre un formato similar a este:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565456-64e9654d-c711-45dd-962f-f6e91b3af9a5.png)
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mientras que en otra se puede encontrar un formato similar a este: 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565654-eb234a07-bb0b-464e-ae99-32faf808d86c.png)
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Como se puede ver, medidas distintas para un mismo sujeto requerirían de cantidades distintas de columnas. Por ello será necesario declarar al menos dos diccionarios: uno que relacione a los sujetos con el espacio que ocupan en la primera hoja (respuestas en palancas), y otro que los relacione con el espacio que ocupan en la segunda hoja (respuestas en nosepoke). Estos diccionarios solamente necesitan declarar la primera columna ocupada traduciendo su letra en número (A = 1, B = 2, etc). El resto de las columnas es manejado más adelante. Así, un ejemplo de diccionarios sería:
+```python
+columnas_palancas = {"Rata1": 2, "Rata2": 7, "Rata3": 12,}
+columnas_nosepoke = {"Rata1": 2, "Rata2": 5, "Rata3": 8,}
+```
+
+* Finalmente, el corazón de la librería es una lista de diccionarios que dictará las medidas que serán extraídas de los marcadores y del tiempo, al igual que la manera de escribirlas en los archivos individuales y de resumen. Esta lista tiene un formato específico que puede obtenerse ejecutando la función `template()` incluida con la librería. Cada diccionario de la lista declara la función a utilizar (copiar directamente de una celda, contar respuestas por ensayo, contar respuestas totales, contar latencias, contar respuestas por _bin_ de tiempo), junto con sus parámetros pertinentes (marcadores, columna en que se escribirán los datos en los archivos individuales y de resumen, etc). Ejemplo:
+```python
+analysis_list = [
+    {"conteoresp": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+                    "column": 1,
+                    "header": "Palanca Izq",
+                    "sheet": "Palancas",
+                    "summary_column_list": columnas_palancas,
+		    "substract": True,
+                    }},
+    {"conteoresp": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
+                    "column": 2,
+                    "header": "Palanca Der",
+                    "sheet": "Palancas",
+                    "summary_column_list": columnas_palancas,
+                    "substract": True,
+		    "offset": 1,
+                    }},
+    {"conteototal": {"respuesta": 777,
+                     "column": 3,
+                     "header": "Nosepoke",
+                     "sheet": "Nosepoke",
+                     "summary_column_list": columnas_nosepoke,
+                     "offset": 0,
+                     }},
+    ]
+```
+
+****
+****
+
+
+De manera más específica, hay cinco funciones utilizables y, por lo tanto, cinco formatos de diccionario. Son los siguientes:
+
+
+
+
 
 
 ___
