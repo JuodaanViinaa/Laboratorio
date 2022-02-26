@@ -90,68 +90,6 @@ analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_director
 
 Besides these arguments, some other variables containing dictionaries that relate subjects to columns need to be declared before the main analysis takes place. Their use is explained below.
 
-<!-- Thus, an example of a full script ready to analyze with a single click could be as follows:
-
-```python
-from medpcpy import *
-
-summary_file = 'Response_distribution.xlsx'
-temporary_directory = '/home/usuario/Documents/Proyecto/Temporal/'
-raw_directory = '/home/usuario/Documents/Proyecto/Brutos/'
-converted_directory = '/home/usuario/Documents/Proyecto/Convertidos/'
-sheets = ["Trials", "Responses", "Latencies", "Nosepokes",]
-subjects = ["A1", "A2", "A3"]
-trials_columns = {"A1": 2, "A2": 4, "A3": 6}
-levers_columns = {"A1": 2, "A2": 5, "A3": 8}
-latencies_columns = {"A1": 2, "A2": 7, "A3": 12}
-nosepokes_columns = {"A1": 2, "A2": 6, "A3": 10}
-
-analysis_list = [
-	# Completed trials
-    {"fetch": {"cell_row": 15,
-               "cell_column": 2,
-               "sheet": "Trials",
-               "summary_column_dict": trials_columns,
-               }},
-	# Response distributions
-    {"resp_dist": {"trial_start": 300, "trial_end": 300, "response": 200,
-                   "bin_size": 1,
-                   "bin_amount": 15,
-		   "label": "Responses",
-                   }},
-	# Lever presses
-    {"conteoresp": {"trial_start": 114, "trial_end": 180, "response": 202,
-                    "header": "PalDiscRef",
-                    "sheet": "Responses",
-                    "column": 1,
-                    "summary_column_dict": levers_columns,
-		    "substract": True,
-                    }},
-	# Lever latencies
-    {"conteolat": {"trial_start": 112, "response": 113,
-                   "header": "LatPalDisc",
-                   "sheet": "Latencies",
-                   "column": 2,
-                   "summary_column_dict": latencies_columns,
-		   "statistic": "mean",
-                   }},
-	# Nosepoke responses
-    {"conteototal": {"response": 301,
-                     "header": "EscForzDiscRef",
-                     "sheet": "Nosepokes",
-                     "column": 3,
-                     "summary_column_dict": nosepokes_columns,
-                     }},
-]
-
-analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_directory, raw_directory=directorioBrutos,
-                    convertedDirectory=converted_directory, subjectList=subjects, suffix="_", sheets=sheets,
-                    analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
-
-analyzer.complete_analysis()
-
-```
--->
 ## Analysis list
 
 The syntax for the `analysisList` argument of the `Analyzer` object is given next.
