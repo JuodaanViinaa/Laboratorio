@@ -1,11 +1,11 @@
 # MedPCPy
 
-The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. The library delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest; the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
+The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the present subjects and the sessions associated with each of them, counts the responses, latencies, or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
 
 Files are organized in three separate directories:
 1. A temporary directory in which raw files are stored before analysis.
 2. A permanent directory to which raw files are moved after analysis.
-3. A converted directory in which processed .xlsx files are stored after analysis.
+3. A converted directory in which processed individual .xlsx files and the summary file are stored after analysis.
 
 This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
 
@@ -31,6 +31,8 @@ _____
 1. Python must be installed on the machine which will be used.
 2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character. Ex.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
 3. All files must be placed inside the temporary directory (explained below) before the analysis.
+
+As a special note, along this entire file it is assumed that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (ex., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). These numbers will be referred to as "time" and "marks", respectively.
 
 _____
 
@@ -184,7 +186,7 @@ analysis_list = [
            "cell_column": 10,
            "sheet": "Sheet_1",
            "summary_column_dict": column_dictionary,
-           "offset": 0
+           "offset": 0  # Optional
            }}
 ]
 ```
@@ -230,21 +232,21 @@ Finally, if the `"offset"` argument is not declared, it will take a default valu
 
 ```python
 analysis_list = [
-    {"conteoresp": {"measures": 2, # Opcional
-                    "inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
-                    "inicio_ensayo2": 444, "fin_ensayo2": 555, "respuesta2": 666, # Opcional
+    {"conteoresp": {"measures": 2, # Optional
+                    "trial_start": 111, "trial_end": 222, "response": 333,
+                    "trial_start2": 444, "trial_end2": 555, "response2": 666, # Optional
                     "column": 1,
                     "header": "Generic_title",
                     "sheet": "Sheet_2",
-                    "summary_column_list": column_dictionary2,
-		    "substract": True, # Opcional
-                    "statistic": "mean",  # Opcional. Alternativa: "median"
-		    "offset": 0,  # Opcional
+                    "summary_column_dict": column_dictionary2,
+		    "subtract": True, # Optional
+                    "statistic": "mean",  # Optional. Alternative: "median"
+		    "offset": 0,  # Optional
                     }},
 ]
 ```
 
-This function counts the amount of responses of interest occurred between the start and the end of each trial ina session. It writes a list with all the responses per trial in the individual .xlsx file, and a measure of central tendency (either mean or median) in the summary file.
+This function counts the amount of responses of interest occurred between the start and the end of each trial in a session. It writes a list with all the responses per trial in the individual .xlsx file, and a measure of central tendency (either mean or median) in the summary file.
 
 The arguments `"trial_start"`, `"trial_end"`, and `"response"` are the marks for the start of the trial, end of the trial, and response of interest, respectively.
 
@@ -268,309 +270,278 @@ Attention must be paid to the "2" and "3" digits following the argument names, n
 
 Finally, the `"statistic"` argument determines the measure of central tendency (mean or median) that will be written on the summary file. Its default value is `"mean"`, thus, if no value is declared, the written measure will be the mean.
 
-### Conteototal
+#### Total_count
 
 ```python
  analysis_list = [
-    {"conteototal": {"measures": 2, # Opcional
-                     "respuesta": 111,
-                     "respuesta2": 222, # Opcional
+    {"total_count": {"measures": 2, # Optional
+                     "response": 111,
+                     "response2": 222, # Optional
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Sheet_4",
-                     "summary_column_list": column_dictionary4,
-                     "offset": 0,  # Opcional
+                     "summary_column_dict": column_dictionary4,
+                     "offset": 0,  # Optional
                      }},
 ]
 ```
 
-Esta función permite contar la cantidad total de respuestas en toda una sesión sin diferenciar entre ensayos. El número de ocurrencias de la respuesta se escribe tanto en el archivo individual ".xlsx" como en el archivo de resumen.
+This function counts the amount of responses of interest occurred during the entire session. It writes the resulting count in both the individual xlsx file and the summary file.
 
-Sus argumentos son idénticos a los de `conteoresp()` salvo por dos excepciones: tiene un único argumento para marcador (el marcador de la respuesta de interés), por lo que al agregar más de una fuente en la misma medida mediante `"measures"` la numeración saltará de uno en uno; y no tiene el argumento de `"substract"` en tanto que no hay una respuesta extra por descartar.
+Its arguments are identical to those of `resp_count` with two exceptions: it has got a single mark argument (`"response"`) since it does not need to know where trials begin and end; and it lacks the `"subtract"` argument since there are no extra responses to account for. 
 
-### Conteolat
+Aggregate measures are allowed, just as in `resp_count`, with the same requirements of declaring the `"measures"` argument and adding numbers incrementally to the name of the `"response"` argument.
+
+#### Lat_count
 
 ```python
 analysis_list = [
-    {"conteolat": {"measures": 2, # Opcional
-                   "inicio_ensayo": 111, "respuesta": 222,
-                   "inicio_ensayo2": 333, "respuesta2": 444, # Opcional
+    {"lat_count": {"measures": 2, # Optional
+                   "trial_start": 111, "response": 222,
+                   "trial_start2": 333, "response2": 444, # Opcional
                    "column": 2,
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
-                   "summary_column_list": column_dictionary3,
-		   "statistic": "mean",  # Opcional. Alternativa: "median"
-                   "offset": 0,  # Opcional
+                   "summary_column_dict": column_dictionary3,
+		   "statistic": "mean",  # Optional. Alternative: "median"
+                   "offset": 0,  # Optional
 		   "unit": 20
                    }},
 ]
 ```
 
-Esta función permite contar las latencias por ensayo medidas en segundos desde el inicio del ensayo hasta la primera ocurrencia de la respuesta de interés. La lista completa con las latencias de respuesta de cada ensayo se escribe en el archivo individual ".xlsx", y el estadístico elegido (media o mediana) se escribe en el archivo de resumen.
+This function computes the latencies per trial measured in seconds from the beginning of the trial to the first occurrence of the response of interest. The complete list of latencies per trial is written on the individual xlsx file, and the chosen measure of central tendency (mean or median) is written on the summary file.
 
-Al igual que `conteoresp`, esta función incorpora el argumento `"statistic"` para determinar la medida de tendencia central escrita en el archivo de resumen.
+The arguments are the same as those already described for the previous functions with one exception: this function has a `"unit"` argument which determines the temporal resolution that will be used to count the latencies. The value of the argument is the amount by which seconds are divided. This is dependent on the user's MedPC setup. For example, if the temporal resolution that the user's MedPC setup has is twentieths of a second, then the value for `"unit"` shall be `20`; else, if the temporal resolution is just seconds, the value should be `1`.
 
-Esta función incorpora el argumento `unit`, que determina la resolución temporal utilizada en Med. El argumento corresponde con las unidades entre las que se divide cada segundo. Si, por ejemplo, la resolución temporal utilizada es de vigésimas de segundo entonces el argumento `unit` deberá tomar el valor de 20.
-
-### Resp_dist
+#### Resp_dist
 
 ```python
 analysis_list = [
-    {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+    {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Generic_title",  # Opcional
-		   "statistic": "mean",  # Opcional. Alternativa: "median"
+		   "label": "Generic_title",  # Optional
+		   "statistic": "mean",  # Optional. Alternative: "median"
 		   "unit": 20,
                    }},
 ]
 ```
 
-Esta función permite determinar la distribución temporal de una respuesta de interés a lo largo de cada uno de los ensayos de una sesión. El programa dividirá cada ensayo en _bins_, después contará la cantidad de ocasiones que la respuesta de interés ocurrió en cada uno de los _bins_ y almacenará la información en listas. Cada ensayo generará una lista separada, y todas las listas serán escritas en una misma hoja del archivo individual ".xlsx" distinta de aquella en que se escribe el resto de las listas generadas por las otras funciones. Además, una lista con las medias de respuestas por bin se escribirá en una columna en una hoja del archivo de resumen. Cada sujeto tendrá una hoja exclusiva que será generada automáticamente por el programa y cada sesión ocupará una columna en esa hoja. En tanto que cada distribución de respuestas para cada sujeto es escrita en una hoja separada generada automáticamente, esta función no necesita de los argumentos `"column"`, `"header"`, `"sheet"`, y `"summary_column_list"`.
+This function can determine the temporal distribution of a response of interest along each trial of the session. The function will divide each trial in _bins_ whose size (in seconds) and amount is determined by the user with the `"bin_size"` and `"bin_amount"` arguments, and then will count the occurrences of the response of interest during each bin. For each trial a separate list will be generated, and all lists will be written on a separate sheet of the individual xlsx file. A list with either the mean or the median of responses per bin will be written on a column on a separate sheet of the summary file, one sheet per subject and one column per session. These sheets are created automatically and take the name of each subject; thus, it is not necessary to declare these sheets in the `sheets` argument of the `Analyzer` object.
 
-En aquellos casos en que no haya intervalo entre ensayos y no exista un marcador de fin de ensayo, sino que el fin de un ensayo sea señalado solamente por el inicio del ensayo siguiente, bastará con declarar el mismo marcador para los argumentos `"inicio_ensayo"` y `"fin_ensayo"`.
+Since the distributions are written on separate columns per session and separate sheets per subject, the `"column"`, `"header"`, `"sheet"`, and `"summary_column_dict"` arguments are not needed.
 
-Los argumentos `"bin_size"` y `"bin_amount"` determinan la duración en segundos de cada _bin_ y la cantidad de _bins_ por ensayo, respectivamente. Así, un ensayo de 15 segundos con _bins_ de un segundo tendrá como argumentos `"bin_size": 1` y `"bin_amount": 15`.
+In those cases in which there is no Inter-Trial-Interval and there is no end-of-trial mark, and thus the end of a trial is only signaled by the beginning of the next, it will be enough to declare the same mark for both `"trial_start"` and `"trial_end"`.
 
-El programa crea un _bin_ adicional a los declarados con `"bin_amount"` en el cual se aglomeran todas las respuestas que ocurran más allá del fin del último _bin_ declarado. De no haber tales respuestas el _bin_ final resultará vacío.
+The `"bin_size"` and `"bin_amount"` arguments determine the duration in seconds of each _bin_ and the amount of bins in which the trial will be divided, respectively. A 15 second trial with one-second _bins_ should have the values of `"bin_size": 1` and `"bin_amount": 15`.
 
-En caso de que se requiera obtener la distribución de más de una respuesta del mismo experimento se debe declarar el argumento opcional `"label"` con un nombre que identifique a cada una de las medidas que se requieren. El programa creará una hoja separada para cada medida de cada sujeto y le pondrá como título el nombre del sujeto seguido del _string_ que se haya utilizado como argumento de `"label"`, y cada sesión ocupará una columna en su hoja pertinente. Por ejemplo, si se requiere obtener distribuciones de respuestas en palancas y en nosepoke, los diccionarios necesarios podrían tener un formato como este:
+The program creates one additional _bin_ beyond those declared by `"bin_amount"` in which all responses occurred beyond the last declared _bin_ are aggregated. If no such responses exist, the final _bin_ will be empty.
+
+If it is required to obtain the response distributions of more than one response in a single experiment then the optional argument `"label"` shall be declared with a name that identifies each of the measures that are needed. The function will create a separate sheet for each measure of each subject, and give it a name composed of the subject name followed by the string used as value for the `"label"` argument. For example, if one desires to obtain response distributions for lever presses and nosepoke entries, the necessary dictionaries could take a format like this:
 
 ```python 
 analysis_list = [
-    {"resp_dist": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
+    {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Palancas", # Opcional
+		   "label": "Levers",
 		   "statistic": "mean",
 		   "unit": 20,
                    }},
 
-    {"resp_dist": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
+    {"resp_dist": {"trial_start": 444, "trial_end": 555, "response": 666,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Nosepoke",  # Opcional
+		   "label": "Nosepokes",
 		   "statistic": "mean",
 		   "unit": 20,
                    }},
 ]
 ```
 
-Y el archivo de resumen resultante tendría dos hojas para cada sujeto: una asignada a las distribuciones de respuestas en palancas y otra asignada a las distribuciones de respuesta en nosepoke. Si los sujetos fuesen `"Rata1"` y `"Rata2"`, las hojas resultantes tendrían los nombres de `"Rata1_Palancas"`, `"Rata1_Nosepoke"`, `"Rata2_Palancas"`, y `"Rata2_Nosepoke"`. Por otro lado, el archivo ".xlsx" individual de cada sujeto contendría dos hojas: una para cada medida. Estas hojas son creadas automáticamente y llevan por título el valor del argumento `"label"`.
+The resulting summary file would have two sheets for each subject: one assigned to the lever response distributions, and another assigned to the nosepoke response distributions. If the subjects were `"Rat1"` and `"Rat2"`, the resulting sheets would have the names of `"Rat1_Levers"`, `"Rat1_Nosepokes"`, `"Rat2_Levers"`, and `"Rat2_Nosepokes"`. Furthermore, the individual xlsx files would also have separate sheets for each response distribution. These sheets are also automatically created and have as name the value of the `"label"` argument.
 
-En caso de que el argumento `"label"` sea omitido se creará en el archivo de resumen una sola hoja por sujeto, y ésta llevará por título el nombre del sujeto. Si se declaran múltiples distribuciones de respuestas y en todas se omite el argumento `"label"`, éstas se sobreescribirán entre sí y solamente será visible la última medida declarada.
+If the `"label"` argument is not declared then a single sheet per subject will be created in the summary file. If multiple response distributions are declared in the analysis list and the `"label"` argument is ommited in all of them, the distributions will overwrite one another and only the last declared distribution will prevail.
 
-Esta función, al igual que `conteoresp` y `conteolat`, incorpora el argumento `"statistic"` para determinar la medida de tendencia central escrita en el archivo de resumen.
+This function includes the `"statistic"` argument to determine the measure of central tendency that will be written, and the `"unit"` argument to specify the temporal resolution declared in the MedPC setup.
 
-Al igual que `conteolat` esta función incorpora el argumento `unit` para dictar la resolución temporal del análisis.
+___
+___
+## Example script and workflow
 
+First the library is imported and all variables are declared:
 
-## Librería _oop_funciones.py_
-
-Esta librería provee una manera simple de analizar los datos entregados por el programa de [Med PC-IV](https://www.med-associates.com/). Contiene funciones útiles para tareas y análisis básicos. La librería solamente ha sido probada con los archivos entregados por Med PC-IV, por lo que desconozco su funcionamiento con versiones distintas. Agradeceré cualquier realimentación al respecto.
-
-De manera general la librería escanea una carpeta en la que se encuentran los archivos de texto sin formato entregados por MedPC que se desean analizar. Con base en ellos determina los sujetos y sesiones por analizar, convierte los archivos a formato ".xlsx" y separa las listas crudas de datos en columnas más legibles, realiza los conteos de respuestas, latencias, o distribuciones de respuesta que el usuario declare, y finalmente escribe los resultados en archivos individuales para cada sujeto y en un archivo de resumen. Tras declarar todas las variables pertinentes, el análisis completo de uno o más días de sesiones experimentales y de uno o más sujetos puede realizarse con un clic.
-
-Sin embargo, la librería requiere de la declaración de variables específicas y su llamada en forma de argumentos en las funciones pertinentes.
-
-Las variables necesarias para utilizar la librería son:
-
-* Una variable que contenga el nombre del archivo de resumen en forma de _string_ en que se guardarán los datos. El _string_ debe contener la extensión ".xlsx". Ejemplo:
 ```python
-archivo_de_resumen = "Igualacion.xlsx"
-```
+from medpcpy import *
 
-* Una variable que contenga la [dirección absoluta](https://www.geeksforgeeks.org/absolute-relative-pathnames-unix/) del directorio temporal en que se almacenarán los datos brutos antes de su análisis. Es importante que el último caracter del _string_ sea una diagonal `/`, y que cada nivel de la dirección sea separado por diagonales hacia adelante "`/`" y no hacia atrás "`\`". Ejemplo:
-```python
-directorioTemporal = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Windows
-directorioTemporal = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioTemporal/"  # En el caso de Unix
-```
+file = "your_summary_filename.xlsx"
+temp_directory = "/path/to/your/temporary/directory"
+perm_directory = "/path/to/your/permanent/raw/directory"
+conv_directory = "/path/to/your/converted/directory"
+subjects = ["Subject1", "Subject2", "Subject3"]
+measure1_cols = {"Subject1": 2, "Subject2": 4, "Subject3": 6}
+measure2_cols = {"Subject1": 2, "Subject2": 6, "Subject3": 10}
+measure3_cols = {"Subject1": 2, "Subject2": 7, "Subject3": 12}
+measure4_cols = {"Subject1": 2, "Subject2": 3, "Subject3": 4}
+sheets = ["Measure1", "Measure2", "Measure3", "Measure4"]
 
-* Una variable que contenga la dirección absoluta del directorio permanente en que se guardarán los datos brutos después de haber sido utilizados (no es necesario mover los archivos manualmente después de su utilización; el programa se encarga de eso automáticamente). Ejemplo:
-```python
-directorioBrutos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Windows
-directorioBrutos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioBrutos/"  # En el caso de Unix
-```
-
-* Una variable que contenga la dirección absoluta del directorio en que se guardarán los datos convertidos después del análisis. En este directorio se almacenarán tanto los archivos individuales con extensión ".xlsx" como el archivo de resumen. Ejemplo:
-```python
-directorioConvertidos = "C:/Users/Admin/Desktop/Direccion/De/Tu/Carpeta/DirectorioConvertidos/"  # En el caso de Windows
-directorioConvertidos = "/home/usuario/Documents/Direccion/De/Tu/Carpeta/DirectorioConvertidos/"  # En el caso de Unix
-```
-
-* Una lista de _strings_ con los nombres de las hojas de cálculo que debe contener el archivo de resumen. Ejemplo:
-```python
-hojas = ["RespuestasPalanca", "LatenciasPalanca", "RespuestasNosepoke"]
-```
-
-* Una lista con los nombres de los sujetos en forma de _string_. Ejemplo:
-```python
-sujetos = ["Rata1", "Rata2", "Rata3", "Rata4"]
-```
-
-* Uno o más [diccionarios](https://www.w3schools.com/python/python_dictionaries.asp) que relacionen a cada sujeto con la columna en que sus datos se escribirán en cada hoja del archivo de resumen. Es decir: un mismo sujeto puede tener asociadas múltiples medidas (e.g., respuestas en palancas, respuestas en nosepoke, latencias, etc). Además, medidas distintas pueden tener subdivisiones diferentes (e.g., puede haber dos medidas de respuestas a palancas (izquierda y derecha), y una sola medida para respuestas a nosepoke). Así, es posible que en una hoja se encuentre un formato similar a este:
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565456-64e9654d-c711-45dd-962f-f6e91b3af9a5.png)
-
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mientras que en otra se puede encontrar un formato similar a este: 
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://user-images.githubusercontent.com/87039101/140565654-eb234a07-bb0b-464e-ae99-32faf808d86c.png)
-
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Como se puede ver, medidas distintas para un mismo sujeto requerirían de cantidades distintas de columnas. Por ello será necesario declarar al menos dos diccionarios: uno que relacione a los sujetos con el espacio que ocupan en la primera hoja (respuestas en palancas), y otro que los relacione con el espacio que ocupan en la segunda hoja (respuestas en nosepoke). Estos diccionarios solamente necesitan declarar la primera columna ocupada traduciendo su letra en número (A = 1, B = 2, etc). El resto de las columnas es manejado más adelante. Así, un ejemplo de diccionarios sería:
-```python
-columnas_palancas = {"Rata1": 2, "Rata2": 7, "Rata3": 12,}
-columnas_nosepoke = {"Rata1": 2, "Rata2": 5, "Rata3": 8,}
-```
-
-* Finalmente, el corazón de la librería es una lista de diccionarios que dictará las medidas que serán extraídas de los marcadores y del tiempo, al igual que la manera de escribirlas en los archivos individuales y de resumen. Esta lista tiene un formato específico que puede obtenerse ejecutando la función `template()` incluida con la librería. Cada diccionario de la lista declara la función a utilizar (copiar directamente de una celda, contar respuestas por ensayo, contar respuestas totales, contar latencias, contar respuestas por _bin_ de tiempo), junto con sus parámetros pertinentes (marcadores, columna en que se escribirán los datos en los archivos individuales y de resumen, etc). Ejemplo:
-```python
 analysis_list = [
-    {"conteoresp": {"inicio_ensayo": 111, "fin_ensayo": 222, "respuesta": 333,
-                    "column": 1,
-                    "header": "Palanca Izq",
-                    "sheet": "Palancas",
-                    "summary_column_list": columnas_palancas,
-		    "substract": True,
-                    }},
-    {"conteoresp": {"inicio_ensayo": 444, "fin_ensayo": 555, "respuesta": 666,
+    # Measure 1
+    {"fetch": {"cell_row": 1,
+               "cell_column": 1,
+               "sheet": "Measure1",
+               "summary_column_dict": measure1_cols,
+               "offset": 0,
+               }},
+    # Measure 2
+    {"count_resp": {"measures": 2,  # Optional argument. Default value: 1
+                    "trial_start": 111, "trial_end": 222, "response": 333,
+                    "trial_start2": 444, "trial_end2": 555, "response2": 666,
+                    # Optional marks. Depends on the value of "measures"
                     "column": 2,
-                    "header": "Palanca Der",
-                    "sheet": "Palancas",
-                    "summary_column_list": columnas_palancas,
-                    "substract": True,
-		    "offset": 1,
+                    "header": "Generic_title",
+                    "sheet": "Measure2",
+                    "summary_column_dict": measure2_cols,
+                    "subtract": True,  # Optional argument. Default value: False
+                    "statistic": "mean",  # Alternative value: "median"
+                    "offset": 0,
                     }},
-    {"conteototal": {"respuesta": 777,
+    # Measure 3
+    {"total_count": {"measures": 2,  # Optional argument. Default value: 1
+                     "response": 111,
+                     "response2": 222,  # Optional mark. Depends on the value of "measures"
                      "column": 3,
-                     "header": "Nosepoke",
-                     "sheet": "Nosepoke",
-                     "summary_column_list": columnas_nosepoke,
+                     "header": "Generic_title",
+                     "sheet": "Measure3",
+                     "summary_column_dict": measure3_cols,
                      "offset": 0,
                      }},
-    ]
+    # Measure 4
+    {"lat_count": {"measures": 2,  # Optional argument. Default value: 1
+                   "trial_start": 111, "response": 222,
+                   "trial_start2": 333, "response2": 444,  # Optional marks. Depends on the value of "measures"
+                   "column": 4,
+                   "header": "Generic_title",
+                   "sheet": "Measure4",
+                   "summary_column_dict": measure4_cols,
+                   "statistic": "mean",  # Alternative value: "median"
+                   "offset": 0,
+                   "unit": 20,  # Optional
+                   }},
+    # Response distribution
+    {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
+                   "bin_size": 1,
+                   "bin_amount": 15,
+                   "label": "Generic_label",
+                   "statistic": "median",  # Alternative value: "mean"
+                   "unit": 20,  # Optional
+                   }},
+]
 ```
 
-****
-****
+Then the `Analyzer` object is created with all necessary arguments and assigned to a variable.
 
-
-De manera más específica, hay cinco funciones utilizables y, por lo tanto, cinco formatos de diccionario. Son los siguientes:
-
-
-
-
-
-
-___
-___
-## Uso
-
-Como primer paso será necesario importar la librería al proyecto actual e instalar las dependencias pertinentes, es decir, Openpyxl y Pandas.
-
-La importación de la librería puede realizarse descargando el archivo oop_funciones.py de este github y guardándolo en la misma carpeta en que se encuentre el script de python que se esté construyendo. Después, como primera línea del script se debe escribir
 ```python
-from oop_funciones import *
-```
-
-para importar todas las funciones de la librería.
-
-Tras la declaración de todas las variables pertinentes será necesario solamente crear un objeto de tipo `Analyzer` y asignarlo a una variable con los argumentos adecuados. Los argumentos necesarios son:
-
-1. `fileName`, el nombre del archivo de resumen.
-2. `temporaryDirectory`, el directorio temporal declarado antes en el cual se almacenan los datos antes de su análisis.
-3. `permanentDirectory`, el directorio al que se moverán los datos brutos después de su utilización.
-4. `convertedDirectory`, el directorio en el que se guardarán los archivos individuales convertidos ".xlsx" y el archivo de resumen.
-5. `subjectList`, la lista con los nombres de los sujetos.
-6. `suffix`, un string que indica al programa el caracter o conjunto de caracteres que separa el nombre de los sujetos del número de la sesión en el nombre de los archivos. Se recomienda un valor de `"_"`.
-7. `sheets`, una lista de _strings_ con los nombres de las hojas de cálculo que deberán crearse dentro del archivo de resumen.
-8. `analysisList`, la lista de diccionarios que contiene los análisis a realizar.
-9. `markColumn`, la columna de los archivos individuales en la cual se escribieron los marcadores.
-10. `timeColumn`, la columna de los archivos individuales en la cual se escribió el tiempo asociado a cada marcador.
-11. `relocate`, un booleano (es decir, toma valores de `True` y `False`) que indica si los archivos crudos deberán ser movidos del directorio temporal al directorio permanente después del análisis. Es útil para evitar la necesidad de regresar los archivos manualmente al directorio temporal mientras se están haciendo pruebas con el código.
-
-Los argumentos `timeColumn` y `markColumn` no son necesarios inicialmente, sino que son obtenidos al aplicar parte del programa a los datos. Esto se verá a continuación.
-
-La creación inicial del objeto de tipo `Analyzer` puede ser como sigue (apelando a las variables creadas anteriormente):
-```python
-analyzer = Analyzer(fileName=archivo_de_resumen, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
-                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_", sheets=hojas,
+analyzer = Analyzer(fileName=file, temporaryDirectory=temp_directory, permanentDirectory=perm_directory,
+                    convertedDirectory=conv_directory, subjectList=subjects, suffix="_", sheets=sheets,
                     analysisList=analysis_list, relocate=False)
 ```
 
-Sin embargo, aun no sería posible hacer el análisis completo de los datos, sino solamente su conversión, que es justamente el paso siguiente. Con el método `convert()` se pueden convertir los archivos contenidos en la carpeta temporal:
+By this point, the `Analyzer` object is not yet ready to analyze data since it lacks the `timeColumn` and `markColumn` arguments. For this purpose the `.convert()` method is used:
 
 ```python
 analyzer.convert()
 ```
 
-Esto generará los archivos individuales en formato .xlsx. Será necesario ahora abrir cualquiera de ellos con cualquier editor de hojas de cálculo y determinar manualmente las columnas en las cuales se escribieron las listas de tiempo y marcadores. Estas columnas serán después pasadas como argumentos en la declaración del objeto tipo `Analyzer`. Por ejemplo, suponiendo que en los archivos individuales encontrásemos que la lista con el tiempo fue escrita en la columna "M" y la lista con los marcadores en la columna "N", la declaración del objeto resultaría finalmente como:
+This will create .xlsx files for each file in the temporary directory, and save them in the converted directory. Any one of these files must then be opened with a spreadsheet editor (such as Microsoft Excel or LibreOffice Calc) so as to manually inspect and determine the columns in which the time and marks are written. After doing so, the `Analyzer` object declaration can be edited to include the `timeColumn` and `markColumn` arguments:
 
 ```python
-analyzer = Analyzer(fileName=archivo, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
-                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_", sheets=hojas,
-                    analysisList=analysis_list, timeColumn="M", markColumn="N", relocate=False)
+analyzer = Analyzer(fileName=file, temporaryDirectory=temp_directory, permanentDirectory=perm_directory,
+                    convertedDirectory=conv_directory, subjectList=subjects, suffix="_", sheets=sheets,
+                    analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
 ```
 
-Así, el script completo preparado para analizar datos con un solo clic sería:
+Then the `.convert()` method can be commented out or deleted and the `.complete_analysis()` method can be used to extract and write all the declared measures:
 
 ```python
-from oop_funciones import *
+analyzer.complete_analysis()
+```
 
-archivo = 'Response_distribution.xlsx'
-directorioTemporal = '/home/usuario/Documents/Proyecto/Temporal/'
-directorioBrutos = '/home/usuario/Documents/Proyecto/Brutos/'
-directorioConvertidos = '/home/usuario/Documents/Proyecto/Convertidos/'
-hojas = ["Ensayos", "Respuestas", "Latencias", "Nosepokes",]
-sujetos = ["A1", "A2", "A3"]
-columnasEnsayos = {"A1": 2, "A2": 4, "A3": 6}
-columnasRespuestas = {"A1": 2, "A2": 5, "A3": 8}
-columnasLatencias = {"A1": 2, "A2": 7, "A3": 12}
-columnasNosepokes = {"A1": 2, "A2": 6, "A3": 10}
+If the user is satisfied with the result, they can then remove the `relocate` argument from the `Analyzer` object declaration and run again the code so that all raw files are moved from the temporary directory to the permanent one. Alternatively, this can be done manually.
+
+An example of a complete script would be as follows:
+
+```python
+from medpcpy import *
+
+file = "your_summary_filename.xlsx"
+temp_directory = "/path/to/your/temporary/directory"
+perm_directory = "/path/to/your/permanent/raw/directory"
+conv_directory = "/path/to/your/converted/directory"
+subjects = ["Subject1", "Subject2", "Subject3"]
+measure1_cols = {"Subject1": 2, "Subject2": 4, "Subject3": 6}
+measure2_cols = {"Subject1": 2, "Subject2": 6, "Subject3": 10}
+measure3_cols = {"Subject1": 2, "Subject2": 7, "Subject3": 12}
+measure4_cols = {"Subject1": 2, "Subject2": 3, "Subject3": 4}
+sheets = ["Measure1", "Measure2", "Measure3", "Measure4"]
 
 analysis_list = [
-	# Ensayos completados
-    {"fetch": {"cell_row": 15,
-               "cell_column": 2,
-               "sheet": "Ensayos",
-               "summary_column_list": columnasEnsayos,
+    # Measure 1
+    {"fetch": {"cell_row": 1,
+               "cell_column": 1,
+               "sheet": "Measure1",
+               "summary_column_dict": measure1_cols,
+               "offset": 0,
                }},
-	# Distribucion respuestas
-    {"resp_dist": {"inicio_ensayo": 300, "fin_ensayo": 300, "respuesta": 200,
+    # Measure 2
+    {"count_resp": {"measures": 2,  # Optional argument. Default value: 1
+                    "trial_start": 111, "trial_end": 222, "response": 333,
+                    "trial_start2": 444, "trial_end2": 555, "response2": 666,
+                    # Optional marks. Depends on the value of "measures"
+                    "column": 2,
+                    "header": "Generic_title",
+                    "sheet": "Measure2",
+                    "summary_column_dict": measure2_cols,
+                    "subtract": True,  # Optional argument. Default value: False
+                    "statistic": "mean",  # Alternative value: "median"
+                    "offset": 0,
+                    }},
+    # Measure 3
+    {"total_count": {"measures": 2,  # Optional argument. Default value: 1
+                     "response": 111,
+                     "response2": 222,  # Optional mark. Depends on the value of "measures"
+                     "column": 3,
+                     "header": "Generic_title",
+                     "sheet": "Measure3",
+                     "summary_column_dict": measure3_cols,
+                     "offset": 0,
+                     }},
+    # Measure 4
+    {"lat_count": {"measures": 2,  # Optional argument. Default value: 1
+                   "trial_start": 111, "response": 222,
+                   "trial_start2": 333, "response2": 444,  # Optional marks. Depends on the value of "measures"
+                   "column": 4,
+                   "header": "Generic_title",
+                   "sheet": "Measure4",
+                   "summary_column_dict": measure4_cols,
+                   "statistic": "mean",  # Alternative value: "median"
+                   "offset": 0,
+                   "unit": 20,  # Optional
+                   }},
+    # Response distribution
+    {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
-		   "label": "Respuestas",
+                   "label": "Generic_label",
+                   "statistic": "median",  # Alternative value: "mean"
+                   "unit": 20,  # Optional
                    }},
-	# Respuestas palancas
-    {"conteoresp": {"inicio_ensayo": 114, "fin_ensayo": 180, "respuesta": 202,
-                    "header": "PalDiscRef",
-                    "sheet": "Respuestas",
-                    "column": 1,
-                    "summary_column_list": columnasRespuestas,
-		    "substract": True,
-                    }},
-	# Latencias palancas
-    {"conteolat": {"inicio_ensayo": 112, "respuesta": 113,
-                   "header": "LatPalDisc",
-                   "sheet": "Latencias",
-                   "column": 2,
-                   "summary_column_list": columnasLatencias,
-		   "statistic": "mean",
-                   }},
-	# Respuestas nosepokes
-    {"conteototal": {"respuesta": 301,
-                     "header": "EscForzDiscRef",
-                     "sheet": "Nosepokes",
-                     "column": 3,
-                     "summary_column_list": columnasNosepokes,
-                     }},
 ]
 
-analyzer = Analyzer(fileName=archivo, temporaryDirectory=directorioTemporal, permanentDirectory=directorioBrutos,
-                    convertedDirectory=directorioConvertidos, subjectList=sujetos, suffix="_", sheets=hojas,
-                    analysisList=analysis_list, timeColumn="M", markColumn="N", relocate=False)
-
+analyzer = Analyzer(fileName=file, temporaryDirectory=temp_directory, permanentDirectory=perm_directory,
+                    convertedDirectory=conv_directory, subjectList=subjects, suffix="_", sheets=sheets,
+                    analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
+# analyzer.convert()
 analyzer.complete_analysis()
-
 ```
