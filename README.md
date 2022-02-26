@@ -2,7 +2,18 @@
 
 The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. The library delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest; the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
 
+Files are organized in three separate directories:
+1. A temporary directory in which raw files are stored before analysis.
+2. A permanent directory to which raw files are moved after analysis.
+3. A converted directory in which processed .xlsx files are stored after analysis.
+
 This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
+
+## Quick Start
+
+A quick start script named `quick_start.py` is provided with all relevant variables already declared. The user needs only change the values of all variables to something relevant to their project. That is, it will be necessary to change the summary filename, directory paths, subject names, column dictionaries, sheet names, all measures of the analysis list, as well as the `suffix`, `markColumn`, and `timeColumn` arguments of the `Analyzer` object.
+
+To get the actual values of the `markColumn` and `timeColumn` arguments (instead of the placeholder values provided) it is necessary to first run the script with the `analyzer.convert()` line _uncommented_. Then one ought to manually inspect one of the produced files and look for the columns in which the time and marks are written. Those are the values needed for `markColumn` and `timeColumn`. After that, the user must _comment_ the `analyzer.convert()` line, and _uncomment_ the `analyzer.complete_analysis()` line and run again the code. If everything goes as planned, the full analysis should run with no further interaction. If the user is satisfied with the process, then they can delete the `relocate = False` argument of the analyzer object. This will make the code move the already-processed files from the temporary directory to the permanent one.
 
 ## Introduction
 
@@ -145,10 +156,10 @@ The syntax for the `analysisList` argument of the `Analyzer` object is given nex
 
 The library contains several functions to extract and summarize data in common ways. Specifically, the library can
 * Grab a value from a specific cell in the individual .xlsx files given a row and column number (`fetch`).
-* Count all occurences of a response per trial (`count_resp`).
-* Count all occurences of a response in a session (`total_count`)
-* Count the latencies from the beginning of each trial to the first occurence of the response of interest (`lat_count`)
-* Count the responses occured per user-defined time-bin per trial (`resp_dist`)
+* Count all occurrences of a response per trial (`count_resp`).
+* Count all occurrences of a response in a session (`total_count`)
+* Count the latencies from the beginning of each trial to the first occurrence of the response of interest (`lat_count`)
+* Count the responses occurred per user-defined time-bin per trial (`resp_dist`)
 
 Most of these functions need the declaration of a special dictionary which relates each subject with a specific column in which its data will be written. That is, we may be interested in getting more than one measure from each subject (e.g., lever presses, nosepoke entries, latencies, etc.), and different measures may have different sub-divisions (e.g., there may be four levers, but two nosepokes). Thus, if we want to keep each type of response in its own separate sheet, we may need a format that is similar to this for the lever presses:
 
@@ -165,7 +176,8 @@ lever_cols = {"Rat1": 2, "Rat2": 7, "Rat3": 12,}
 nosepoke_cols = {"Rat1": 2, "Rat2": 5, "Rat3": 8,}
 ```
 
-### Fetch
+### Functions
+#### Fetch
 ```python
 analysis_list = [
 {"fetch": {"cell_row": 10,
@@ -180,6 +192,8 @@ analysis_list = [
 This function allows the extraction of a single data point from the .xlsx individual files. It is useful to quickly extract measures such as the number of completed trials (if such data is available in one of the MedPC arrays). The arguments `"cell_row"` and `"cell_column"` dictate the position of the cell whose data will be extracted: if the data point is located, say, in cell "B15", then the required arguments will be `"cell_row": 15` and `"cell_column": 2`. 
 
 ![image](https://user-images.githubusercontent.com/87039101/140596672-7213c34d-061c-4d05-a4bc-eced2abb65c5.png)
+
+In order to get the location of the data point of interest the user may run the `.convert()` method and manually inspect one of the produced files.
 
 The `"sheet"` and `"summary_column_dict"` arguments determine the way in which the extracted data point will be written on the summary file. `"sheet"` indicates the name of the sheet in which the data point will be written. This name must correspond with one of the elements of the sheet list given as an argument to the `Analyzer` object. `"summary_column_dict"` is the dictionary that relates each subject with the column in which their data will be written.
 
@@ -212,7 +226,7 @@ This will result in three columns. The first will be in the position declared by
 
 Finally, if the `"offset"` argument is not declared, it will take a default value of `0`.
 
-### Resp_count
+#### Resp_count
 
 ```python
 analysis_list = [
@@ -234,25 +248,25 @@ This function counts the amount of responses of interest occurred between the st
 
 The arguments `"trial_start"`, `"trial_end"`, and `"response"` are the marks for the start of the trial, end of the trial, and response of interest, respectively.
 
-The `"subtract"` argument is optional, and deals with the special case in which the response of interest is also the response that signals the start of the trial, and one desires not to count that first "starting" response as a part of the per-trial count. In such a situation, counting that additional response would overestimate the total responses per trial. To deal accomodate for that situation adding the optional argument `"subtract": True` will subtract one unit from all non-zero response counts, which will result in an accurate measure. If this is not the case, then simply not declaring the argument will make it take a default value of `False`, and the subtraction will not be carried out.
+The `"subtract"` argument is optional, and deals with the special case in which the response of interest is also the response that signals the start of the trial, and one desires not to count that first "starting" response as a part of the per-trial count. In such a situation, counting that additional response would overestimate the total responses per trial. To accomodate for that situation, adding the optional argument `"subtract": True` will subtract one unit from all non-zero response counts, which will result in an accurate measure. If one does not desire to subtract any units, then simply not declaring the argument will make it take a default value of `False`, and the subtraction will not be carried out.
 
 The `"column"`and `"header"`arguments determine the way in which the complete list of responses per trial will be written on the individual .xlsx file. `"column"` indicates the column in which the list will be written (being that 1 = A, 2 = B, 3 = C, etc.). The `"header"`argument determines the title which the column will have in its first cell. In order to not overwrite any data, each declared dictionary from the analysis list must have a different value for `"column"`, and it is recommended to use an incremental order.
 
-The `"sheet"` and `"summary_column_dict"` arguments work the same as in the `Fetch` function.
+The `"sheet"`, `"summary_column_dict"`, and `"offset"` arguments work the same as in the `Fetch` function.
 
-Esta función, junto con las funciones `conteolat` y `conteototal`, incorpora la posibilidad de realizar medidas "agregadas" o múltiples mediante el argumento `"measures"`: en algunas ocasiones es ventajoso sumar en una sola medida las respuesas (o latencias) provenientes de dos fuentes distintas. Como ejemplo se puede pensar en un caso en el cual haya respuestas en una palanca que lleven probabilísticamente a dos consecuencias diferentes y que, por descuido o planeación, tengan marcadores distintos. Las respuestas en ese caso deberán sumarse y contribuir a la misma media en el archivo de resumen. Para casos como ese el argumento `"measures"` permite agregar dentro de una misma medida fuentes distintas de información. `"measures"` indicará la cantidad de fuentes que se deberán agregar en la misma medida. Para cada medida adicional se deberán declarar además los marcadores pertinentes siguiendo la numeración lógica. Por ejemplo, para tres fuentes agregadas en una misma medida los argumentos serían:
+This function, alongside `lat_count` and `total_count`, offers the possibility of making multiple or "aggregated" counts via the `"measures"` argument: in certain occasions it is advantageous to aggregate in a single measure the responses or latencies from two or more sources. As an example one may think of a situation in which there are responses to a single lever in two different types of trials, and those responses have two different marks to identify them. One may wish to aggregate the responses or latencies from both types of trials so that they are represented by a single measure of central tendency. In such cases the `"measures"` argument permits the incorporation of several information sources in a single measure. `"measures"` will indicate how many different sources must be aggregated into the same measure. For each additional source the necessary marks must be declared following the logical numbering. For example, for three sources aggregated into a single measure the arguments would be:
 ```python
 analysis_list = [
-    {"conteoresp": {"measures": 3,
-                    "inicio_ensayo": 123, "fin_ensayo": 124, "respuesta": 125,
-                    "inicio_ensayo2": 223, "fin_ensayo2": 224, "respuesta2": 225, 
-                    "inicio_ensayo3": 323, "fin_ensayo3": 324, "respuesta3": 325, 
+    {"resp_count": {"measures": 3,
+                    "trial_start": 123, "trial_end": 124, "response": 125,
+                    "trial_start2": 223, "trial_end2": 224, "response2": 225, 
+                    "trial_start3": 323, "trial_end3": 324, "response3": 325, 
                     ...
 ```
 
-La atención debe centrarse en los dígitos 2 y 3 que siguen a los argumentos, notando que la numeración es consecutiva y que para la primera medida no se debe declarar el dígito 1. Esta función puede manejar una cantidad indefinida de fuentes aglomeradas en una misma medida.
+Attention must be paid to the "2" and "3" digits following the argument names, noting that the numbering is consecutive and that for the first source the redundant number "1" must not be written. This allows an unlimited amount of sources to be incorporated into a single measure.
 
-Finalmente, el argumento `"statistic"` determina la medida de tendencia central (media o mediana) que será escrita en el archivo de resumen. Su valor por defecto es `"mean"`, por lo que si no se declara ningún valor, la medida escrita será la media.
+Finally, the `"statistic"` argument determines the measure of central tendency (mean or median) that will be written on the summary file. Its default value is `"mean"`, thus, if no value is declared, the written measure will be the mean.
 
 ### Conteototal
 
