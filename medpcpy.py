@@ -1,3 +1,4 @@
+# TODO: Add a way to control the vertical position of data in columns
 """
 Created on 18-February-2022 12:22
 Code by Daniel Maldonado
@@ -251,7 +252,7 @@ def template():
                    "bin_size": 1,
                    "bin_amount": 15,
                    "label": "Generic_label",
-                   "statistic": "median"  # Alternative value: "mean"
+                   "statistic": "median",  # Alternative value: "mean"
                    "unit": 20,  # Optional
                    }},
     ]
