@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{class} \PYG{n+nc}{Dog}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{name}\PYG{p}{,} \PYG{n}{age}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{dog\PYGZus{}name} \PYG{o}{=} \PYG{n}{name}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{dog\PYGZus{}age} \PYG{o}{=} \PYG{n}{age}
+
+    \PYG{k}{def} \PYG{n+nf}{print\PYGZus{}name}\PYG{p}{():}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+s2}{        Hello, my name is }\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{dog\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{,}
+\PYG{l+s+s2}{        and I am }\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{dog\PYGZus{}age}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ years old. Woof!}
+\PYG{l+s+s2}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}\PYG{p}{)}
+\end{Verbatim}

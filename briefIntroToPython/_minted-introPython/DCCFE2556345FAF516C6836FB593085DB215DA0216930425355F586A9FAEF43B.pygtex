@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{my\PYGZus{}dog} \PYG{o}{=} \PYG{n}{Dog}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}John\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{)}
+\end{Verbatim}

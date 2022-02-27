@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{analysis\PYGZus{}list} \PYG{o}{=} \PYG{p}{[}
+    \PYG{c+c1}{\PYGZsh{} Measure 1}
+    \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}fetch\PYGZdq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}cell\PYGZus{}row\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}cell\PYGZus{}column\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}sheet\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Measure1\PYGZdq{}}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}summary\PYGZus{}column\PYGZus{}dict\PYGZdq{}}\PYG{p}{:} \PYG{n}{measure1\PYGZus{}cols}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}offset\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{0}\PYG{p}{,}
+               \PYG{p}{\PYGZcb{}\PYGZcb{},}
+               \PYG{o}{...}
+                \PYG{p}{]}
+\end{Verbatim}

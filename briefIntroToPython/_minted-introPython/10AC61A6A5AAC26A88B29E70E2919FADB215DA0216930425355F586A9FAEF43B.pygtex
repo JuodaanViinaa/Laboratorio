@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{hello\PYGZus{}function}\PYG{p}{():}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Pizza Mozzarella\PYGZdq{}}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{my\PYGZus{}sum\PYGZus{}function}\PYG{p}{(}\PYG{n}{a}\PYG{p}{,} \PYG{n}{b}\PYG{p}{):}
+    \PYG{k}{return} \PYG{n}{a} \PYG{o}{+} \PYG{n}{b}
+\end{Verbatim}

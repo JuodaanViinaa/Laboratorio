@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{planets} \PYG{o}{=} \PYG{p}{\PYGZob{}}
+    \PYG{l+s+s2}{\PYGZdq{}earth\PYGZdq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}color\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}blue\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}population\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}lots\PYGZdq{}}\PYG{p}{\PYGZcb{},}
+    \PYG{l+s+s2}{\PYGZdq{}mars\PYGZdq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}color\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}red\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}population\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}none\PYGZdq{}}\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

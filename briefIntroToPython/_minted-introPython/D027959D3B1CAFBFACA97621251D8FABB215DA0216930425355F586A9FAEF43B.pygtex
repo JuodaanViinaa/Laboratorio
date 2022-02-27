@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{my\PYGZus{}dog}\PYG{o}{.}\PYG{n}{print\PYGZus{}name}\PYG{p}{()}
+\end{Verbatim}
