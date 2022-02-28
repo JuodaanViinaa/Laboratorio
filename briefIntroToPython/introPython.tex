@@ -26,9 +26,9 @@
 
 \subsection{Why MedPCPy}
 
-Within behavior analysis an often found limiting factor is the inability to process data efficiently. Although given enough time most researchers would probably find ways to manage their data with more or less swiftness, many still struggle with manually converting their files to a more manageable format and making manual counts. Excel macros are a great tool for this, but they still require a great deal of engagement, and given that they require human interaction they are prone to errors.
+Within behavior analysis an often found limiting factor is the inability to process data efficiently. Although given enough time most researchers would probably find ways to manage their data with more or less swiftness, many still struggle with manually converting their files to a more manageable format and making manual counts. Excel macros are a great tool for this, but they still require a great deal of engagement, and given that they require human interaction they are prone to errors. % "a common/frequent limiting factor"
 
-The motivation for making this library was to provide a free and accessible tool that allowed both new and seasoned researchers to quickly gather the data they need without needing to spend time learning to code. This tool aims to be easy to learn and use, less error prone than regular scripting, and above all free (as in {\slshape gratis} and as in {\slshape libre}) for everyone. Med provides their own software for a similar purpose, but it is prohibitively costly. Those who develop open tools share the belief that one cannot put a price neither on knowledge nor on the tools to produce it.
+The motivation for making this library was to provide a free and accessible tool that allowed both new and seasoned researchers to quickly gather the data they need without needing to spend time learning to code. This tool aims to be easy to learn and use, less error prone than regular scripting, and above all free (as in {\slshape gratis} and as in {\slshape libre}) for everyone. Med provides their own software for a similar purpose, but it is prohibitively costly. Those who develop open tools share the belief that one cannot put a price neither on knowledge nor on the tools to produce it. % "and, above all, free (...) for everyone." Amo el paréntesis, no sé si pensabas dejarlo, jaja, pero voto por que sí.
 
 \subsection{About this package}
 
@@ -51,7 +51,7 @@ For beginner users and those who wish a working out-of-the-box experience, sever
 
 \subsection{Virtual Environments}
 
-Python is a modular language. Any number of third-party libraries can be installed on a system. This allows the use of an unlimited amount of tools created by the community for all sorts of tasks. That, however, can give rise to conflicts if, for example, a project one is working on requires version 2 of a library, but a different project requires version 3. In order to solve this issue, as of Python 3.3 the {\slshape virtualenv} module is included with every standard Python installation.
+Python is a modular language. Any number of third-party libraries can be installed on a system. This allows the use of an unlimited amount of tools created by the community for all sorts of tasks. That, however, can give rise to conflicts if, for example, a project one is working on requires version 2 of a library, but a different project requires version 3. In order to solve this issue, as of Python 3.3 the {\slshape virtualenv} module is included with every standard Python installation. %"a project in which someone is working requires version 2..."
 
 The {\slshape virtualenv} module allows the creation of {\itshape virtual environments}: containers isolated from the system-wide install which have their own Python binary and can have their independent set of installed Python packages. These packages are accessible only from within the virtual environment, and thus avoid version conflicts as long as projects with different version requirements are hosted in their own separate environments.
 
@@ -73,7 +73,7 @@ To create a virtual environment without an IDE it is necessary to use the termin
 
 On Mac, the terminal can be opened by clicking on the Launchpad icon, typing "terminal" and clicking on the Terminal program.
 
-On Linux, I trust you.
+On Linux, I trust you. %jajajajajajajajajaja 
 
 Once the terminal is open, a virtual environment can be created by running the command
 \begin{tcolorbox}[
@@ -298,9 +298,9 @@ Be mindful that the use of space in the declaration of lists, tuples or dictiona
 
 \subsubsection{Functions}
 
-Functions are blocks of reusable code which perform actions that are needed frequently. They are declared only once, and after that they are executed when called. They help increase the readability and modularity of code.
+Functions are blocks of reusable code which perform actions that are needed frequently. They are declared only once, and after that they are executed when called. They help increase the readability and modularity of code. %"They are declared only once, but can be executed everytime the are called".
 
-Functions are declared with the \verb|def| keyword, followed by the function name, optionally the  arguments in parentheses, and a semicolon. They can either only perform an action, or return a value which can then be assigned to a variable.
+Functions are declared with the \verb|def| keyword, followed by the function name, optionally the arguments in parentheses, and a semicolon. They can either only perform an action, or return a value which can then be assigned to a variable.
 
 \begin{tcolorbox}[
     enhanced,
@@ -344,7 +344,7 @@ result = my_sum_function(x, y)
     \end{minted}
 \end{tcolorbox}
 
-This would result in the string \verb|"Pizza Mozzarella"| being printed, and the number \verb|50| being assigned to the variable \verb|result|.
+This would result in the string \verb|"Pizza Mozzarella"| being printed, and the number \verb|50| being assigned to the variable \verb|result|. %No sé si aquí sirva tener el resultado visible, yo lo entiendo pero no sé si alguien muy nuevo entienda por qué sale. 
 
 Functions can have positional arguments (identified by their position) and keyword arguments (identified by a keyword). Additionally, if a default value for an argument is provided when the function is defined, then that argument becomes optional and, if it is not declared when the function is called, it will take the default value.
 
@@ -367,7 +367,7 @@ another_function()
     \end{minted}
 \end{tcolorbox}
 
-This would print the string \verb|"Hello, my name is Ford Prefect"|, since the optional argument \verb|name| took the default value \verb|Ford Prefect|.
+This would print the string \verb|"Hello, my name is Ford Prefect"|, since the optional argument \verb|name| took the default value \verb|Ford Prefect|. %Este ejemplo sí me parece más "claro" aunque no sepas de programación.
 
 \subsubsection{Classes and objects}
 
@@ -432,7 +432,7 @@ The creation of the object is similar to the calling of a function. In this exam
     sharp corners,
     ]
     \begin{minted}[linenos]{python}
-my_dog.dog_name = "Tovarisch"
+my_dog.dog_name = "Tovarisch" %Dados los eventos recientes, no sé si sea buena idea usar la palabra Tovarisch :(
     \end{minted}
 \end{tcolorbox}
 
