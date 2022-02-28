@@ -314,9 +314,9 @@ First the library is imported and all variables are declared:
 from medpcpy import *
 
 file = "your_summary_filename.xlsx"
-temp_directory = "/path/to/your/temporary/directory"
-perm_directory = "/path/to/your/permanent/raw/directory"
-conv_directory = "/path/to/your/converted/directory"
+temp_directory = "/path/to/your/temporary/directory/"
+perm_directory = "/path/to/your/permanent/raw/directory/"
+conv_directory = "/path/to/your/converted/directory/"
 subjects = ["Subject1", "Subject2", "Subject3"]
 measure1_cols = {"Subject1": 2, "Subject2": 4, "Subject3": 6}
 measure2_cols = {"Subject1": 2, "Subject2": 6, "Subject3": 10}
@@ -414,9 +414,9 @@ An example of a complete script would be as follows:
 from medpcpy import *
 
 file = "your_summary_filename.xlsx"
-temp_directory = "/path/to/your/temporary/directory"
-perm_directory = "/path/to/your/permanent/raw/directory"
-conv_directory = "/path/to/your/converted/directory"
+temp_directory = "/path/to/your/temporary/directory/"
+perm_directory = "/path/to/your/permanent/raw/directory/"
+conv_directory = "/path/to/your/converted/directory/"
 subjects = ["Subject1", "Subject2", "Subject3"]
 measure1_cols = {"Subject1": 2, "Subject2": 4, "Subject3": 6}
 measure2_cols = {"Subject1": 2, "Subject2": 6, "Subject3": 10}
