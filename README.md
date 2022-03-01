@@ -1,19 +1,19 @@
 # MedPCPy
 
-The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and order the relevant data (response frecuencies, latencies, and distributions) without the need of much programming knowledge. After proper setup the entirety of the analysis of one or more days of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the present subjects and the sessions associated with each of them, counts the responses, latencies, or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
+The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and organize the relevant data (response frecuencies, latencies, and distributions) without the need of much programming abilities. After proper setup the entirety of the analysis of one or more sessions of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the subjects that are in the directory and the sessions associated with each of them, counts the responses, latencies, and/or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
 
 Files are organized in three separate directories:
 1. A temporary directory in which raw files are stored before analysis.
 2. A permanent directory to which raw files are moved after analysis.
 3. A converted directory in which processed individual .xlsx files and the summary file are stored after analysis.
 
-This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
+This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/), soy they need to be installed before using MedPCPy. As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
 
 ## Quick Start
 
 A quick start script named `quick_start.py` is provided with all relevant variables already declared. The user needs only change the values of all variables to something relevant to their project. That is, it will be necessary to change the summary filename, directory paths, subject names, column dictionaries, sheet names, all measures of the analysis list, as well as the `suffix`, `markColumn`, and `timeColumn` arguments of the `Analyzer` object.
 
-To get the actual values of the `markColumn` and `timeColumn` arguments (instead of the placeholder values provided) it is necessary to first run the script with the `analyzer.convert()` line _uncommented_. Then one ought to manually inspect one of the produced files and look for the columns in which the time and marks are written. Those are the values needed for `markColumn` and `timeColumn`. After that, the user must _comment_ the `analyzer.convert()` line, and _uncomment_ the `analyzer.complete_analysis()` line and run again the code. If everything goes as planned, the full analysis should run with no further interaction. If the user is satisfied with the process, then they can delete the `relocate = False` argument of the analyzer object. This will make the code move the already-processed files from the temporary directory to the permanent one.
+To get the actual values of the `markColumn` and `timeColumn` arguments (instead of the placeholder values provided) it is necessary to first run the script with the `analyzer.convert()` line _uncommented_. Then one ought to manually inspect one of the produced files and look for the columns in which the time and marks (explained below) are written. Those are the values needed for `markColumn` and `timeColumn`. After that, the user must _comment_ the `analyzer.convert()` line, and _uncomment_ the `analyzer.complete_analysis()` line and run again the code. If everything goes as planned, the full analysis should run with no further interaction. If the user is satisfied with the process, then they can delete the `relocate = False` argument of the analyzer object. This will make the code move the already-processed files from the temporary directory to the permanent one the next time the user runs it.
 
 ## Introduction
 
@@ -29,10 +29,10 @@ _____
 ### Requirements
 
 1. Python must be installed on the machine which will be used.
-2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character. Ex.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
+2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character. e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
 3. All files must be placed inside the temporary directory (explained below) before the analysis.
 
-As a special note, along this entire file it is assumed that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (ex., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). These numbers will be referred to as "time" and "marks", respectively.
+As a special note, along this entire file it is assumed that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (e.g., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). These numbers will be referred to as "time" and "marks", respectively.
 
 _____
 
@@ -53,16 +53,16 @@ to get access to all the necessary functions without the need to call `medpcpy.`
 All of the work is performed by a single [object](https://www.geeksforgeeks.org/python-object/) of class `Analyzer` which contains [methods](https://www.w3schools.com/python/gloss_python_object_methods.asp) to convert MedPC files to .xlsx and then extract and summarize the relevant data. The `Analyzer` object requires several arguments to be initialized. These arguments are:
 
 1. `fileName`, the name of the summary file. The file is created automatically if it does not exist yet. There is no need to manually create it.
-2. `temporaryDirectory`, a [string](https://www.geeksforgeeks.org/python-strings/) indicating the directory in which raw MedPC files are stored before the analysis. All back slashes `"\"`, if any, must be replaced by forward slashes `"/"`, and the last character of the _string_ must be a forward slash. Ex.: `"C:/Users/Admin/Desktop/Path/To/Your/Directory/"`
+2. `temporaryDirectory`, a [string](https://www.geeksforgeeks.org/python-strings/) indicating the directory in which raw MedPC files are stored before the analysis. All back slashes `"\"`, if any, must be replaced by forward slashes `"/"`, and the last character of the _string_ must be a forward slash. e.g.: `"C:/Users/Admin/Desktop/Path/To/Your/Directory/"`
 3. `permanentDirectory`, the directory to which raw MedPC files will be moved after analysis. Must follow the same rules as the temporary directory.
 4. `convertedDirectory`, the directory in which individual .xlsx files and the summary file will be stored after the analysis. Must follow the same rules as the temporary directory.
 5. `subjectList`, a [list](https://www.w3schools.com/python/python_lists.asp) of _strings_ with the names of all subjects.
-6. `suffix`, a _string_ which indicates the character or characters which separate the subject name from the session number in the raw MedPC filenames (ex.: if raw files are named "subject1_1", "subject2_1", etc., then the value for the `suffix` argument should be `"_"`). This is how the library determines the sessions to analyze for each subject.
-	* The filenames must follow the format `"[subject name][spacing character][session number]"` so that the library can properly read them. Ex.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character and, thus, the value for the `suffix` argument.
+6. `suffix`, a _string_ which indicates the character or characters which separate the subject name from the session number in the raw MedPC filenames (e.g.: if raw files are named "subject1_1", "subject2_1", etc., then the value for the `suffix` argument should be `"_"`). This is how the library determines the sessions to analyze for each subject.
+	* The filenames must follow the format `"[subject name][spacing character][session number]"` so that the library can properly read them. e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character and, thus, the value for the `suffix` argument.
 7. `sheets`, a list of _strings_ which represent the names of each individual sheet which will be created in the summary file. Much like the summary file, sheets are automatically created. This argument simply states the names each sheet should have.
 8. `analysisList`, a list of [dictionaries](https://www.w3schools.com/python/python_dictionaries.asp) which declares the details of every relevant measure to extract. The template for this list can be printed with the `template()` function. A more in depth explanation is provided further down this file.
-9. `markColumn`, a _string_ stating the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
-10. `timeColumn`, a _string_ stating the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays which are used in MedPC.
+9. `markColumn`, a _string_ stating the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
+10. `timeColumn`, a _string_ stating the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manualy move the files back to the temporary directory while the code is being tested and debugged.
 
 The `timeColumn` and `markColumn` arguments are not needed to initialize the `Analyzer` object. The values for these arguments are obtained after first initializing the object without them and using the `.convert()` method to convert at least one file to .xlsx format:
@@ -94,12 +94,12 @@ Besides these arguments, some other variables containing dictionaries that relat
 
 The syntax for the `analysisList` argument of the `Analyzer` object is given next.
 
-The library contains several functions to extract and summarize data in common ways. Specifically, the library can
+The library contains several functions to extract and summarize data in common ways. Specifically, the library can:
 * Grab a value from a specific cell in the individual .xlsx files given a row and column number (`fetch`).
 * Count all occurrences of a response per trial (`count_resp`).
-* Count all occurrences of a response in a session (`total_count`)
-* Count the latencies from the beginning of each trial to the first occurrence of the response of interest (`lat_count`)
-* Count the responses occurred per user-defined time-bin per trial (`resp_dist`)
+* Count all occurrences of a response in a session (`total_count`).
+* Count the latencies from the beginning of each trial to the first occurrence of the response of interest (`lat_count`).
+* Count the responses occurred per user-defined time-bin per trial (`resp_dist`).
 
 Most of these functions need the declaration of a special dictionary which relates each subject with a specific column in which its data will be written. That is, we may be interested in getting more than one measure from each subject (e.g., lever presses, nosepoke entries, latencies, etc.), and different measures may have different sub-divisions (e.g., there may be four levers, but two nosepokes). Thus, if we want to keep each type of response in its own separate sheet, we may need a format that is similar to this for the lever presses:
 
@@ -109,7 +109,7 @@ While for the nosepokes we may need a format that is similar to this:
 
 ![image](https://user-images.githubusercontent.com/87039101/155409189-dc7d0a95-0f9e-4028-b380-2d0634fd1934.png)
 
-As it can be seen, distinct measures for a single subject require a different amount of columns in different sheets. For this reason in this particular example it will be necessary to declare at least two dictionaries: one which relates each subject with the space it occupies in the lever-response sheet, and another one which relates them with the space they occupy in the nosepoke-response sheet. These two dictionaries only need to declare the first column occupied by the subject, and substitute the letter for its equivalent number (A = 1, B = 2, etc.). All other columns are dealt with later. Then, the dictionaries needed for this example would be:
+As it can be seen, distinct measures for a single subject require a different amount of columns in different sheets. For this reason in this particular example it will be necessary to declare at least two dictionaries: one which relates each subject with the space it occupies in the lever-response sheet, and another one which relates them with the space they occupy in the nosepoke-response sheet. These two dictionaries only need to declare the first column occupied by the subject, and substitute the column letter for its equivalent number (A = 1, B = 2, etc.). All other columns are dealt with later. Then, the dictionaries needed for this example would be:
 
 ```python
 lever_cols = {"Rat1": 2, "Rat2": 7, "Rat3": 12,}
@@ -137,7 +137,7 @@ In order to get the location of the data point of interest the user may run the 
 
 The `"sheet"` and `"summary_column_dict"` arguments determine the way in which the extracted data point will be written on the summary file. `"sheet"` indicates the name of the sheet in which the data point will be written. This name must correspond with one of the elements of the sheet list given as an argument to the `Analyzer` object. `"summary_column_dict"` is the dictionary that relates each subject with the column in which their data will be written.
 
-The `offset` argument helps deal with situations in which similar measures for a single subject need to be written in adjacent columns in a single sheet (e.g., presses to different levers). In such cases it is not necessary to declare several dictionaries that relate each subject with a single column and then use those dictionaries as values for each `"summary_column_dict"` argument. A more economic way to do it will be to use a single "base" dictionary for all similar measures, and then incrementally add units to the `"offset"` argument. Each unit in `"offset"` will move the measure in question one column to the right. Ex.:
+The `offset` argument helps deal with situations in which similar measures for a single subject need to be written in adjacent columns in a single sheet (e.g., presses to different levers). In such cases it is not necessary to declare several dictionaries that relate each subject with a single column and then use those dictionaries as values for each `"summary_column_dict"` argument. A more economic way to do it will be to use a single "base" dictionary for all similar measures, and then incrementally add units to the `"offset"` argument. Each unit in `"offset"` will move the measure in question one column to the right. E.g.:
 
 ```python
 analysis_list = [
@@ -166,7 +166,7 @@ This will result in three columns. The first will be in the position declared by
 
 Finally, if the `"offset"` argument is not declared, it will take a default value of `0`.
 
-#### Resp_count
+#### Resp_count -----OJO: nombre de la función está en español. Lo señalo en lugar de cambiarlo por si está en español en el código roiginal o algo así------
 
 ```python
 analysis_list = [
@@ -184,7 +184,7 @@ analysis_list = [
 ]
 ```
 
-This function counts the amount of responses of interest occurred between the start and the end of each trial in a session. It writes a list with all the responses per trial in the individual .xlsx file, and a measure of central tendency (either mean or median) in the summary file.
+This function counts the amount of responses of interest that occurred between the start and the end of each trial in a session. It writes a list with all the responses per trial in the individual .xlsx file, and a measure of central tendency (either mean or median) in the summary file.
 
 The arguments `"trial_start"`, `"trial_end"`, and `"response"` are the marks for the start of the trial, end of the trial, and response of interest, respectively.
 
@@ -224,7 +224,7 @@ Finally, the `"statistic"` argument determines the measure of central tendency (
 ]
 ```
 
-This function counts the amount of responses of interest occurred during the entire session. It writes the resulting count in both the individual xlsx file and the summary file.
+This function counts the amount of responses of interest occurred during the entire session. It writes the resulting count in both the individual .xlsx file and the summary file.
 
 Its arguments are identical to those of `resp_count` with two exceptions: it has got a single mark argument (`"response"`) since it does not need to know where trials begin and end; and it lacks the `"subtract"` argument since there are no extra responses to account for. 
 
@@ -274,7 +274,7 @@ In those cases in which there is no Inter-Trial-Interval and there is no end-of-
 
 The `"bin_size"` and `"bin_amount"` arguments determine the duration in seconds of each _bin_ and the amount of bins in which the trial will be divided, respectively. A 15 second trial with one-second _bins_ should have the values of `"bin_size": 1` and `"bin_amount": 15`.
 
-The program creates one additional _bin_ beyond those declared by `"bin_amount"` in which all responses occurred beyond the last declared _bin_ are aggregated. If no such responses exist, the final _bin_ will be empty.
+The program creates one additional _bin_ beyond those declared by `"bin_amount"` in which all responses that occurred beyond the last declared _bin_ are aggregated. If no such responses exist, the final _bin_ will be empty.
 
 If it is required to obtain the response distributions of more than one response in a single experiment then the optional argument `"label"` shall be declared with a name that identifies each of the measures that are needed. The function will create a separate sheet for each measure of each subject, and give it a name composed of the subject name followed by the string used as value for the `"label"` argument. For example, if one desires to obtain response distributions for lever presses and nosepoke entries, the necessary dictionaries could take a format like this:
 
