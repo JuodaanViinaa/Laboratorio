@@ -1,0 +1,19 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{file} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}your\PYGZus{}summary\PYGZus{}filename.xlsx\PYGZdq{}}
+\PYG{n}{temp\PYGZus{}directory} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}/path/to/your/temporary/directory/\PYGZdq{}}
+\PYG{n}{perm\PYGZus{}directory} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}/path/to/your/permanent/raw/directory/\PYGZdq{}}
+\PYG{n}{conv\PYGZus{}directory} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}/path/to/your/converted/directory/\PYGZdq{}}
+\PYG{n}{subjects} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}Subject1\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Subject2\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Subject3\PYGZdq{}}\PYG{p}{]}
+\PYG{n}{measure1\PYGZus{}cols} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}Subject1\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Subject2\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Subject3\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{6}\PYG{p}{\PYGZcb{}}
+\PYG{n}{sheets} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}Measure1\PYGZdq{}}\PYG{p}{]}
+
+\PYG{n}{analysis\PYGZus{}list} \PYG{o}{=} \PYG{p}{[}
+    \PYG{c+c1}{\PYGZsh{} Measure 1}
+    \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}fetch\PYGZdq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}cell\PYGZus{}row\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}cell\PYGZus{}column\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}sheet\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Measure1\PYGZdq{}}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}summary\PYGZus{}column\PYGZus{}dict\PYGZdq{}}\PYG{p}{:} \PYG{n}{measure1\PYGZus{}cols}\PYG{p}{,}
+               \PYG{l+s+s2}{\PYGZdq{}offset\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{0}\PYG{p}{,}
+               \PYG{p}{\PYGZcb{}\PYGZcb{},}
+    \PYG{p}{]}
+\end{Verbatim}
