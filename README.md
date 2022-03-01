@@ -7,7 +7,7 @@ Files are organized in three separate directories:
 2. A permanent directory to which raw files are moved after analysis.
 3. A converted directory in which processed individual .xlsx files and the summary file are stored after analysis.
 
-This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/), soy they need to be installed before using MedPCPy. As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
+This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
 
 ## Quick Start
 
@@ -29,7 +29,7 @@ _____
 ### Requirements
 
 1. Python must be installed on the machine which will be used.
-2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character. e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
+2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character, e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
 3. All files must be placed inside the temporary directory (explained below) before the analysis.
 
 As a special note, along this entire file it is assumed that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (e.g., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). These numbers will be referred to as "time" and "marks", respectively.
@@ -95,11 +95,11 @@ Besides these arguments, some other variables containing dictionaries that relat
 The syntax for the `analysisList` argument of the `Analyzer` object is given next.
 
 The library contains several functions to extract and summarize data in common ways. Specifically, the library can:
-* Grab a value from a specific cell in the individual .xlsx files given a row and column number (`fetch`).
-* Count all occurrences of a response per trial (`count_resp`).
-* Count all occurrences of a response in a session (`total_count`).
-* Count the latencies from the beginning of each trial to the first occurrence of the response of interest (`lat_count`).
-* Count the responses occurred per user-defined time-bin per trial (`resp_dist`).
+* Grab a value from a specific cell in the individual .xlsx files given a row and column number ([`fetch`](#fetch)).
+* Count all occurrences of a response per trial ([`count_resp`](#count-resp)).
+* Count all occurrences of a response in a session ([`total_count`](#total-count)).
+* Count the latencies from the beginning of each trial to the first occurrence of the response of interest ([`lat_count`](#lat-count)).
+* Count the responses occurred per user-defined time-bin per trial ([`resp_dist`](#resp-dist)).
 
 Most of these functions need the declaration of a special dictionary which relates each subject with a specific column in which its data will be written. That is, we may be interested in getting more than one measure from each subject (e.g., lever presses, nosepoke entries, latencies, etc.), and different measures may have different sub-divisions (e.g., there may be four levers, but two nosepokes). Thus, if we want to keep each type of response in its own separate sheet, we may need a format that is similar to this for the lever presses:
 
@@ -117,7 +117,7 @@ nosepoke_cols = {"Rat1": 2, "Rat2": 5, "Rat3": 8,}
 ```
 
 ### Functions
-#### Fetch
+#### Fetch <a id="fetch"></a>
 ```python
 analysis_list = [
 {"fetch": {"cell_row": 10,
@@ -166,11 +166,11 @@ This will result in three columns. The first will be in the position declared by
 
 Finally, if the `"offset"` argument is not declared, it will take a default value of `0`.
 
-#### Resp_count -----OJO: nombre de la función está en español. Lo señalo en lugar de cambiarlo por si está en español en el código roiginal o algo así------
+#### Count_resp <a id="count-resp"></a>
 
 ```python
 analysis_list = [
-    {"conteoresp": {"measures": 2, # Optional
+    {"count_resp": {"measures": 2, # Optional
                     "trial_start": 111, "trial_end": 222, "response": 333,
                     "trial_start2": 444, "trial_end2": 555, "response2": 666, # Optional
                     "column": 1,
@@ -197,7 +197,7 @@ The `"sheet"`, `"summary_column_dict"`, and `"offset"` arguments work the same a
 This function, alongside `lat_count` and `total_count`, offers the possibility of making multiple or "aggregated" counts via the `"measures"` argument: in certain occasions it is advantageous to aggregate in a single measure the responses or latencies from two or more sources. As an example one may think of a situation in which there are responses to a single lever in two different types of trials, and those responses have two different marks to identify them. One may wish to aggregate the responses or latencies from both types of trials so that they are represented by a single measure of central tendency. In such cases the `"measures"` argument permits the incorporation of several information sources in a single measure. `"measures"` will indicate how many different sources must be aggregated into the same measure. For each additional source the necessary marks must be declared following the logical numbering. For example, for three sources aggregated into a single measure the arguments would be:
 ```python
 analysis_list = [
-    {"resp_count": {"measures": 3,
+    {"count_resp": {"measures": 3,
                     "trial_start": 123, "trial_end": 124, "response": 125,
                     "trial_start2": 223, "trial_end2": 224, "response2": 225, 
                     "trial_start3": 323, "trial_end3": 324, "response3": 325, 
@@ -208,7 +208,7 @@ Attention must be paid to the "2" and "3" digits following the argument names, n
 
 Finally, the `"statistic"` argument determines the measure of central tendency (mean or median) that will be written on the summary file. Its default value is `"mean"`, thus, if no value is declared, the written measure will be the mean.
 
-#### Total_count
+#### Total_count <a id="total-count"></a>
 
 ```python
  analysis_list = [
@@ -226,11 +226,11 @@ Finally, the `"statistic"` argument determines the measure of central tendency (
 
 This function counts the amount of responses of interest occurred during the entire session. It writes the resulting count in both the individual .xlsx file and the summary file.
 
-Its arguments are identical to those of `resp_count` with two exceptions: it has got a single mark argument (`"response"`) since it does not need to know where trials begin and end; and it lacks the `"subtract"` argument since there are no extra responses to account for. 
+Its arguments are identical to those of `count_resp` with two exceptions: it has got a single mark argument (`"response"`) since it does not need to know where trials begin and end; and it lacks the `"subtract"` argument since there are no extra responses to account for. 
 
-Aggregate measures are allowed, just as in `resp_count`, with the same requirements of declaring the `"measures"` argument and adding numbers incrementally to the name of the `"response"` argument.
+Aggregate measures are allowed, just as in `count_resp`, with the same requirements of declaring the `"measures"` argument and adding numbers incrementally to the name of the `"response"` argument.
 
-#### Lat_count
+#### Lat_count <a id="lat-count"></a>
 
 ```python
 analysis_list = [
@@ -252,7 +252,8 @@ This function computes the latencies per trial measured in seconds from the begi
 
 The arguments are the same as those already described for the previous functions with one exception: this function has a `"unit"` argument which determines the temporal resolution that will be used to count the latencies. The value of the argument is the amount by which seconds are divided. This is dependent on the user's MedPC setup. For example, if the temporal resolution that the user's MedPC setup has is twentieths of a second, then the value for `"unit"` shall be `20`; else, if the temporal resolution is just seconds, the value should be `1`.
 
-#### Resp_dist
+#### Resp_dist <a id="resp-dist"></a>
+
 
 ```python
 analysis_list = [
