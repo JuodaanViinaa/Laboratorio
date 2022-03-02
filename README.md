@@ -129,9 +129,9 @@ analysis_list = [
 ]
 ```
 
-This function allows the extraction of a single data point from the .xlsx individual files. It is useful to quickly extract measures such as the number of completed trials (if such data is available in one of the MedPC arrays). The arguments `"cell_row"` and `"cell_column"` dictate the position of the cell whose data will be extracted: if the data point is located, say, in cell "B15", then the required arguments will be `"cell_row": 15` and `"cell_column": 2`. 
+This function allows the extraction of a single data point from the .xlsx individual files. It is useful to quickly extract measures such as the number of completed trials (if such data is available in one of the MedPC arrays). The arguments `"cell_row"` and `"cell_column"` dictate the position of the cell whose data will be extracted: if the data point is located, say, in cell "C16", then the required arguments will be `"cell_row": 16` and `"cell_column": 3`. 
 
-![image](https://user-images.githubusercontent.com/87039101/140596672-7213c34d-061c-4d05-a4bc-eced2abb65c5.png)
+![image](https://user-images.githubusercontent.com/87039101/156443205-6d34bb18-650d-4d2e-b47b-fbc3daa04899.png)
 
 In order to get the location of the data point of interest the user may run the `.convert()` method and manually inspect one of the produced files.
 
