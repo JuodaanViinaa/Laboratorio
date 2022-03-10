@@ -13,6 +13,7 @@ from statistics import mean, median
 import pandas
 import re
 from shutil import move
+from copy import deepcopy
 
 
 def fetch(sheet, origin_cell_row, origin_cell_column):
@@ -306,7 +307,7 @@ class Analyzer:
         self.perm_directory = permanentDirectory
         self.conv_directory = convertedDirectory
         self.col_division = colDivision
-        self.subject_list = subjectList
+        self.subject_list = deepcopy(subjectList)
         self.session_list = []
         self.suffix = suffix
         self.relocate = relocate
@@ -592,7 +593,7 @@ class Analyzer:
                         # The central tendency measures are written on their corresponding sheet in the summary file.
                         if "label" in value:
                             write_cols(resp_dist_sheet[f'{subject}_{value["label"]}'], f"Session {session}",
-                                        session + 1, means)
+                                       session + 1, means)
                         else:
                             write_cols(resp_dist_sheet[subject], f"Session {session}", session + 1, means)
                         # The entire array of response distributions is written on a separate sheet in the individual
