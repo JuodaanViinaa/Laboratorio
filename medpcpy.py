@@ -480,7 +480,7 @@ class Analyzer:
                                                                value["trial_end"],
                                                                value["response"])
                             else:
-                                respuesta_parcial = count_resp(marcadores, value[f"inicio_ensyo{mark_index}"],
+                                respuesta_parcial = count_resp(marcadores, value[f"trial_start{mark_index}"],
                                                                value[f"trial_end{mark_index}"],
                                                                value[f"response{mark_index}"])
                             respuestas_totales.extend(respuesta_parcial)
