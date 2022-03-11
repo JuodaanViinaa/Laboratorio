@@ -211,8 +211,9 @@ def template():
     {"fetch": {"cell_row": 10,
                "cell_column": 10,
                "sheet": "Sheet_1",
-               "summary_column_dict": column_dictionary,
-               "offset": 0
+               "summary_distribution": column_dictionary,
+               "offset": 0,
+               "write_rows": False,  # Optional
                }},
 
     {"count_resp": {"measures": 2, # Optional argument. Default value: 1
@@ -221,10 +222,11 @@ def template():
                     "column": 1,
                     "header": "Generic_title",
                     "sheet": "Sheet_2",
-                    "summary_column_dict": column_dictionary2,
+                    "summary_distribution": column_dictionary2,
                     "subtract": True, # Optional argument. Default value: False
                     "statistic": "mean",  # Alternative value: "median"
                     "offset": 0,
+                    "write_rows": False,  # Optional
                     }},
 
     {"total_count": {"measures": 2, # Optional argument. Default value: 1
@@ -233,8 +235,9 @@ def template():
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Sheet_4",
-                     "summary_column_dict": column_dictionary4,
+                     "summary_distribution": column_dictionary4,
                      "offset": 0,
+                     "write_rows": False,  # Optional
                      }},
 
     {"lat_count": {"measures": 2, # Optional argument. Default value: 1
@@ -243,10 +246,11 @@ def template():
                    "column": 2,
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
-                   "summary_column_dict": column_dictionary3,
+                   "summary_distribution": column_dictionary3,
                    "statistic": "mean",  # Alternative value: "median"
                    "offset": 0,
                    "unit": 20,  # Optional
+                   "write_rows": False,  # Optional
                    }},
 
     {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
@@ -255,6 +259,7 @@ def template():
                    "label": "Generic_label",
                    "statistic": "median",  # Alternative value: "mean"
                    "unit": 20,  # Optional
+                   "write_rows": False,  # Optional
                    }},
     ]
     """)
@@ -301,6 +306,7 @@ class Analyzer:
         :param markColumn: The column in which the marks are written in the individual .xlsx files.
         :param relocate: A boolean which indicates if the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis.
         :param colDivision: The number of columns to divide the raw MedPC files into.
+        :param spacing: The amount of whitespace left either at the top or the left of the summary file before the data.
         """
         self.file_name = fileName
         self.temp_directory = temporaryDirectory
@@ -360,7 +366,6 @@ class Analyzer:
         for sujetoFaltante in sujetosFaltantes:
             del self.subject_list[self.subject_list.index(sujetoFaltante)]
         print("-" * 70)
-
 
     def converter(self):
         """
@@ -437,7 +442,6 @@ class Analyzer:
             print("")
         print("-" * 70)
 
-
     def create_document(self):
         """
         The converted directory is inspected in search of a summary file. If one is found, it is opened; else, it is
@@ -451,7 +455,6 @@ class Analyzer:
             print('\nSummary file not found. Creating...\n')
             wb = Workbook()
         return wb
-
 
     def analyze(self, workbook, sheetDict):
         """
@@ -499,12 +502,12 @@ class Analyzer:
                                 if not value.get("write_rows", False):
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
-                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                         session + self.spacing)] = mean(respuestas_restadas)
                                 else:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
+                                        value["summary_distribution"][subject] + value.get("offset", 0))] = mean(
                                         respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
                             else:
@@ -512,12 +515,12 @@ class Analyzer:
                                 if not value.get("write_rows", False):
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
-                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                         session + self.spacing)] = mean(respuestas_totales)
                                 else:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
+                                        value["summary_distribution"][subject] + value.get("offset", 0))] = mean(
                                         respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
                                 write_cols(hojaind, value["header"], value["column"], respuestas_totales)
@@ -528,12 +531,12 @@ class Analyzer:
                                 if not value.get("write_rows", False):
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
-                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                         session + self.spacing)] = median(respuestas_restadas)
                                 else:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
+                                        value["summary_distribution"][subject] + value.get("offset", 0))] = median(
                                         respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
                             else:
@@ -541,12 +544,12 @@ class Analyzer:
                                 if not value.get("write_rows", False):
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
-                                        value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                        value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                         session + self.spacing)] = median(respuestas_totales)
                                 else:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
+                                        value["summary_distribution"][subject] + value.get("offset", 0))] = median(
                                         respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
                                 write_cols(hojaind, value["header"], value["column"], respuestas_totales)
@@ -567,24 +570,24 @@ class Analyzer:
                             if not value.get("write_rows", False):
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][get_column_letter(
-                                    value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                    value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                     session + self.spacing)] = mean(latencias_totales)
                             else:
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                    value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
+                                    value["summary_distribution"][subject] + value.get("offset", 0))] = mean(
                                     latencias_totales)
                         else:
                             # Decide whether to write on rows or columns
                             if not value.get("write_rows", False):
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][get_column_letter(
-                                    value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                    value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                     session + self.spacing)] = median(latencias_totales)
                             else:
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                    value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
+                                    value["summary_distribution"][subject] + value.get("offset", 0))] = median(
                                     latencias_totales)
                         # The entire list is written on the individual .xlsx file.
                         write_cols(hojaind, value["header"], value["column"], latencias_totales)
@@ -601,12 +604,12 @@ class Analyzer:
                         if not value.get("write_rows", False):
                             # The measure is written on the summary file
                             sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                get_column_letter(value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                     session + self.spacing)] = respuestas_totales
                         else:
                             # The measure is written on the summary file
                             sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                value["summary_row_dict"][subject] + value.get("offset", 0))] = respuestas_totales
+                                value["summary_distribution"][subject] + value.get("offset", 0))] = respuestas_totales
 
                         # The measure is written on the individual file
                         write_cols(hojaind, value["header"], value["column"], [respuestas_totales])
@@ -617,12 +620,12 @@ class Analyzer:
                         if not value.get("write_rows", False):
                             # The single value is written on the summary file.
                             sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                get_column_letter(value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                     session + self.spacing)] = cell_value
                         else:
                             # The measure is written on the summary file
                             sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
-                                value["summary_row_dict"][subject] + value.get("offset", 0))] = cell_value
+                                value["summary_distribution"][subject] + value.get("offset", 0))] = cell_value
 
                     elif key == "resp_dist":
                         if "label" in value:  # The label argument determines whether the resulting sheet will have a
@@ -669,11 +672,9 @@ class Analyzer:
         # The summary file is saved.
         workbook.save(self.conv_directory + self.file_name)
 
-
     def convert(self):
         self.get_sessions()
         self.converter()
-
 
     def complete_analysis(self):
         self.get_sessions()
