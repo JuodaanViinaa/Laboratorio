@@ -38,7 +38,7 @@ def count_resp(marks, trialStart, trialEnd, response):  # Count_per_trial
     :param response: Mark for response to count.
     :return: List with the amount of responses per trial.
     """
-    contadorTemp = 0 
+    contadorTemp = 0
     inicio = 0
     resp = []
     for n in range(len(marks)):
@@ -72,7 +72,8 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
     :param unit: Temporal resolution. The quantity by which the seconds are divided in your MedPc setup.
     """
     inicio = 0
-    resp_por_ensayo = [0] * (bin_amount + 1)  # Generates a list with as many zeros as the parameter bin_amount dictates.
+    resp_por_ensayo = [0] * (
+            bin_amount + 1)  # Generates a list with as many zeros as the parameter bin_amount dictates.
     resp_totales = []  # List which will contain sublist with the responses per-bin.
     bin_tuples = []  # List of time pairs: bin-start and bin-stop.
     if trialStart == trialEnd:  # This route is taken if there is a single mark for both the start and the end of the trial.
@@ -370,7 +371,7 @@ class Analyzer:
                 print(f"Converting session {ssn} of subject {sjt}.")
                 # Pandas reads the file and separates it into six columns based on white space.
                 datos = pandas.read_csv(f"{self.temp_directory}{sjt}{self.suffix}{ssn}", header=None,
-                names=range(self.col_division), sep=r'\s+')
+                                        names=range(self.col_division), sep=r'\s+')
                 datos.to_excel(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx", index=False, header=None)
 
                 # The file created by pandas is read by Openpyxl and saved on a variable named hojaCompleta.
@@ -488,33 +489,59 @@ class Analyzer:
                             if value.get("subtract",
                                          False):  # Decide if a response will be subtracted from each trial.
                                 respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
-                                sheetDict[value["sheet"]][
-                                    get_column_letter(
+                                # Decide whether to write on rows or columns
+                                if not value.get("write_rows", False):
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = mean(respuestas_restadas)
+                                else:
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
+                                        respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
                             else:
-                                # The measure of central tendency is written on the summary file.
-                                sheetDict[value["sheet"]][
-                                    get_column_letter(
+                                # Decide whether to write on rows or columns
+                                if not value.get("write_rows", False):
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = mean(respuestas_totales)
+                                else:
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
+                                        respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
                                 write_cols(hojaind, value["header"], value["column"], respuestas_totales)
                         else:
                             if value.get("subtract", False):
                                 respuestas_restadas = [resp - 1 if resp > 0 else resp for resp in respuestas_totales]
-                                sheetDict[value["sheet"]][
-                                    get_column_letter(
+                                # Decide whether to write on rows or columns
+                                if not value.get("write_rows", False):
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = median(respuestas_restadas)
+                                else:
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
+                                        respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
                             else:
-                                # The measure of central tendency is written on the summary file.
-                                sheetDict[value["sheet"]][
-                                    get_column_letter(
+                                # Decide whether to write on rows or columns
+                                if not value.get("write_rows", False):
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                         session + 3)] = median(respuestas_totales)
+                                else:
+                                    # The measure of central tendency is written on the summary file.
+                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                        value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
+                                        respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
                                 write_cols(hojaind, value["header"], value["column"], respuestas_totales)
 
@@ -530,15 +557,29 @@ class Analyzer:
                                                              value[f"response{mark_index}"], unit=value.get("unit", 1))
                             latencias_totales.extend(latencia_parcial)
                         if value.get("statistic", "mean") == "mean":  # Decide whether mean or median will be written.
-                            # The measure of central tendency is written on the summary file.
-                            sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                            # Decide whether to write on rows or columns
+                            if not value.get("write_rows", False):
+                                # The measure of central tendency is written on the summary file.
+                                sheetDict[value["sheet"]][get_column_letter(
+                                    value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                     session + 3)] = mean(latencias_totales)
+                            else:
+                                # The measure of central tendency is written on the summary file.
+                                sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                    value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
+                                    latencias_totales)
                         else:
-                            # The measure of central tendency is written on the summary file.
-                            sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                            # Decide whether to write on rows or columns
+                            if not value.get("write_rows", False):
+                                # The measure of central tendency is written on the summary file.
+                                sheetDict[value["sheet"]][get_column_letter(
+                                    value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
                                     session + 3)] = median(latencias_totales)
+                            else:
+                                # The measure of central tendency is written on the summary file.
+                                sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                    value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
+                                    latencias_totales)
                         # The entire list is written on the individual .xlsx file.
                         write_cols(hojaind, value["header"], value["column"], latencias_totales)
 
@@ -550,19 +591,32 @@ class Analyzer:
                             else:
                                 respuesta_parcial = total_count(marcadores, value[f"response{mark_index}"])
                             respuestas_totales += respuesta_parcial
-                        # The measure of central tendency is written on the summary file.
-                        sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                session + 3)] = respuestas_totales
-                        # The entire list is written to the individual .xlsx file.
+                        # Decide whether to write on rows or columns
+                        if not value.get("write_rows", False):
+                            # The measure is written on the summary file
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = respuestas_totales
+                        else:
+                            # The measure is written on the summary file
+                            sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                value["summary_row_dict"][subject] + value.get("offset", 0))] = respuestas_totales
+
+                        # The measure is written on the individual file
                         write_cols(hojaind, value["header"], value["column"], [respuestas_totales])
 
                     elif key == "fetch":
                         cell_value = fetch(sujetoWs, value["cell_row"], value["cell_column"])
-                        # The single value is written on the summary file.
-                        sheetDict[value["sheet"]][
-                            get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                session + 3)] = cell_value
+                        # Decide whether to write on rows or columns
+                        if not value.get("write_rows", False):
+                            # The single value is written on the summary file.
+                            sheetDict[value["sheet"]][
+                                get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
+                                    session + 3)] = cell_value
+                        else:
+                            # The measure is written on the summary file
+                            sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                value["summary_row_dict"][subject] + value.get("offset", 0))] = cell_value
 
                     elif key == "resp_dist":
                         if "label" in value:  # The label argument determines whether the resulting sheet will have a
