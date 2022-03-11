@@ -477,10 +477,6 @@ class Analyzer:
                 # the treatment that the data will get.
                 for analysis in self.analysis_list:
                     key, value = list(analysis.items())[0]
-
-                    if key == "config":
-                        self.spacing = value.get("spacing", 2)
-
                     if key == "count_resp":
                         respuestas_totales = []
                         # If the argument "measures" is greater than 1 then several measures are aggregated.
