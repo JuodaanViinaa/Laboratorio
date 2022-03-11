@@ -1,4 +1,3 @@
-# TODO: Add a way to control the vertical position of data in columns
 """
 Created on 18-February-2022 12:22
 Code by Daniel Maldonado
@@ -288,7 +287,7 @@ class Analyzer:
 
     def __init__(self, fileName: str, temporaryDirectory: str, permanentDirectory: str, convertedDirectory: str,
                  subjectList: list, suffix: str, sheets: list, analysisList: list, timeColumn: str = None,
-                 markColumn: str = None, relocate: bool = True, colDivision: int = 6):
+                 markColumn: str = None, relocate: bool = True, colDivision: int = 6, spacing: int = 2):
         """
         :param fileName: The name of the summary file.
         :param temporaryDirectory: The directory in which raw MedPC files are stored before the analysis.
@@ -316,6 +315,7 @@ class Analyzer:
         self.analysis_list = analysisList
         self.mark_column = markColumn
         self.time_column = timeColumn
+        self.spacing = spacing
 
     def get_sessions(self):
         """
@@ -360,6 +360,7 @@ class Analyzer:
         for sujetoFaltante in sujetosFaltantes:
             del self.subject_list[self.subject_list.index(sujetoFaltante)]
         print("-" * 70)
+
 
     def converter(self):
         """
@@ -436,6 +437,7 @@ class Analyzer:
             print("")
         print("-" * 70)
 
+
     def create_document(self):
         """
         The converted directory is inspected in search of a summary file. If one is found, it is opened; else, it is
@@ -449,6 +451,7 @@ class Analyzer:
             print('\nSummary file not found. Creating...\n')
             wb = Workbook()
         return wb
+
 
     def analyze(self, workbook, sheetDict):
         """
@@ -472,6 +475,9 @@ class Analyzer:
                 for analysis in self.analysis_list:
                     key, value = list(analysis.items())[0]
 
+                    if key == "config":
+                        self.spacing = value.get("spacing", 2)
+
                     if key == "count_resp":
                         respuestas_totales = []
                         # If the argument "measures" is greater than 1 then several measures are aggregated.
@@ -494,10 +500,10 @@ class Analyzer:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                        session + 3)] = mean(respuestas_restadas)
+                                        session + self.spacing)] = mean(respuestas_restadas)
                                 else:
                                     # The measure of central tendency is written on the summary file.
-                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                    sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                         value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
                                         respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
@@ -507,10 +513,10 @@ class Analyzer:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                        session + 3)] = mean(respuestas_totales)
+                                        session + self.spacing)] = mean(respuestas_totales)
                                 else:
                                     # The measure of central tendency is written on the summary file.
-                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                    sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                         value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
                                         respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
@@ -523,10 +529,10 @@ class Analyzer:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                        session + 3)] = median(respuestas_restadas)
+                                        session + self.spacing)] = median(respuestas_restadas)
                                 else:
                                     # The measure of central tendency is written on the summary file.
-                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                    sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                         value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
                                         respuestas_restadas)
                                 write_cols(hojaind, value["header"], value["column"], respuestas_restadas)
@@ -536,10 +542,10 @@ class Analyzer:
                                     # The measure of central tendency is written on the summary file.
                                     sheetDict[value["sheet"]][get_column_letter(
                                         value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                        session + 3)] = median(respuestas_totales)
+                                        session + self.spacing)] = median(respuestas_totales)
                                 else:
                                     # The measure of central tendency is written on the summary file.
-                                    sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                    sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                         value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
                                         respuestas_totales)
                                 # The entire list is written on the individual .xlsx file.
@@ -562,10 +568,10 @@ class Analyzer:
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][get_column_letter(
                                     value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                    session + 3)] = mean(latencias_totales)
+                                    session + self.spacing)] = mean(latencias_totales)
                             else:
                                 # The measure of central tendency is written on the summary file.
-                                sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                     value["summary_row_dict"][subject] + value.get("offset", 0))] = mean(
                                     latencias_totales)
                         else:
@@ -574,10 +580,10 @@ class Analyzer:
                                 # The measure of central tendency is written on the summary file.
                                 sheetDict[value["sheet"]][get_column_letter(
                                     value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                    session + 3)] = median(latencias_totales)
+                                    session + self.spacing)] = median(latencias_totales)
                             else:
                                 # The measure of central tendency is written on the summary file.
-                                sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                                sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                     value["summary_row_dict"][subject] + value.get("offset", 0))] = median(
                                     latencias_totales)
                         # The entire list is written on the individual .xlsx file.
@@ -596,10 +602,10 @@ class Analyzer:
                             # The measure is written on the summary file
                             sheetDict[value["sheet"]][
                                 get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                    session + 3)] = respuestas_totales
+                                    session + self.spacing)] = respuestas_totales
                         else:
                             # The measure is written on the summary file
-                            sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                            sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                 value["summary_row_dict"][subject] + value.get("offset", 0))] = respuestas_totales
 
                         # The measure is written on the individual file
@@ -612,10 +618,10 @@ class Analyzer:
                             # The single value is written on the summary file.
                             sheetDict[value["sheet"]][
                                 get_column_letter(value["summary_column_dict"][subject] + value.get("offset", 0)) + str(
-                                    session + 3)] = cell_value
+                                    session + self.spacing)] = cell_value
                         else:
                             # The measure is written on the summary file
-                            sheetDict[value["sheet"]][get_column_letter(session + 2) + str(
+                            sheetDict[value["sheet"]][get_column_letter(session + self.spacing) + str(
                                 value["summary_row_dict"][subject] + value.get("offset", 0))] = cell_value
 
                     elif key == "resp_dist":
@@ -663,9 +669,11 @@ class Analyzer:
         # The summary file is saved.
         workbook.save(self.conv_directory + self.file_name)
 
+
     def convert(self):
         self.get_sessions()
         self.converter()
+
 
     def complete_analysis(self):
         self.get_sessions()
