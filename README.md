@@ -2,6 +2,8 @@
 
 The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and organize the relevant data (response frecuencies, latencies, and distributions) without the need of much programming abilities. After proper setup the entirety of the analysis of one or more sessions of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the subjects that are in the directory and the sessions associated with each of them, counts the responses, latencies, and/or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
 
+By default, the declared variables are written on the summary file vertically. That is, each measure of each subject occupies a column, and each session is written on a different row dictated by the session number and a [spacing argument](#spacing) in the `Analyzer` object declaration. It is possible, however, to write measures horizontally (each measure of each subject will occupy a row, and each session will be written on a column). This is done per-measure with the [`"write_rows"`](#write-rows) argument.
+
 Files are organized in three separate directories:
 1. A temporary directory in which raw files are stored before analysis.
 2. A permanent directory to which raw files are moved after analysis.
@@ -13,7 +15,7 @@ This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io
 
 A quick start script named `quick_start.py` is provided with all relevant variables already declared. The user needs only change the values of all variables to something relevant to their project. That is, it will be necessary to change the summary filename, directory paths, subject names, column dictionaries, sheet names, all measures of the analysis list, as well as the `suffix`, `markColumn`, and `timeColumn` arguments of the `Analyzer` object.
 
-To get the actual values of the `markColumn` and `timeColumn` arguments (instead of the placeholder values provided) it is necessary to first run the script with the `analyzer.convert()` line _uncommented_. Then one ought to manually inspect one of the produced files and look for the columns in which the time and marks (explained below) are written. Those are the values needed for `markColumn` and `timeColumn`. After that, the user must _comment_ the `analyzer.convert()` line, and _uncomment_ the `analyzer.complete_analysis()` line and run again the code. If everything goes as planned, the full analysis should run with no further interaction. If the user is satisfied with the process, then they can delete the `relocate = False` argument of the analyzer object. This will make the code move the already-processed files from the temporary directory to the permanent one the next time the user runs it.
+To get the actual values of the `markColumn` and `timeColumn` arguments (instead of the placeholder values provided) it is necessary to first run the script with the `analyzer.convert()` line _uncommented_. Then one ought to manually inspect one of the produced files and look for the columns in which the time and marks ([explained below](#marks)) are written. Those are the values needed for `markColumn` and `timeColumn`. After that, the user must _comment_ the `analyzer.convert()` line, and _uncomment_ the `analyzer.complete_analysis()` line and run again the code. If everything goes as planned, the full analysis should run with no further interaction. If the user is satisfied with the process, then they can delete the `relocate = False` argument of the analyzer object. This will make the code move the already-processed files from the temporary directory to the permanent one the next time the user runs it.
 
 ## Introduction
 
@@ -32,6 +34,7 @@ _____
 2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character, e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
 3. All files must be placed inside the temporary directory (explained below) before the analysis.
 
+<a id="marks"></a>
 As a special note, along this entire file it is assumed that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (e.g., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). These numbers will be referred to as "time" and "marks", respectively.
 
 _____
@@ -64,6 +67,9 @@ All of the work is performed by a single [object](https://www.geeksforgeeks.org/
 9. `markColumn`, a _string_ stating the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 10. `timeColumn`, a _string_ stating the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manualy move the files back to the temporary directory while the code is being tested and debugged.
+12. `colDivision`, an optional argument needed only in cases in which the MedPC files are divided in more than 6 columns (each column being represented by a set of characters divided by one or more white spaces). If more than 6 columns are present, then this argument must take as value the number of columns needed. E.g., `colDivision = 9`.
+<a id="spacing"></a>
+13. `spacing`, an optional argument which determines the amount of whitespace left in the summary file either at the top of the sheet (if working in columns) or at the left (if working in rows). By default, two rows or two columns are left blank to accomodate for the subject names and measure labels. If more (or less) space is needed, the needed amount of empty rows or columns must be stated as the value for this argument. E.g., `spacing = 5`.
 
 The `timeColumn` and `markColumn` arguments are not needed to initialize the `Analyzer` object. The values for these arguments are obtained after first initializing the object without them and using the `.convert()` method to convert at least one file to .xlsx format:
 
@@ -95,13 +101,14 @@ Besides these arguments, some other variables containing dictionaries that relat
 The syntax for the `analysisList` argument of the `Analyzer` object is given next.
 
 The library contains several functions to extract and summarize data in common ways. Specifically, the library can:
-* Grab a value from a specific cell in the individual .xlsx files given a row and column number ([`fetch`](#fetch)).
-* Count all occurrences of a response per trial ([`count_resp`](#count-resp)).
-* Count all occurrences of a response in a session ([`total_count`](#total-count)).
-* Count the latencies from the beginning of each trial to the first occurrence of the response of interest ([`lat_count`](#lat-count)).
-* Count the responses occurred per user-defined time-bin per trial ([`resp_dist`](#resp-dist)).
+* Grab a value from a specific cell in the individual .xlsx files given a row and column number ([`"fetch"`](#fetch)).
+* Count all occurrences of a response per trial ([`"count_resp"`](#count-resp)).
+* Count all occurrences of a response in a session ([`"total_count"`](#total-count)).
+* Count the latencies from the beginning of each trial to the first occurrence of the response of interest ([`"lat_count"`](#lat-count)).
+* Count the responses occurred per user-defined time-bin per trial ([`"resp_dist"`](#resp-dist)).
+<a id="summary-distribution"></a>
 
-Most of these functions need the declaration of a special dictionary which relates each subject with a specific column in which its data will be written. That is, we may be interested in getting more than one measure from each subject (e.g., lever presses, nosepoke entries, latencies, etc.), and different measures may have different sub-divisions (e.g., there may be four levers, but two nosepokes). Thus, if we want to keep each type of response in its own separate sheet, we may need a format that is similar to this for the lever presses:
+Most of these functions need the declaration of a special dictionary which relates each subject with a specific column (if data is written vertically) or row (if data is written horizontally) in which its data will be written. That is, we may be interested in getting more than one measure from each subject (e.g., lever presses, nosepoke entries, latencies, etc.), and different measures may have different sub-divisions (e.g., there may be four levers, but two nosepokes). Thus, if we want to keep each type of response in its own separate sheet, we may need a format that is similar to this for the lever presses:
 
 ![image](https://user-images.githubusercontent.com/87039101/155408994-7b69ecd9-94dc-49ee-9af8-6b9d14cc4d11.png)
 
@@ -123,8 +130,9 @@ analysis_list = [
 {"fetch": {"cell_row": 10,
            "cell_column": 10,
            "sheet": "Sheet_1",
-           "summary_column_dict": column_dictionary,
-           "offset": 0  # Optional
+           "summary_distribution": column_dictionary,
+           "offset": 0,  # Optional
+	   "write_rows": True,  # Optional. Default: False
            }}
 ]
 ```
@@ -135,28 +143,28 @@ This function allows the extraction of a single data point from the .xlsx indivi
 
 In order to get the location of the data point of interest the user may run the `.convert()` method and manually inspect one of the produced files.
 
-The `"sheet"` and `"summary_column_dict"` arguments determine the way in which the extracted data point will be written on the summary file. `"sheet"` indicates the name of the sheet in which the data point will be written. This name must correspond with one of the elements of the sheet list given as an argument to the `Analyzer` object. `"summary_column_dict"` is the dictionary that relates each subject with the column in which their data will be written.
+The `"sheet"` and `"summary_distribution"` arguments determine the way in which the extracted data point will be written on the summary file. `"sheet"` indicates the name of the sheet in which the data point will be written. This name must correspond with one of the elements of the sheet list given as an argument to the `Analyzer` object. [`"summary_distribution"`](#summary-distribution) is the dictionary that relates each subject with the column or row in which their data will be written.
 
-The `offset` argument helps deal with situations in which similar measures for a single subject need to be written in adjacent columns in a single sheet (e.g., presses to different levers). In such cases it is not necessary to declare several dictionaries that relate each subject with a single column and then use those dictionaries as values for each `"summary_column_dict"` argument. A more economic way to do it will be to use a single "base" dictionary for all similar measures, and then incrementally add units to the `"offset"` argument. Each unit in `"offset"` will move the measure in question one column to the right. E.g.:
+The `offset` argument helps deal with situations in which similar measures for a single subject need to be written in adjacent columns in a single sheet (e.g., presses to different levers). In such cases it is not necessary to declare several dictionaries that relate each subject with a single column and then use those dictionaries as values for each `"summary_distribution"` argument. A more economic way to do it will be to use a single "base" dictionary for all similar measures, and then incrementally add units to the `"offset"` argument. Each unit in `"offset"` will move the measure in question one column to the right. E.g.:
 
 ```python
 analysis_list = [
 {"fetch": {"cell_row": 10,
            "cell_column": 10,
            "sheet": "Levers",
-           "summary_column_list": lever_cols,
+           "summary_distribution": lever_cols,
            "offset": 0  # Unnecessary
            }},
 {"fetch": {"cell_row": 20,
            "cell_column": 20,
            "sheet": "Levers",
-           "summary_column_list": lever_cols,
+           "summary_distribution": lever_cols,
            "offset": 1  # <------
            }},
 {"fetch": {"cell_row": 30,
            "cell_column": 30,
            "sheet": "Levers",
-           "summary_column_list": lever_cols,
+           "summary_distribution": lever_cols,
            "offset": 2  # <------
            }},
 ]
@@ -164,7 +172,10 @@ analysis_list = [
 
 This will result in three columns. The first will be in the position declared by the `lever_cols` dictionary. The second and third will be one and two positions to the right.
 
-Finally, if the `"offset"` argument is not declared, it will take a default value of `0`.
+If the `"offset"` argument is not declared, it will take a default value of `0`.
+
+<a id="write-rows"></a>
+Finally, the `"write_rows"` argument determines whether the measure will be written vertically (along a single column with one row per session), or horizontally (along a single row with one column per session). If its value is set to `True`, then the measure will be written horizontally. Otherwise it will take the default value of `False` and the measure will be written vertically. This argument is available for all functions except for `resp_dist`.
 
 #### Count_resp <a id="count-resp"></a>
 
@@ -176,10 +187,11 @@ analysis_list = [
                     "column": 1,
                     "header": "Generic_title",
                     "sheet": "Sheet_2",
-                    "summary_column_dict": column_dictionary2,
+                    "summary_distribution": column_dictionary2,
 		    "subtract": True, # Optional
                     "statistic": "mean",  # Optional. Alternative: "median"
 		    "offset": 0,  # Optional
+		    "write_rows": True,  # Optional. Default: False
                     }},
 ]
 ```
@@ -192,7 +204,7 @@ The `"subtract"` argument is optional, and deals with the special case in which 
 
 The `"column"`and `"header"`arguments determine the way in which the complete list of responses per trial will be written on the individual .xlsx file. `"column"` indicates the column in which the list will be written (being that 1 = A, 2 = B, 3 = C, etc.). The `"header"`argument determines the title which the column will have in its first cell. In order to not overwrite any data, each declared dictionary from the analysis list must have a different value for `"column"`, and it is recommended to use an incremental order.
 
-The `"sheet"`, `"summary_column_dict"`, and `"offset"` arguments work the same as in the `Fetch` function.
+The `"sheet"`, `"summary_distribution"`, and `"offset"` arguments work the same as in the `Fetch` function.
 
 This function, alongside `lat_count` and `total_count`, offers the possibility of making multiple or "aggregated" counts via the `"measures"` argument: in certain occasions it is advantageous to aggregate in a single measure the responses or latencies from two or more sources. As an example one may think of a situation in which there are responses to a single lever in two different types of trials, and those responses have two different marks to identify them. One may wish to aggregate the responses or latencies from both types of trials so that they are represented by a single measure of central tendency. In such cases the `"measures"` argument permits the incorporation of several information sources in a single measure. `"measures"` will indicate how many different sources must be aggregated into the same measure. For each additional source the necessary marks must be declared following the logical numbering. For example, for three sources aggregated into a single measure the arguments would be:
 ```python
@@ -218,8 +230,9 @@ Finally, the `"statistic"` argument determines the measure of central tendency (
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Sheet_4",
-                     "summary_column_dict": column_dictionary4,
+                     "summary_distribution": column_dictionary4,
                      "offset": 0,  # Optional
+		     "write_rows": True,  # Optional. Default: False
                      }},
 ]
 ```
@@ -240,10 +253,11 @@ analysis_list = [
                    "column": 2,
                    "header": "Generic_title",
                    "sheet": "Sheet_3",
-                   "summary_column_dict": column_dictionary3,
+                   "summary_distribution": column_dictionary3,
 		   "statistic": "mean",  # Optional. Alternative: "median"
                    "offset": 0,  # Optional
-		   "unit": 20
+		   "unit": 20,
+		   "write_rows": True,  # Optional. Default: False
                    }},
 ]
 ```
@@ -269,7 +283,7 @@ analysis_list = [
 
 This function can determine the temporal distribution of a response of interest along each trial of the session. The function will divide each trial in _bins_ whose size (in seconds) and amount is determined by the user with the `"bin_size"` and `"bin_amount"` arguments, and then will count the occurrences of the response of interest during each bin. For each trial a separate list will be generated, and all lists will be written on a separate sheet of the individual xlsx file. A list with either the mean or the median of responses per bin will be written on a column on a separate sheet of the summary file, one sheet per subject and one column per session. These sheets are created automatically and take the name of each subject; thus, it is not necessary to declare these sheets in the `sheets` argument of the `Analyzer` object.
 
-Since the distributions are written on separate columns per session and separate sheets per subject, the `"column"`, `"header"`, `"sheet"`, and `"summary_column_dict"` arguments are not needed.
+Since the distributions are written on separate columns per session and separate sheets per subject, the `"column"`, `"header"`, `"sheet"`, and `"summary_distribution"` arguments are not needed.
 
 In those cases in which there is no Inter-Trial-Interval and there is no end-of-trial mark, and thus the end of a trial is only signaled by the beginning of the next, it will be enough to declare the same mark for both `"trial_start"` and `"trial_end"`.
 
@@ -330,7 +344,7 @@ analysis_list = [
     {"fetch": {"cell_row": 1,
                "cell_column": 1,
                "sheet": "Measure1",
-               "summary_column_dict": measure1_cols,
+               "summary_distribution": measure1_cols,
                "offset": 0,
                }},
     # Measure 2
@@ -341,7 +355,7 @@ analysis_list = [
                     "column": 2,
                     "header": "Generic_title",
                     "sheet": "Measure2",
-                    "summary_column_dict": measure2_cols,
+                    "summary_distribution": measure2_cols,
                     "subtract": True,  # Optional argument. Default value: False
                     "statistic": "mean",  # Alternative value: "median"
                     "offset": 0,
@@ -353,7 +367,7 @@ analysis_list = [
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Measure3",
-                     "summary_column_dict": measure3_cols,
+                     "summary_distribution": measure3_cols,
                      "offset": 0,
                      }},
     # Measure 4
@@ -363,7 +377,7 @@ analysis_list = [
                    "column": 4,
                    "header": "Generic_title",
                    "sheet": "Measure4",
-                   "summary_column_dict": measure4_cols,
+                   "summary_distribution": measure4_cols,
                    "statistic": "mean",  # Alternative value: "median"
                    "offset": 0,
                    "unit": 20,  # Optional
@@ -430,7 +444,7 @@ analysis_list = [
     {"fetch": {"cell_row": 1,
                "cell_column": 1,
                "sheet": "Measure1",
-               "summary_column_dict": measure1_cols,
+               "summary_distribution": measure1_cols,
                "offset": 0,
                }},
     # Measure 2
@@ -441,7 +455,7 @@ analysis_list = [
                     "column": 2,
                     "header": "Generic_title",
                     "sheet": "Measure2",
-                    "summary_column_dict": measure2_cols,
+                    "summary_distribution": measure2_cols,
                     "subtract": True,  # Optional argument. Default value: False
                     "statistic": "mean",  # Alternative value: "median"
                     "offset": 0,
@@ -453,7 +467,7 @@ analysis_list = [
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Measure3",
-                     "summary_column_dict": measure3_cols,
+                     "summary_distribution": measure3_cols,
                      "offset": 0,
                      }},
     # Measure 4
@@ -463,7 +477,7 @@ analysis_list = [
                    "column": 4,
                    "header": "Generic_title",
                    "sheet": "Measure4",
-                   "summary_column_dict": measure4_cols,
+                   "summary_distribution": measure4_cols,
                    "statistic": "mean",  # Alternative value: "median"
                    "offset": 0,
                    "unit": 20,  # Optional
@@ -480,7 +494,7 @@ analysis_list = [
 
 analyzer = Analyzer(fileName=file, temporaryDirectory=temp_directory, permanentDirectory=perm_directory,
                     convertedDirectory=conv_directory, subjectList=subjects, suffix="_", sheets=sheets,
-                    analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
+                    analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False, spacing=5)
 # analyzer.convert()
 analyzer.complete_analysis()
 ```
