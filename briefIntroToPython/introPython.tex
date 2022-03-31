@@ -527,8 +527,7 @@ From within the virtual environment libraries can be installed by running the co
 pip install [library-name]
     \end{minted}
 \end{tcolorbox}
-
-PyCharm can handle the installation of libraries in a longer but more intuitive way if one is not accustomed to working in the terminal. To install a new library navigate to \verb|File| \textrightarrow \verb|Settings| \textrightarrow \verb|Project| \textrightarrow \verb|Python interpreter|. There, click on the + symbol, type the name of the library you wish to install, and click ``Install''.
+\noindent on the terminal. PyCharm can handle the installation of libraries in a longer but more intuitive way if one is not accustomed to working in the terminal. To install a new library navigate to \verb|File| \textrightarrow \verb|Settings| \textrightarrow \verb|Project| \textrightarrow \verb|Python interpreter|. There, click on the + symbol, type the name of the library you wish to install, and click ``Install''.
 
 \begin{figure}[!ht]
     \begin{center}
@@ -567,11 +566,11 @@ pip install medpcpy
     \end{minted}
 \end{tcolorbox}
 
-On the terminal, or install it from the interface of your IDE of choice. It will install all its required dependencies by default.
+\noindent on the terminal, or install it from the interface of your IDE of choice. It will install all its required dependencies by default.
 
 \subsection{First steps}
 
-The first thing to do is to check that your system is ready to begin the process of file conversion and data extraction. To do this, you must create three separate folders in any part of your system that you desire. These folders will contain the raw files before the analysis, the raw files after the analysis, and the already converted and processed .xlsx files. The reason why two separate folders for raw files are needed is that the library scans the temporary folder and uses its contents to determine the names of the subjects with at least one associated file and the numbers of the sessions to analyze. If all files are contained on the temporary folder, then all files will be processed every time the script is run. That is the reason why only new, unprocessed files must be placed in the temporary folder.
+The first thing to do is to check that your system is ready to begin the process of file conversion and data extraction. To do this, you must create three separate folders in any part of your system that you desire. These folders will contain the raw files before the analysis, the raw files after the analysis, and the already converted and processed .xlsx files. The reason why two separate folders for raw files are needed is that the library scans the temporary folder and uses its contents to determine the names of the subjects with at least one associated file and the numbers of the sessions to analyze. If all files are contained in the temporary folder, then all files will be processed every time the script is run. That is the reason why only new, unprocessed files must be placed in the temporary folder.
 
 \begin{figure}[!ht]
     \begin{center}
@@ -579,7 +578,7 @@ The first thing to do is to check that your system is ready to begin the process
     \end{center}
 \end{figure}
 
-Then, you must check that your files follow the format
+Then, you must check that your files' names follow the format
 
 \begin{tcolorbox}[
     enhanced,
@@ -695,6 +694,88 @@ my_analyzer.convert()
     \end{minted}
 \end{tcolorbox}
 
+Then, any one of the converted files must be manually inspected in order to determine the columns in which both the time and the marks (explained in the \href{https://github.com/JuodaanViinaa/Laboratorio/blob/translate/README.md}{readme} file) are located. After that, the \verb|Analyzer| object can be fully declared, and it is now ready to analyze data.
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=6mm,yshift=-3mm},
+    colback=lightgreen!20,
+    colframe=lightgreen,
+    colbacktitle=lightgreen,
+    title=Python,
+    fonttitle=\bfseries\color{black},
+    boxed title style={size=small,colframe=lightgreen,sharp corners},
+    sharp corners,
+    ]
+    \begin{minted}[linenos]{python}
+my_analyzer = Analyzer(fileName=file,
+                temporaryDirectory=temp_directory,
+                permanentDirectory=perm_directory,
+                convertedDirectory=conv_directory
+                subjectList=subjects, suffix="_",
+                sheets=sheets,
+                analysisList=analysis_list,
+                timeColumn="O",
+                markColumn="P",
+                relocate=False)
+    \end{minted}
+\end{tcolorbox}
+
+\subsection{Final use}
+
+After the \verb|Analyzer| object is declared with all its relevant variables, the analysis of an arbitrary number of sessions and subjects can be done with a single click. The user only needs to copy their files to the temporary directory and run the script. All other work will be done automatically. 
+
+The analysis is called with the \verb|.complete_analysis()| method:
+
+\begin{tcolorbox}[
+    enhanced,
+    attach boxed title to top left={xshift=6mm,yshift=-3mm},
+    colback=lightgreen!20,
+    colframe=lightgreen,
+    colbacktitle=lightgreen,
+    title=Python,
+    fonttitle=\bfseries\color{black},
+    boxed title style={size=small,colframe=lightgreen,sharp corners},
+    sharp corners,
+    ]
+    \begin{minted}[linenos]{python}
+my_analyzer.complete_analysis()
+    \end{minted}
+\end{tcolorbox}
+
+Individual .xlsx files with labeled lists of all declared measures will be created for each session of every subject.
+
+\begin{figure}[!ht]
+    \begin{center}
+        \includegraphics[scale=0.5]{indiv-file-lists.png}
+    \end{center}
+\end{figure}
+
+And the summary file will contain central tendency measures. Each session will occupy one row in the summary file, and subjects will occupy the columns declared in the analysis list.
+
+\begin{figure}[!ht]
+    \begin{center}
+        \includegraphics[scale=0.35]{summary-file.png}
+    \end{center}
+\end{figure}
+
+\newpage
+\section{Acknowledgments}
+
+\begin{itemize}
+    \item Gabriela Eugenia López-Tolsa, contributor, editor and tester. \href{https://github.com/GELopezTolsa}{Her Github}
+\item Rodrigo Uriel González Torres, contributor, editor and tester. \href{https://github.com/RodrigoUriGT}{His Github.}
+\end{itemize}
+
+\section{Other resources}
+
+\begin{itemize}
+    \item The official \href{https://www.python.org/doc/}{Python documentation}.
+    \item Al Sweigart's \href{https://automatetheboringstuff.com/}{Automate the Boring Stuff with Python}.
+    \item Angela Yu's \href{https://www.udemy.com/course/100-days-of-code/}{100 Days of Code}.
+\end{itemize}
+
+The team behind {\scshape MedPCPy} is not affiliated with any of these providers. However, their material proved to be useful to develop this library.
 
 
 
