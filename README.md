@@ -35,7 +35,7 @@ _____
 3. All files must be placed inside the temporary directory (explained below) before the analysis.
 
 <a id="marks"></a>
-As a special note, along this entire file it is assumed that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (e.g., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). These numbers will be referred to as "time" and "marks", respectively.
+On a special note, this library can function on either the assumption that the user has set their MedPC configuration so that all measures of interest are printed on known places in their specific array(s) (in which case only the [fetch](#fetch) function will be needed); or on the assumption that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (e.g., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). In the latter case, these two numbers will be referred to as "time" and "marks", respectively.
 
 _____
 
@@ -56,7 +56,7 @@ to get access to all the necessary functions without the need to call `medpcpy.`
 All of the work is performed by a single [object](https://www.geeksforgeeks.org/python-object/) of class `Analyzer` which contains [methods](https://www.w3schools.com/python/gloss_python_object_methods.asp) to convert MedPC files to .xlsx and then extract and summarize the relevant data. The `Analyzer` object requires several arguments to be initialized. These arguments are:
 
 1. `fileName`, the name of the summary file. The file is created automatically if it does not exist yet. There is no need to manually create it.
-2. `temporaryDirectory`, a [string](https://www.geeksforgeeks.org/python-strings/) indicating the directory in which raw MedPC files are stored before the analysis. All back slashes `"\"`, if any, must be replaced by forward slashes `"/"`, and the last character of the _string_ must be a forward slash. e.g.: `"C:/Users/Admin/Desktop/Path/To/Your/Directory/"`
+2. `temporaryDirectory`, a [string](https://www.geeksforgeeks.org/python-strings/) indicating the directory in which raw MedPC files are stored before the analysis. All back slashes `"\"`, if any, must be replaced with forward slashes `"/"`, and the last character of the _string_ must be a forward slash. e.g.: `"C:/Users/Admin/Desktop/Path/To/Your/Directory/"`
 3. `permanentDirectory`, the directory to which raw MedPC files will be moved after analysis. Must follow the same rules as the temporary directory.
 4. `convertedDirectory`, the directory in which individual .xlsx files and the summary file will be stored after the analysis. Must follow the same rules as the temporary directory.
 5. `subjectList`, a [list](https://www.w3schools.com/python/python_lists.asp) of _strings_ with the names of all subjects.
