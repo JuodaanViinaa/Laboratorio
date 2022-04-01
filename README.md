@@ -6,7 +6,7 @@ By default, the declared variables are written on the summary file vertically. T
 
 Files are organized in three separate directories:
 1. A temporary directory in which raw files are stored before analysis.
-2. A permanent directory to which raw files are moved after analysis.
+2. A permanent directory to which raw files are automatically moved after analysis.
 3. A converted directory in which processed individual .xlsx files and the summary file are stored after analysis.
 
 This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
@@ -15,7 +15,7 @@ This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io
 
 A quick start script named `quick_start.py` is provided with all relevant variables already declared. The user needs only change the values of all variables to something relevant to their project. That is, it will be necessary to change the summary filename, directory paths, subject names, column dictionaries, sheet names, all measures of the analysis list, as well as the `suffix`, `markColumn`, and `timeColumn` arguments of the `Analyzer` object.
 
-To get the actual values of the `markColumn` and `timeColumn` arguments (instead of the placeholder values provided) it is necessary to first run the script with the `analyzer.convert()` line _uncommented_. Then one ought to manually inspect one of the produced files and look for the columns in which the time and marks ([explained below](#marks)) are written. Those are the values needed for `markColumn` and `timeColumn`. After that, the user must _comment_ the `analyzer.convert()` line, and _uncomment_ the `analyzer.complete_analysis()` line and run again the code. If everything goes as planned, the full analysis should run with no further interaction. If the user is satisfied with the process, then they can delete the `relocate = False` argument of the analyzer object. This will make the code move the already-processed files from the temporary directory to the permanent one the next time the user runs it.
+To get the actual values of the `markColumn` and `timeColumn` arguments (instead of the placeholder values provided) it is necessary to first run the script with the `analyzer.convert()` line _uncommented_. Then one ought to manually inspect one of the produced files and look for the columns in which the time and marks ([explained below](#marks)) are written. Those are the values needed for `markColumn` and `timeColumn`. After that, the user must _comment_ the `analyzer.convert()` line, and _uncomment_ the `analyzer.complete_analysis()` line and run again the script. If everything goes as planned, the full analysis should run with no further interaction. If the user is satisfied with the process, then they can delete the `relocate = False` argument of the analyzer object and run the script again. This will make the code move the already-processed files from the temporary directory to the permanent one.
 
 ## Introduction
 
@@ -32,7 +32,8 @@ _____
 
 1. Python must be installed on the machine which will be used.
 2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character, e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
-3. All files must be placed inside the temporary directory (explained below) before the analysis.
+3. Three directories must exist in the system in which the analysis will take place. Their names are not important, but their functions will be: (1) temporary storage of raw files, (2) permanent storage or raw files, and (3) storage of converted .xlsx files.
+4. All files must be placed inside the temporary directory (explained below) before the analysis.
 
 <a id="marks"></a>
 On a special note, this library can function on either the assumption that the user has set their MedPC configuration so that all measures of interest are printed on known places in their specific array(s) (in which case only the [fetch](#fetch) function will be needed); or on the assumption that the user has declared an array in their MedPC configuration which contains both the time of occurrence of each event, and the numbers which represent the events themselves in the format "XXX.XXX", where the number before the decimal point represents the time, and the number after represents the signal associated with the event (e.g., "100.111" would represent an event whose associated signaling number is "111" and which occurred at time "100"). In the latter case, these two numbers will be referred to as "time" and "marks", respectively.
@@ -63,7 +64,7 @@ All of the work is performed by a single [object](https://www.geeksforgeeks.org/
 6. `suffix`, a _string_ which indicates the character or characters which separate the subject name from the session number in the raw MedPC filenames (e.g.: if raw files are named "subject1_1", "subject2_1", etc., then the value for the `suffix` argument should be `"_"`). This is how the library determines the sessions to analyze for each subject.
 	* The filenames must follow the format `"[subject name][spacing character][session number]"` so that the library can properly read them. e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character and, thus, the value for the `suffix` argument.
 7. `sheets`, a list of _strings_ which represent the names of each individual sheet which will be created in the summary file. Much like the summary file, sheets are automatically created. This argument simply states the names each sheet should have.
-8. `analysisList`, a list of [dictionaries](https://www.w3schools.com/python/python_dictionaries.asp) which declares the details of every relevant measure to extract. The template for this list can be printed with the `template()` function. A more in depth explanation is provided further down this file.
+8. `analysisList`, a list of [dictionaries](https://www.w3schools.com/python/python_dictionaries.asp) which declares the details of every relevant measure to extract. The template for this list can be printed with the `template()` function. A more in depth explanation is provided [further down](#analysis_list) this file.
 9. `markColumn`, a _string_ stating the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 10. `timeColumn`, a _string_ stating the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manualy move the files back to the temporary directory while the code is being tested and debugged.
@@ -88,17 +89,22 @@ Then, this file must be manually inspected in order to get the letters of the co
 
 After the column letters are obtained, the `timeColumn` and `markColumn` arguments can be provided and the `Analyzer` object is now ready to extract data.
 
+
 ```python
 analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_directory, permanentDirectory=raw_directory,
                     convertedDirectory=converted_directory, subjectList=subjects, suffix="_", sheets=sheets,
                     analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
 ```
 
+In the case in which the user has set their MedPC configuration so that all measures of interest are printed on known places in their specific array(s), declaring the `timeColumn` and `markColumn` arguments is not necessary since they are useful when woking with a "TIME.EVENT" format.
+
 Besides these arguments, some other variables containing dictionaries that relate subjects to columns need to be declared before the main analysis takes place. Their use is explained below.
 
-## Analysis list
+## Analysis list <a id="analysis_list"></a>
 
-The syntax for the `analysisList` argument of the `Analyzer` object is given next.
+The analysis list is a list of an arbitrary number of nested dictionaries. Each dictionary declares the function which will be used to extract data, and the relevant arguments to determine the data to be extracted and the way in which it will be written on both the individual and summary files. Each of the dictionaries must be separated with a comma from the others, and key:value pairs inside the dictionary must also be separated by commas. The recommended format to increase readability is provided in each function's description as well as on the `template()` function.
+
+The syntax for the analysis list is provided per-function below.
 
 The library contains several functions to extract and summarize data in common ways. Specifically, the library can:
 * Grab a value from a specific cell in the individual .xlsx files given a row and column number ([`"fetch"`](#fetch)).
@@ -116,12 +122,14 @@ While for the nosepokes we may need a format that is similar to this:
 
 ![image](https://user-images.githubusercontent.com/87039101/155409189-dc7d0a95-0f9e-4028-b380-2d0634fd1934.png)
 
-As it can be seen, distinct measures for a single subject require a different amount of columns in different sheets. For this reason in this particular example it will be necessary to declare at least two dictionaries: one which relates each subject with the space it occupies in the lever-response sheet, and another one which relates them with the space they occupy in the nosepoke-response sheet. These two dictionaries only need to declare the first column occupied by the subject, and substitute the column letter for its equivalent number (A = 1, B = 2, etc.). All other columns are dealt with later. Then, the dictionaries needed for this example would be:
+As it can be seen, distinct measures for a single subject require a different amount of columns in different sheets. For this reason in this particular example it will be necessary to declare at least two dictionaries: one which relates each subject with the space it occupies in the lever-response sheet, and another one which relates them with the space they occupy in the nosepoke-response sheet. These two dictionaries only need to declare the first column occupied by the subject, and substitute the column letter for its equivalent number (A = 1, B = 2, etc.). All other columns are dealt with later with the [`"offset"`](#offset) argument. Then, the dictionaries needed for this example would be:
 
 ```python
 lever_cols = {"Rat1": 2, "Rat2": 7, "Rat3": 12,}
 nosepoke_cols = {"Rat1": 2, "Rat2": 5, "Rat3": 8,}
 ```
+
+Pay special attention to the correspondence between the number declared for each subject and the first column they occupy in the example.
 
 ### Functions
 #### Fetch <a id="fetch"></a>
@@ -133,7 +141,7 @@ analysis_list = [
            "summary_distribution": column_dictionary,
            "offset": 0,  # Optional
 	   "write_rows": True,  # Optional. Default: False
-           }}
+           }},
 ]
 ```
 
@@ -145,6 +153,7 @@ In order to get the location of the data point of interest the user may run the 
 
 The `"sheet"` and `"summary_distribution"` arguments determine the way in which the extracted data point will be written on the summary file. `"sheet"` indicates the name of the sheet in which the data point will be written. This name must correspond with one of the elements of the sheet list given as an argument to the `Analyzer` object. [`"summary_distribution"`](#summary-distribution) is the dictionary that relates each subject with the column or row in which their data will be written.
 
+<a id="offset"></a>
 The `offset` argument helps deal with situations in which similar measures for a single subject need to be written in adjacent columns in a single sheet (e.g., presses to different levers). In such cases it is not necessary to declare several dictionaries that relate each subject with a single column and then use those dictionaries as values for each `"summary_distribution"` argument. A more economic way to do it will be to use a single "base" dictionary for all similar measures, and then incrementally add units to the `"offset"` argument. Each unit in `"offset"` will move the measure in question one column to the right. E.g.:
 
 ```python
@@ -204,9 +213,9 @@ The `"subtract"` argument is optional, and deals with the special case in which 
 
 The `"column"`and `"header"`arguments determine the way in which the complete list of responses per trial will be written on the individual .xlsx file. `"column"` indicates the column in which the list will be written (being that 1 = A, 2 = B, 3 = C, etc.). The `"header"`argument determines the title which the column will have in its first cell. In order to not overwrite any data, each declared dictionary from the analysis list must have a different value for `"column"`, and it is recommended to use an incremental order.
 
-The `"sheet"`, `"summary_distribution"`, and `"offset"` arguments work the same as in the `Fetch` function.
+The `"sheet"`, `"summary_distribution"`, `"offset"`, and `"write_rows"` arguments work the same as in the `Fetch` function.
 
-This function, alongside `lat_count` and `total_count`, offers the possibility of making multiple or "aggregated" counts via the `"measures"` argument: in certain occasions it is advantageous to aggregate in a single measure the responses or latencies from two or more sources. As an example one may think of a situation in which there are responses to a single lever in two different types of trials, and those responses have two different marks to identify them. One may wish to aggregate the responses or latencies from both types of trials so that they are represented by a single measure of central tendency. In such cases the `"measures"` argument permits the incorporation of several information sources in a single measure. `"measures"` will indicate how many different sources must be aggregated into the same measure. For each additional source the necessary marks must be declared following the logical numbering. For example, for three sources aggregated into a single measure the arguments would be:
+This function, alongside `lat_count` and `total_count`, offers the possibility of making multiple or "aggregated" counts via the `"measures"` argument: on certain occasions it is advantageous to aggregate in a single measure the responses or latencies from two or more sources. As an example one may think of a situation in which there are responses to a single lever in two different types of trials, and those responses have two different marks to identify them. One may wish to aggregate the responses or latencies from both types of trials so that they are represented by a single measure of central tendency. In such cases the `"measures"` argument permits the incorporation of several information sources in a single measure. `"measures"` will indicate how many different sources must be aggregated into the same measure. For each additional source the necessary marks must be declared following the logical numbering. For example, for three sources aggregated into a single measure the arguments would be:
 ```python
 analysis_list = [
     {"count_resp": {"measures": 3,
