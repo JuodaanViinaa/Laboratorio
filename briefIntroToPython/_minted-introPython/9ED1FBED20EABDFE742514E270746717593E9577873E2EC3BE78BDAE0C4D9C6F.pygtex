@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+python \PYGZhy{}m venv \PYG{o}{[}directory\PYG{o}{]}
+\end{Verbatim}

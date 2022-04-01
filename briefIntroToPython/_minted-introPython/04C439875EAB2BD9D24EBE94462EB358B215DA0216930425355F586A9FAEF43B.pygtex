@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{my\PYGZus{}analyzer} \PYG{o}{=} \PYG{n}{Analyzer}\PYG{p}{(}\PYG{n}{fileName}\PYG{o}{=}\PYG{n}{file}\PYG{p}{,}
+                \PYG{n}{temporaryDirectory}\PYG{o}{=}\PYG{n}{temp\PYGZus{}directory}\PYG{p}{,}
+                \PYG{n}{permanentDirectory}\PYG{o}{=}\PYG{n}{perm\PYGZus{}directory}\PYG{p}{,}
+                \PYG{n}{convertedDirectory}\PYG{o}{=}\PYG{n}{conv\PYGZus{}directory}
+                \PYG{n}{subjectList}\PYG{o}{=}\PYG{n}{subjects}\PYG{p}{,} \PYG{n}{suffix}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZdq{}}\PYG{p}{,}
+                \PYG{n}{sheets}\PYG{o}{=}\PYG{n}{sheets}\PYG{p}{,}
+                \PYG{n}{analysisList}\PYG{o}{=}\PYG{n}{analysis\PYGZus{}list}\PYG{p}{,}
+                \PYG{n}{relocate}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+\end{Verbatim}

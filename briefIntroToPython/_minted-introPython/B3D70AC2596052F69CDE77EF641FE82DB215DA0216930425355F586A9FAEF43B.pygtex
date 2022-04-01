@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{super\PYGZus{}tuple} \PYG{o}{=} \PYG{p}{((}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}b\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}c\PYGZdq{}}\PYG{p}{),} \PYG{l+s+s2}{\PYGZdq{}d\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{dictionary} \PYG{o}{=} \PYG{p}{\PYGZob{}}
+    \PYG{l+s+s2}{\PYGZdq{}names\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}Jonathan\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Joseph\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Giorno\PYGZdq{}}\PYG{p}{],}
+    \PYG{l+s+s2}{\PYGZdq{}nationalities\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}english\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}american\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}italian\PYGZdq{}}\PYG{p}{]}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}
