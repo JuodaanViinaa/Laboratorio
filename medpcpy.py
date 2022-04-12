@@ -1,3 +1,5 @@
+# TODO Agregar función para contar duraciones de respuesta por tipo de ensayo
+# TODO agregar al readme la función de get_cols
 """
 Created on 18-February-2022 12:22
 Code by Daniel Maldonado
@@ -189,6 +191,19 @@ def lat_count(marks, time, trialStart, response, unit):
     return lat
 
 
+def get_col(indivSheet, column):
+    """
+    Gets an entire column from the individual xlsx files and returns a list with its contents.
+    :param indivSheet: The sheet to extract the column from
+    :param column: The column to retrieve
+    :return: A list with the column contents
+    """
+    column_list = []
+    for cell in indivSheet[column]:
+        column_list.append(cell.value)
+    return column_list
+
+
 def write_cols(indivSheet, header, column, data):
     """
     Writes entire lists in spreadsheet columns. Useful for writing whole datasets on individual .xlsx files.\n
@@ -259,8 +274,13 @@ def template():
                    "label": "Generic_label",
                    "statistic": "median",  # Alternative value: "mean"
                    "unit": 20,  # Optional
-                   "write_rows": False,  # Optional
                    }},
+                   
+    {"get_cols": {
+        "source": "A",
+        "column": 1,
+        "header": "Generic_header",
+    }},
     ]
     """)
 
@@ -322,6 +342,7 @@ class Analyzer:
         self.mark_column = markColumn
         self.time_column = timeColumn
         self.spacing = spacing
+        self.file_format = None
 
     def get_sessions(self):
         """
@@ -355,7 +376,10 @@ class Analyzer:
             sublista = []
             for datoTemp in dirTemp:
                 if sujetoPresente == datoTemp.split(self.suffix)[0]:
-                    sublista.append(int(datoTemp.split(self.suffix)[-1]))
+                    sublista.append(int(datoTemp.split(self.suffix)[-1].split(".")[0]))
+                # The file format is updated to that of the files in the temporary directory. If the files have no
+                # format then it stays as None
+                self.file_format = datoTemp.split(".")[-1] if "." in datoTemp else None
             self.session_list[indice] = sorted(sublista)
             indice += 1
 
@@ -376,8 +400,10 @@ class Analyzer:
             for ssn in self.session_list[ind]:
                 print(f"Converting session {ssn} of subject {sjt}.")
                 # Pandas reads the file and separates it into six columns based on white space.
-                datos = pandas.read_csv(f"{self.temp_directory}{sjt}{self.suffix}{ssn}", header=None,
-                                        names=range(self.col_division), sep=r'\s+')
+                datos = pandas.read_csv(
+                    f"{self.temp_directory}{sjt}{self.suffix}{ssn}{'.' + self.file_format if self.file_format else ''}",
+                    header=None,
+                    names=range(self.col_division), sep=r'\s+')
                 datos.to_excel(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx", index=False, header=None)
 
                 # The file created by pandas is read by Openpyxl and saved on a variable named hojaCompleta.
@@ -437,8 +463,9 @@ class Analyzer:
                 # Finally the individual .xlsx file is saved and the raw file is moved to the permanent directory.
                 archivoCompleto.save(f"{self.conv_directory}{sjt}{self.suffix}{ssn}.xlsx")
                 if self.relocate:
-                    move(f"{self.temp_directory}{sjt}{self.suffix}{ssn}",
-                         f"{self.perm_directory}{sjt}{self.suffix}{ssn}")
+                    move(
+                        f"{self.temp_directory}{sjt}{self.suffix}{ssn}{'.' + self.file_format if self.file_format else ''}",
+                        f"{self.perm_directory}{sjt}{self.suffix}{ssn}{'.' + self.file_format if self.file_format else ''}")
             print("")
         print("-" * 70)
 
@@ -600,7 +627,8 @@ class Analyzer:
                         if not value.get("write_rows", False):
                             # The measure is written on the summary file
                             sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_distribution"][subject] + value.get("offset", 0)) + str(
+                                get_column_letter(
+                                    value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                     session + self.spacing)] = respuestas_totales
                         else:
                             # The measure is written on the summary file
@@ -616,7 +644,8 @@ class Analyzer:
                         if not value.get("write_rows", False):
                             # The single value is written on the summary file.
                             sheetDict[value["sheet"]][
-                                get_column_letter(value["summary_distribution"][subject] + value.get("offset", 0)) + str(
+                                get_column_letter(
+                                    value["summary_distribution"][subject] + value.get("offset", 0)) + str(
                                     session + self.spacing)] = cell_value
                         else:
                             # The measure is written on the summary file
@@ -659,6 +688,16 @@ class Analyzer:
                         # .xlsx file.
                         for ix, sublist in enumerate(superlist):
                             write_cols(dist_indiv_sheet, f"Trial {ix + 1}", ix + 1, sublist)
+
+                    elif key == "get_cols":
+                        # Create a sheet for each subject in the summary file
+                        col_sheet = create_sheets(workbook, [f"{subject}_{value['header']}"])
+                        # Get an entire column from the individual files
+                        entire_col = get_col(sujetoWs, value["source"])
+                        # Write column list to wanted column in individual file
+                        write_cols(hojaind, value["header"], value["column"], entire_col)
+                        # Write column list to wanted column in summary file
+                        write_cols(col_sheet[f"{subject}_{value['header']}"], f"Session{session}", session + 1, entire_col)
 
                 # The individual .xlsx file is saved.
                 sujetoWb.save(self.conv_directory + subject + self.suffix + str(session) + '.xlsx')
