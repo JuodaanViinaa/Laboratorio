@@ -1,5 +1,3 @@
-# TODO Agregar función para contar duraciones de respuesta por tipo de ensayo
-# TODO agregar al readme la función de get_cols
 """
 Created on 18-February-2022 12:22
 Code by Daniel Maldonado
@@ -200,7 +198,8 @@ def get_col(indivSheet, column):
     """
     column_list = []
     for cell in indivSheet[column]:
-        column_list.append(cell.value)
+        if cell.value is not None:
+            column_list.append(cell.value)
     return column_list
 
 
