@@ -29,11 +29,11 @@
 
 Within behavior analysis a common limiting factor is the inability to process data efficiently. Although given enough time most researchers would probably find ways to manage their data with varying degrees of success, many still struggle with manually converting their files to a more manageable format and making manual counts. Excel macros are a great tool for this, but they still require a great deal of involvement from the researcher, and given that they require human interaction they are prone to errors.
 
-The motivation for making this library was to provide a free and accessible tool that allowed both new and seasoned researchers to quickly organize the data they need without spending  time learning to code. This tool aims to be easy to learn and use, less error prone than regular scripting, and above all, free (as in {\slshape gratis} and as in {\slshape libre}) for everyone. Med Associates\textsuperscript{\textregistered} provides their own software for a similar purpose, but it is prohibitively costly. Those who develop open tools share the belief that one cannot put a price neither on knowledge nor on the tools to produce it.
+The motivation to make this library was to provide a free and accessible tool that allowed both new and seasoned researchers to quickly organize the data they need without spending time learning to code. This tool aims to be easy to learn and use, less error prone than regular scripting, and above all, free (as in {\slshape gratis} and as in {\slshape libre}) for everyone. Med Associates Inc.\textsuperscript{\textregistered} provides their own software for a similar purpose, but it is prohibitively costly. Those who develop open tools share the belief that one cannot put a price neither on knowledge nor on the tools to produce it.
 
 \subsection{About this package}
 
-The team behind MedPCPy has extensively worked to make sure that the library works in all conditions. Bugs and special cases have been fixed to the best of our abilities. However---as is the case with anything programming-related---something could go wrong at some point. We encourage you to try and test the library in different cases, and to let us know when things go wrong so that we can improve the library and make it more useful for everyone.
+The team behind MedPCPy has extensively worked to make sure that the library works in all conditions. Bugs and special cases have been fixed to the best of our abilities. However---as is the case with anything programming-related---something could go wrong at some point. We encourage you to try and test the library in different cases, and to let us know when/if things go wrong so that we can improve the library and make it more useful for everyone.
 
 If you find that something does not work as expected, or if you have any ideas on how to improve the library, please feel free to either open an issue on the project's \href{https://github.com/JuodaanViinaa/Laboratorio}{GitHub} page, or \href{mailto:maldonadodaniel96@outlook.com}{email us}.
 
@@ -48,11 +48,11 @@ Python can be installed on any machine by downloading it from its \href{https://
 
 \subsection{Integrated Development Environments}
 
-For beginner users and those who wish a working ready-to-use experience, several IDEs are available. An IDE is a program which provides services to facilitate computer programming, such as syntax highlighting, code autocompletion, easy documentation access, and more. We recommend the community edition of \href{https://www.jetbrains.com/pycharm/download/}{PyCharm} because it is free and can automatically manage virtual environments. Other common IDEs are \href{https://www.spyder-ide.org/}{Spyder}, and \href{https://code.visualstudio.com/}{Visual Studio Code}. However, any IDE or text editor will be more than enough.
+For beginner users and those who wish a working ready-to-use experience, several Integrated Development Environments (IDEs) are available. An IDE is a program which provides services to facilitate computer programming, such as syntax highlighting, code autocompletion, easy documentation access, and more. We recommend the community edition of \href{https://www.jetbrains.com/pycharm/download/}{PyCharm} because it is free and can automatically manage virtual environments. Other common IDEs are \href{https://www.spyder-ide.org/}{Spyder}, and \href{https://code.visualstudio.com/}{Visual Studio Code}. However, any IDE or text editor will be more than enough.
 
 \subsection{Virtual Environments}
 
-Python is a modular language. Any number of third-party libraries can be installed on a system. This allows the use of an unlimited amount of tools created by the community for all sorts of tasks. That, however, can give rise to conflicts if, for example, a project in which someone is working requires version 2 of a library, but a different project requires version 3. In order to solve this issue, as of Python 3.3 the {\slshape virtualenv} module is included with every standard Python installation.
+Python is a modular language, which means any number of third-party libraries can be installed on a system. This allows the use of an unlimited amount of tools created by the community for all sorts of tasks. That, however, can give rise to conflicts if, for example, a project in which someone is working requires version 2 of a library, but a different project requires version 3. In order to solve this issue, as of Python 3.3 the {\slshape virtualenv} module is included with every standard Python installation.
 
 The {\slshape virtualenv} module allows the creation of {\itshape virtual environments}: containers isolated from the system-wide install which have their own Python executable and can have their independent set of installed Python packages. These packages are accessible only from within the virtual environment, and thus avoid version conflicts as long as projects with different version requirements are hosted in their own separate environments.
 
@@ -123,7 +123,7 @@ To deactivate or exit a virtual environment one only needs to run ``deactivate''
 
 \subsection{Python basics}
 
-Providing an introductory course to Python is not the purpose of this guide. However, aiming to be as accessible as possible, the very basics needed to understand and use the MedPCPy library will be explained.
+Providing an introductory course to Python is not the purpose of this guide, but aiming to be as accessible as possible, the very basics needed to understand and use the MedPCPy library will be explained.
 
 \subsubsection{Data types}
 
@@ -511,13 +511,13 @@ and I am 5 years old. Woof!
     \end{minted}
 \end{tcolorbox}
 
-The core of the MedPCPy library is an object of a particular class called \verb|Analyzer|. It has methods to get the sessions associated with a subject, convert files to .xlsx format, create documents, and compute the appropriate responses and latencies.
+The core of the MedPCPy library is an object of a particular class called \verb|Analyzer|. It has methods to get the sessions associated with a subject, convert files to .xlsx format, create documents, and compute the appropriate analyses.
 
 \subsubsection{Installing libraries}
 
 Python is a modular language, which means that its functionality can be extended by including code created by the community. This code is shared through libraries which users can easily install into their system and import into their projects.
 
-From within the virtual environment libraries can be installed by running the command
+Libraries can be installed from within the virtual environment by running the command
 
 \begin{tcolorbox}[
     enhanced,
@@ -745,7 +745,7 @@ my_analyzer.complete_analysis()
     \end{minted}
 \end{tcolorbox}
 
-To run the analysis the user only needs to place their files on the temporary directory and run the script. This can be done by going to the ``Run'' menu and clicking on ``Run [name of your script]'' or by pressing \verb|Shift + F10|.
+To run the analysis the user only needs to place their files on the temporary directory and run the script. This can be done by going to the ``Run'' menu and clicking on ``Run [name of your script]'' or by pressing \verb|Shift + F10|. (or ctrl + r on Mac)
 
 \begin{figure}[!ht]
     \begin{center}
@@ -761,7 +761,7 @@ Individual .xlsx files with labeled lists of all declared measures will be creat
     \end{center}
 \end{figure}
 
-And the summary file will contain central tendency measures. Each session will occupy one row in the summary file, and each column will contain the data for a single measure of a single subject. The labels of the summary file columns seen in the example are not automatically created. Rather, they must be manually written by the user.
+And the summary file will contain central tendency measures. Each session will occupy one row (or column) in the summary file, and each column (or row) will contain the data for a single measure of a single subject. The labels of the summary file columns seen in the example are not automatically created. Rather, they must be manually written by the user.
 
 \begin{figure}[!ht]
     \begin{center}
