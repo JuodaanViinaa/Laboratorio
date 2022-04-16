@@ -620,7 +620,7 @@ The star \verb|"*"| makes all the functions and classes available to the current
 
 \subsection{Declaring variables}
 
-Several variables have to be declared before the \verb|Analyzer| object. These are the summary file name, directory paths, subject names, column dictionaries, sheet names, and the analysis list. A full explanation of their requirements (particularly for the column dictionaries and the analysis list, whose names are less intuitive) is provided in the \href{https://github.com/JuodaanViinaa/Laboratorio/blob/translate/README.md}{readme} file of the GitHub \href{https://github.com/JuodaanViinaa/Laboratorio/tree/translate}{repository}. Here only an example declaration is provided:
+Several variables have to be declared before the \verb|Analyzer| object. These are the summary file name, directory paths, subject names, distribution dictionaries, sheet names, and the analysis list. A full explanation of their requirements (particularly for the distribution dictionaries and the analysis list, whose names are less intuitive) is provided in the \href{https://github.com/JuodaanViinaa/Laboratorio/blob/translate/README.md}{readme} file of the GitHub \href{https://github.com/JuodaanViinaa/Laboratorio/tree/translate}{repository}. Here only an example declaration is provided:
 
 \begin{tcolorbox}[
     enhanced,
@@ -647,7 +647,7 @@ analysis_list = [
     {"fetch": {"cell_row": 1,
                "cell_column": 1,
                "sheet": "Measure1",
-               "summary_column_dict": measure1_cols,
+               "summary_distribution": measure1_cols,
                "offset": 0,
                }},
     ]
