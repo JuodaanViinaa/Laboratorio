@@ -112,6 +112,7 @@ The library contains several functions to extract and summarize data in common w
 * Count all occurrences of a response in a session ([`"total_count"`](#total-count)).
 * Count the latencies from the beginning of each trial to the first occurrence of the response of interest ([`"lat_count"`](#lat-count)).
 * Count the responses occurred per user-defined time-bin per trial ([`"resp_dist"`](#resp-dist)).
+* Copy an entire array from the individual files and paste it as a column in the summary file ([`"get_cols"`](#get-cols)).
 <a id="summary-distribution"></a>
 
 Most of these functions need the declaration of a special dictionary which relates each subject with a specific column (if data is written vertically) or row (if data is written horizontally) in which its data will be written. That is, we may be interested in getting more than one measure from each subject (e.g., lever presses, nosepoke entries, latencies, etc.), and different measures may have different sub-divisions (e.g., there may be four levers, but two nosepokes). Thus, if we want to keep each type of response in its own separate sheet, we may need a format that is similar to this for the lever presses:
@@ -184,7 +185,7 @@ This will result in three columns. The first will be in the position declared by
 If the `"offset"` argument is not declared, it will take a default value of `0`.
 
 <a id="write-rows"></a>
-Finally, the `"write_rows"` argument determines whether the measure will be written vertically (along a single column with one row per session), or horizontally (along a single row with one column per session). If its value is set to `True`, then the measure will be written horizontally. Otherwise it will take the default value of `False` and the measure will be written vertically. This argument is available for all functions except for `resp_dist`.
+Finally, the `"write_rows"` argument determines whether the measure will be written vertically (along a single column with one row per session), or horizontally (along a single row with one column per session). If its value is set to `True`, then the measure will be written horizontally. Otherwise it will take the default value of `False` and the measure will be written vertically. This argument is available for all functions except for `resp_dist` and `get_cols`.
 
 #### Count_resp <a id="count-resp"></a>
 
@@ -327,6 +328,24 @@ The resulting summary file would have two sheets for each subject: one assigned 
 If the `"label"` argument is not declared then a single sheet per subject will be created in the summary file. If multiple response distributions are declared in the analysis list and the `"label"` argument is ommited in all of them, the distributions will overwrite one another and only the last declared distribution will prevail.
 
 This function includes the `"statistic"` argument to determine the measure of central tendency that will be written, and the `"unit"` argument to specify the temporal resolution declared in the MedPC setup.
+
+#### Get_cols <a id="get-cols"></a>
+
+
+```python
+analysis_list = [
+    {"get_cols": {
+        "source": "A",
+        "column": 1,
+        "header": "Generic_header",
+    }},
+
+]
+```
+
+This function can copy an entire array from the individual xlsx files and paste it on a specific column of the individual file and on a dedicated sheet on the summary file. Much like the ["resp_dist"](#resp-dist) function, this function automatically creates the necessary sheets for each subject on the summary file. Each subject will have one dedicated sheet named `[subject name]_[label]`, and each session will be written on a different column.
+
+The `"source"` argument indicates the column from the individual xlsx file which will be copied. This is known after converting at least one file and manually determining the position of the column of interest. The `"column"` argument determines the position in which the column will be pasted in the sheet in which all full-lists are written in the individual file (1 = A, 2 = B, etc). Finally, the `"header"` argument determines both the title which the column will have on the individual xlsx file and the title of the dedicated sheet which will be created on the summary file.
 
 ___
 ___
@@ -499,6 +518,13 @@ analysis_list = [
                    "statistic": "median",  # Alternative value: "mean"
                    "unit": 20,  # Optional
                    }},
+		   
+    # Entire column
+    {"get_cols": {
+        "source": "O",
+        "column": 1,
+        "header": "Generic_header",
+    }},
 ]
 
 analyzer = Analyzer(fileName=file, temporaryDirectory=temp_directory, permanentDirectory=perm_directory,
