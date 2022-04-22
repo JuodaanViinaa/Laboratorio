@@ -1,10 +1,12 @@
 """
 This is a generic script provided to facilitate the use of the MedPCPy library.
-All needed variables are already declared. The user needs only substitute their values for something relevant to them.
-Pay particular attention to the "measure_cols" and the "analysis_list" variables . They are the most important part of
-the script.
-To add measures relevant to you copy the format of one of the already-declared measures and substitute the values of the
-arguments.
+All needed variables are already declared. The user needs only substitute their values for something relevant to their
+project.
+Particular attention should be paid to the "measure_cols" and the "analysis_list" variables . They are the most
+important part of the script. More (or less) "measure_cols" variables than those already declared may be needed, and it
+is advised that they are renamed to something more easily understandable for the project at hand.
+To add measures relevant to the project copy and paste the format of one of the already-declared measures in the
+"analysis_list" variable and substitute the values of the arguments.
 """
 from medpcpy import *
 
@@ -21,11 +23,12 @@ sheets = ["Measure1", "Measure2", "Measure3", "Measure4"]
 
 analysis_list = [
     # Measure 1
-    {"fetch": {"cell_row": 1,
-               "cell_column": 1,
-               "sheet": "Measure1",
-               "summary_column_dict": measure1_cols,
+    {"fetch": {"cell_row": 10,
+               "cell_column": 10,
+               "sheet": "Sheet_1",
+               "summary_distribution": measure1_cols,
                "offset": 0,
+               "write_rows": False,  # Optional
                }},
     # Measure 2
     {"count_resp": {"measures": 2,  # Optional argument. Default value: 1
@@ -35,10 +38,11 @@ analysis_list = [
                     "column": 2,
                     "header": "Generic_title",
                     "sheet": "Measure2",
-                    "summary_column_dict": measure2_cols,
+                    "summary_distribution": measure2_cols,
                     "subtract": True,  # Optional argument. Default value: False
                     "statistic": "mean",  # Alternative value: "median"
                     "offset": 0,
+                    "write_rows": False,  # Optional
                     }},
     # Measure 3
     {"total_count": {"measures": 2,  # Optional argument. Default value: 1
@@ -47,8 +51,9 @@ analysis_list = [
                      "column": 3,
                      "header": "Generic_title",
                      "sheet": "Measure3",
-                     "summary_column_dict": measure3_cols,
+                     "summary_distribution": measure3_cols,
                      "offset": 0,
+                     "write_rows": False,  # Optional
                      }},
     # Measure 4
     {"lat_count": {"measures": 2,  # Optional argument. Default value: 1
@@ -57,10 +62,11 @@ analysis_list = [
                    "column": 4,
                    "header": "Generic_title",
                    "sheet": "Measure4",
-                   "summary_column_dict": measure4_cols,
+                   "summary_distribution": measure4_cols,
                    "statistic": "mean",  # Alternative value: "median"
                    "offset": 0,
                    "unit": 20,  # Optional
+                   "write_rows": False,  # Optional
                    }},
     # Response distribution
     {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
@@ -70,6 +76,12 @@ analysis_list = [
                    "statistic": "median",  # Alternative value: "mean"
                    "unit": 20,  # Optional
                    }},
+    # Copy array
+    {"get_cols": {
+        "source": "A",
+        "column": 1,
+        "header": "Generic_header",
+    }},
 ]
 
 analyzer = Analyzer(fileName=file, temporaryDirectory=temp_directory, permanentDirectory=perm_directory,
