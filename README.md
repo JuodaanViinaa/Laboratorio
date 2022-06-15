@@ -327,7 +327,7 @@ The resulting summary file would have two sheets for each subject: one assigned 
 
 If the `"label"` argument is not declared then a single sheet per subject will be created in the summary file. If multiple response distributions are declared in the analysis list and the `"label"` argument is ommited in all of them, the distributions will overwrite one another and only the last declared distribution will prevail.
 
-This function includes the `"statistic"` argument to determine the measure of central tendency that will be written, and the `"unit"` argument to specify the temporal resolution declared in the MedPC setup.
+This function includes the `"statistic"` argument to determine whether a measure of central tendency (mean or median) or the sum of the values will be written, and the `"unit"` argument to specify the temporal resolution declared in the MedPC setup.
 
 #### Get_cols <a id="get-cols"></a>
 
