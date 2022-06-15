@@ -671,10 +671,12 @@ class Analyzer:
                         for i in range(len(superlist[0])):
                             for sublist in superlist:
                                 aggregated.append(sublist[i])
-                            if value.get("statistic", "mean") == "mean":
+                             if value.get("statistic", "mean") == "mean":
                                 means.append(mean(aggregated))
-                            else:
+                            elif value.get("statistic", "median") == "median":
                                 means.append(median(aggregated))
+                            else:
+                                means.append(sum(aggregated))
                             aggregated = []
 
                         # The central tendency measures are written on their corresponding sheet in the summary file.
