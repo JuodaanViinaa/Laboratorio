@@ -671,7 +671,7 @@ class Analyzer:
                         for i in range(len(superlist[0])):
                             for sublist in superlist:
                                 aggregated.append(sublist[i])
-                             if value.get("statistic", "mean") == "mean":
+                            if value.get("statistic", "mean") == "mean":
                                 means.append(mean(aggregated))
                             elif value.get("statistic", "median") == "median":
                                 means.append(median(aggregated))
