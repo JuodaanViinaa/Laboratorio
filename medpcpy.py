@@ -673,8 +673,10 @@ class Analyzer:
                                 aggregated.append(sublist[i])
                             if value.get("statistic", "mean") == "mean":
                                 means.append(mean(aggregated))
-                            else:
+                            elif value.get("statistic", "median") == "median":
                                 means.append(median(aggregated))
+                            else:
+                                means.append(sum(aggregated))
                             aggregated = []
 
                         # The central tendency measures are written on their corresponding sheet in the summary file.
